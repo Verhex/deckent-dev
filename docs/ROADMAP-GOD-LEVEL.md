@@ -4,8 +4,8 @@
 **Status:** CANONICAL — Sprint 149-200 anchor document
 **Vision:** OpenClaw'ın god-level üstün hali — developer-first + life-assistant dual platform
 **Brainstorming:** Alperen onayları 12+ karar, 5 paralel agent kod tabanı analizi
-**Last update:** 2026-04-21 (Sprint 150 kapanış + Hot Fix with Claude Subagents Session 1)
-**Next audit:** Sprint 151 Beta GA cutover sonrası revize
+**Last update:** 2026-05-06 (Sprint 153 partial — CI greening + Node 20 minimum + D batch + dogfood timeout finding)
+**Next audit:** Sprint 153 finalize sonrası — B (Nervous wire) + E (Ed25519 hub publish) + Telegram/Discord smoke (Pazar token gelince)
 
 ---
 
@@ -65,6 +65,63 @@ Deckent kırık haliyle Deckent'i tamir etme sonsuz döngü riskinden kaçınmak
 | MODE_PRESETS duplicate (`config.ts:84-105` vs `mode-presets.ts`) | H3 opsiyonel scope | T-151-NEW-H (opsiyonel) |
 | `src/orchestra/task-mode-runner.ts` bare `throw new Error` whitelist | Sprint 150 T-003 | T-151-NEW-D kapsamı |
 | `fix-of-fix` retry spawn ama execute edilmedi (max_fix_retries=1 limit) | Sprint 150 FIX phase | T-151-NEW-D-3 FIX context enrichment |
+
+---
+
+## ⚡ 2026-05-06 Session Kapanış — Sprint 152 + 152.5 + 153 Partial
+
+### Sprint 152 — Post-Migration Audit (2026-04-24, ~45 dk, 27 audit raporu)
+- 30 opus task, ~45 dk, **27 rapor** (`docs/audits/sprint-152/T-152-001..027.md` ~500KB)
+- Brain retro metrikleri yanıltıcı (8/36 DONE → aslında 27 DONE) — Brain rubric `verification-blind` bug canlı yakalandı (meta-dogfood)
+- 86 bulgu: 42 PASS + 18 DRIFT + 12 FAIL + 8 MISSING + 6 PARTIAL
+- Kapsam: doctor deep audit, CLI/MCP lifecycle + observational + nervous + resources, memory V2 integrity, 11 nervous detector, provider health, docker backend, dashboard, ADR compliance, tsc/vitest baseline, auto-memory loss impact, self-modifying detector, skills/agents routing, debt envanter, Beta GA gates, hotfix pattern, Phase 2 readiness
+
+### Sprint 152.5 — Hot Fix Day (2026-04-24, ~2 saat, Claude subagent pattern)
+4 Beta GA blocker fix (Sprint 150A pattern devamı — Deckent pipeline bypass):
+| Fix | Etki |
+|-----|------|
+| **HF1** Docker worker GLIBC 2.38 mismatch | `node:22-slim` → `node:24-trixie-slim` (glibc 2.41) — Memory V2 DB container'da 176 entry canlı |
+| **HF2** Brain verification task filter | `isVerificationTask` `filesChanged=[]` → `srcChanges=[]`. Audit task'lar artık DONE değerlendiriliyor |
+| **HF3** Rules silent catch | `rule-generator.ts` DB fail silent catch kaldırıldı — rules dosyaları korunur |
+| **HF4** MCP dry-run provider | `start.ts:bootstrapProviders(config)` — CLI/MCP parity |
+
+### Sprint 153 — CI Greening + Node 20 + D Batch + Dogfood (2026-05-05/06, ~6 saat)
+**Yapılan iş:**
+- **CI Greening** — `.npmrc:ignore-scripts=true` → `npx node-gyp rebuild --release` step (9 job). Workflow ilk tam yeşil.
+- **Vitepress fix** — blog YAML quote + srcExclude expansion (audits/, superpowers/, design/, governance/, sprint-log/, vision/)
+- **`orphan-cleaner-ipc` negative ageMs** — `Math.max(0, …)` 2 call site
+- **`archive-debt` test isolation** — mock `memory.db` false döndürüyor, dev DB state'inden bağımsız
+- **Node 18 drop + exhaustive purge** — `engines: ">=20.0.0"`, matrix `[20.x, 22.x, 24.x]`, 36 dosyada Node 18 izleri silindi (kod + test + script + doc + i18n + mock)
+- **D1 ADR-008** — `notify.ts` core → orchestra (5 caller + 2 test import güncellemesi). Layer 4 enforcement clean.
+- **D2 ADR-038** — `batch-stats.ts` + tests silindi (334 LoC, 0 consumer)
+- **D3 promotion-pipeline** — `temp-temp-` double-prefix bug fix (baseId normalize)
+- **D4 commander unknown subcmd** — exit 1 + help (CI false-pass riski kapandı)
+- **Coverage Report continue-on-error** — vitest worker timeout flakiness için
+- **Docker backend timeout result clarity** — `on_exit()` bash trap `.timeout` marker detect ediyor, "HIT WORKER_TIMEOUT — increase --timeout or split scope" hint hem `TIMEOUT_WITH_WORK` hem `NO_GO` notes'a ekleniyor
+
+**Meta-dogfood kanıtları (Sprint 153):**
+1. CI fix sırasında lokalde `node_modules/.bin/tsc` 0-byte zombie keşfedildi — `npm run lint` çalışıyor (npm internal resolution) ama `npx tsc` sessizce sıfır exit ediyor — local-only quirk, CI fresh install'da yok
+2. Sprint 152 audit 27/30 task DONE ama Brain `8/36 DONE 28 NO_GO` raporladı — verification-blind bug Sprint 152.5 HF2 ile fixlendi (canlı meta-dogfood)
+3. **Deckent Run Dogfood Timeout Bulgusu (yeni):** 3 paralel `deckent_run` audit task'ı (Node 18 cleanup verification) `docker_min_timeout=1200s` cap'ine takıldı. Workers infrastructure %100 sağlam çalıştı (3 docker container, heartbeat sequence düzenli, cleanup OK), ancak Claude CLI tüm src/+tests/+scripts/+.github/ taraması + grep + markdown rapor yazımını 20dk'ya sığdıramadı. Bu bulgu kendisi yeni bir Sprint 153 P1 debt: `deckent run`'a `--timeout-seconds` veya `--effort` parametresi.
+4. Timeout marker dosyası mevcut ama `.result` notes'unda fark edilmiyor → Sprint 153 docker-backend fix (yukarıda)
+
+### Sprint 153 Kalan İş (Yarına devam)
+- **B1+B2+B3 Nervous Observer wire** (~3 saat) — 1,300+ LoC dormant kod canlanır
+- **E Ed25519 keygen + 20 seed sign + install verify** (~2 saat) — Beta GA Gate #15
+- **A1+A2 Telegram/Discord smoke** — token Pazar bekleniyor
+- **`deckent run` timeout/effort param** — yeni P1 (dogfood'dan)
+- **Sprint 153 finalize + retro** (Brain `deckent retro` üretsin)
+
+### Beta GA Gate Durumu (2026-05-06)
+| Gate | Durum (Sprint 152.5 sonrası) | Sprint 153 etki |
+|------|------------------------------|-----------------|
+| #2 vitest pass rate | ✅ PASS (CI 716 test files yeşil) | Doğrulandı |
+| #4 27+ MCP tool | ✅ 30 tool | — |
+| #5 45+ CLI komut | ✅ 49 | — |
+| #11 Documentation sync | 🔄 Partial → ROADMAP+CHANGELOG güncellendi | İlerleme |
+| #13 Messaging trio smoke | 🟡 Token bekleniyor (Pazar) | A1+A2 deferred |
+| #15 DeckentHub 20 seed signed | 🟡 Ed25519 infra var, sign Sprint 153 E | Beklemede |
+| **CI Workflow Health** (yeni implicit gate) | ✅ İlk yeşil run weeks of red sonrası | Sprint 153 |
 
 ---
 

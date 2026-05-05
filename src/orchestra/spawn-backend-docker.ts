@@ -138,11 +138,18 @@ export class DockerSpawnBackend implements SpawnBackend {
       '    kill $HB_PID 2>/dev/null',
       '    return',
       '  fi',
-      // Non-zero exit: check git diff for partial work
+      // Sprint 153: Detect WORKER_TIMEOUT marker. The `timeout … || echo > marker`
+      // chain masks the timeout's exit code as 0, so we can't rely on $exit_code
+      // alone. The marker file is the canonical timeout signal — surface it in
+      // both result branches so debugging doesn't confuse "no work + exit 0"
+      // with "task did real work but ran out of clock."
+      '  local timeout_hit=""',
+      `  [ -f "${timeoutPath}" ] && timeout_hit=" — HIT WORKER_TIMEOUT (task exceeded its timeout budget; re-run with longer --timeout or split scope)"`,
+      // Non-zero exit OR timeout: check git diff for partial work
       `  cd "${CONTAINER_WORKSPACE}" 2>/dev/null || true`,
       '  local changed_files=""',
       '  changed_files=$(git diff --name-only 2>/dev/null || true)',
-      '  if [ -n "$changed_files" ] && [ "$exit_code" -ne 0 ]; then',
+      '  if [ -n "$changed_files" ] && { [ "$exit_code" -ne 0 ] || [ -n "$timeout_hit" ]; }; then',
       // Build JSON array from changed files using pure POSIX sh (no jq dependency)
       '    local json_array="["',
       '    local first=1',
@@ -167,7 +174,7 @@ export class DockerSpawnBackend implements SpawnBackend {
       '    local signal_info=""',
       '    [ "$exit_code" -gt 128 ] && signal_info=" signal=$((exit_code - 128))"',
       `    cat > "$RFILE" <<RESULTEOF`,
-      `{"taskId":"${taskId}","selfAssessment":"TIMEOUT_WITH_WORK","filesChanged":$json_array,"exitCode":$exit_code,"notes":"Worker timeout/killed (exitCode=$exit_code$signal_info) but git diff shows $count files modified. Brain should reconcile via Spurious NO_GO helper.","tokenUsage":{"inputTokens":0,"outputTokens":0,"cacheReadTokens":0,"provider":"claude","model":"${model}"}}`,
+      `{"taskId":"${taskId}","selfAssessment":"TIMEOUT_WITH_WORK","filesChanged":$json_array,"exitCode":$exit_code,"notes":"Worker timeout/killed (exitCode=$exit_code$signal_info)$timeout_hit but git diff shows $count files modified. Brain should reconcile via Spurious NO_GO helper.","tokenUsage":{"inputTokens":0,"outputTokens":0,"cacheReadTokens":0,"provider":"claude","model":"${model}"}}`,
       'RESULTEOF',
       '  else',
       // No partial work AND no result written — fall back to NO_GO
@@ -175,7 +182,7 @@ export class DockerSpawnBackend implements SpawnBackend {
       '    local signal_info_nw=""',
       '    [ "$exit_code" -gt 128 ] && signal_info_nw=" signal=$((exit_code - 128))"',
       `    cat > "$RFILE" <<NORESULTEOF`,
-      `{"taskId":"${taskId}","workerId":"docker-${taskId}","filesChanged":[],"linesAdded":0,"linesRemoved":0,"testsPassed":false,"coverage":0,"selfAssessment":"NO_GO","exitCode":$exit_code,"notes":"Worker exited without writing result (exitCode=$exit_code$signal_info_nw)","tokenUsage":{"inputTokens":0,"outputTokens":0,"cacheReadTokens":0,"provider":"claude","model":"${model}"}}`,
+      `{"taskId":"${taskId}","workerId":"docker-${taskId}","filesChanged":[],"linesAdded":0,"linesRemoved":0,"testsPassed":false,"coverage":0,"selfAssessment":"NO_GO","exitCode":$exit_code,"notes":"Worker exited without writing result (exitCode=$exit_code$signal_info_nw)$timeout_hit","tokenUsage":{"inputTokens":0,"outputTokens":0,"cacheReadTokens":0,"provider":"claude","model":"${model}"}}`,
       'NORESULTEOF',
       '  fi',
       '  fsync_file "$RFILE"',

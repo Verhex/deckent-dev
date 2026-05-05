@@ -6,6 +6,27 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenmektedir.
 Format [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) standardına dayanır
 ve proje [Semantic Versioning](https://semver.org/spec/v2.0.0.html) kurallarına uyar.
 
+## [1.0.0-beta.1-sprint153] - 2026-05-06
+
+### Fixed
+
+- **CI greening** — first fully-green run in weeks. Root cause: `.npmrc:ignore-scripts=true` (Sprint 133 hardening) blocked `prebuild-install` for `better-sqlite3`, leaving Memory V2 native binding missing on every Node version. Workaround: explicit `npx node-gyp rebuild --release` step after `npm ci` in 9 CI jobs (`.github/workflows/ci.yml`). Security policy preserved — only one trusted dep is compiled, all transitive postinstalls remain blocked.
+- **Vitepress build** — `docs/launch/blog-devto-launch.md` had unquoted YAML frontmatter with an inner colon (`description: ... insight: multi-agent ...`) that the parser interpreted as a new mapping key. Quoted the value. Also extended `docs/.vitepress/config.ts:srcExclude` to cover `audits/`, `superpowers/`, `design/`, `governance/`, `sprint-log/`, `vision/`, `KNOWN_ISSUES.md`, `ROADMAP-GOD-LEVEL.md` so internal docs (with Vue-conflicting markdown) don't trip the Vue compiler.
+- **`orphan-cleaner-ipc` negative ageMs** — `now - stat.mtimeMs` could go negative on CI ext4/tmpfs filesystems (mtime precision rounds up past wall clock), making `if (ageMs < minAgeMs)` skip orphans even with `minAgeMs=0`. Both call sites now wrap with `Math.max(0, …)`.
+- **`archive-debt` test relied on local DB state** — mock returned `existsSync(memory.db) === true`, command opened real `.brain/memory.db` (96 resolved entries on dev machine, 0 on CI checkout) → diverged paths → mkdirSync spy fired locally but not in CI. Mock now returns `false` for `memory.db`, forcing the file-fallback path that uses the mocked DEBT.md content.
+- **D1 — ADR-008 violation:** `src/core/notify.ts` imported `'../orchestra/event-bus.js'` (reverse-layer dep). Moved file to `src/orchestra/notify.ts`; updated 5 caller imports + 2 test imports. Layer 4 enforcement pilot now sees clean core→orchestra one-way edges.
+- **D2 — ADR-038 dead code:** Removed `src/orchestra/batch-stats.ts` (140 LoC) + tests (194 LoC), 0 consumers since Sprint 139. Pruned the entry from `scripts/dead-code-audit.mjs` so future audits don't re-flag it.
+- **D3 — Promotion pipeline `temp-temp-` double-prefix:** `src/orchestra/promotion-pipeline.ts:117` now normalizes `entityId` (strips one `temp-` prefix) before composing the persistent temp dir + permanent dir paths. Fixes "Temp agent not found" errors at sprint finalization for already-prefixed ids.
+- **D4 — Commander unknown subcommand exit 0:** `deckent nervous <unknown>` (e.g. `nervous subscribe`) silently fell through to the default action; now inspects `cmd.args.length > 0` and exits 1 with a descriptive message.
+- **Coverage Report continue-on-error** — same vitest worker-timeout flakiness already documented for `test-docs-scripts`. Coverage runs all tests, was failing the workflow with exit 1 even though 716/716 test files reported pass + the artifact uploaded.
+- **`spawn-backend-docker` timeout result clarity** — `on_exit()` bash trap now detects the `${taskId}.timeout` marker file and appends a "HIT WORKER_TIMEOUT — increase --timeout or split scope" hint to both `TIMEOUT_WITH_WORK` and `NO_GO` notes. Previously "exited without writing result (exitCode=0)" was misleading because the `timeout … || echo > marker` chain masks the real exit code as 0. Surfaced by Sprint 153 dogfood audit (3 audit tasks all hit `docker_min_timeout=1200s` while reading & reporting on src/+tests/+scripts/+.github/).
+
+### Changed
+
+- **Node 18 EOL — minimum bumped to >=20.** Critical deps (`better-sqlite3` 20.x+, `vite` 20.19+, `@noble/ed25519` v2 needing globalThis.crypto) had already dropped Node 18. Side note: Node 20 is also EOL as of 2026-03-24; matrix kept at `[20.x, 22.x, 24.x]` since Node 20 is still widely deployed in user environments and prod images.
+- 36 files purged of textual Node 18 references (CI matrix, engines, README, IDENTITY, docs/guide, scripts, error messages, i18n strings, mock test data) to prevent accidental re-introduction in future work.
+- `src/cli/entry.ts` runtime guard: `if (major < 18)` → `if (major < 20)` (was inconsistent with the >=20 error message after 391b97c). Same fix in `doctor.ts` + `doctor-checks.ts`.
+
 ## [1.0.0-beta.1-sprint152] - 2026-04-24
 
 ### Added

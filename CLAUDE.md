@@ -85,6 +85,10 @@ When acting as Worker: @.claude/rules/worker-default.md
 - **`deckent_start` fire-and-forget**: MCP stdio aynı process'te runSprint Promise event loop'u bloke edebilir. Long sprint için CLI `deckent start` tercih edilir.
 - **Scope enforcement**: Worker `scope.filesWrite` dışına yazamaz — `git diff --stat` Auditor tarafından izlenir, ADR-037 RBAC runtime enforcement.
 - **Sprint kill/cleanup**: Alperen onayı olmadan `deckent_kill`, `deckent_cleanup` (canlı sprint), `rm .tasks/*` YASAK (memory: feedback_deckent_kill_approval_required).
+- **Node minimum >=20** (Sprint 153, 2026-05-06): Node 18 EOL 2025-03-27, drop edildi. CI matrix `[20.x, 22.x, 24.x]`. `better-sqlite3` 12.9.0 zaten Node 18'de çalışmaz. `signature.ts` `globalThis.crypto` polyfill kaldırıldı (Node 19+ default).
+- **CI `npm ci` + native binding**: `.npmrc:ignore-scripts=true` (Sprint 133) `prebuild-install` çalıştırmaz → `better-sqlite3` binding eksik. Çözüm: her CI test job'ında `npm ci` sonrası `npx node-gyp rebuild --release` step'i (`.github/workflows/ci.yml`).
+- **Lokal `node_modules/.bin/tsc/vitest` 0-byte zombie**: `npm install` bin link bozulduğunda `npx tsc` ve `npx vitest` sessizce exit 0 verir, hiçbir iş yapmaz. `npm run lint/test/build` çalışır (npm internal resolution `node_modules/typescript/bin/tsc`'yi bulur). CI fresh install'da yok, sadece dev makine artifact'i.
+- **`deckent run` timeout cap**: `docker_min_timeout=1200s` (20 dk) audit/analiz task'ları için yetersiz olabilir. Geniş scope (src/+tests/+scripts/) + markdown rapor yazımı 20dk'yı aşar — task'ı parçala VEYA `--timeout-seconds` override (Sprint 153 P1 backlog).
 
 ## Live Status
 Canlı sprint, debt, agent performance ve ADR durumu için: `@.brain/exports/summary.md` (auto-generated her sprint sonu).

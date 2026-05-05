@@ -20,9 +20,9 @@ Features: **Memory V2 DB-First (SQLite FTS5, dual-layer i18n normalize, 96% cont
 ## Project Status
 | Metric | Value |
 |--------|-------|
-| Version | 0.4.0-beta.1 |
-| Sprint | sprint-145 |
-| MCP Tools | 23 |
+| Version | 1.0.0-beta.1 |
+| Sprint | sprint-153 (partial — CI greening + Node 20 + D batch) |
+| MCP Tools | 30 |
 | MCP Resources | 8 |
 | CLI Commands | 49+ |
 | Dashboard Pages | 6 |

@@ -1,13 +1,3 @@
-| 2026-04-24T12:16:30.229Z | planSprint:task-write | Writing 152-011: assignedAgent=doc-writer, assignedSkills=[testing-expert, code-reviewer] |
-| 2026-04-24T12:16:30.230Z | planSprint:task-write | Writing 152-012: assignedAgent=doc-writer, assignedSkills=[system-architect, code-reviewer] |
-| 2026-04-24T12:16:30.231Z | planSprint:task-write | Writing 152-013: assignedAgent=doc-writer, assignedSkills=[system-architect] |
-| 2026-04-24T12:16:30.232Z | planSprint:task-write | Writing 152-014: assignedAgent=doc-writer, assignedSkills=[devops-engineer, docker-expert] |
-| 2026-04-24T12:16:30.233Z | planSprint:task-write | Writing 152-015: assignedAgent=architect, assignedSkills=[react-specialist, frontend-design] |
-| 2026-04-24T12:16:30.234Z | planSprint:task-write | Writing 152-016: assignedAgent=doc-writer, assignedSkills=[system-architect, code-reviewer] |
-| 2026-04-24T12:16:30.234Z | planSprint:task-write | Writing 152-017: assignedAgent=doc-writer, assignedSkills=[typescript-expert, testing-expert] |
-| 2026-04-24T12:16:30.235Z | planSprint:task-write | Writing 152-018: assignedAgent=doc-writer, assignedSkills=[documentation-writer, system-architect] |
-| 2026-04-24T12:16:30.236Z | planSprint:task-write | Writing 152-019: assignedAgent=architect, assignedSkills=[security-specialist, system-architect] |
-| 2026-04-24T12:16:30.237Z | planSprint:task-write | Writing 152-020: assignedAgent=temp-react-ts-specialist, assignedSkills=[security-specialist, code-reviewer] |
 | 2026-04-24T12:16:30.238Z | planSprint:task-write | Writing 152-021: assignedAgent=doc-writer, assignedSkills=[system-architect, code-reviewer] |
 | 2026-04-24T12:16:30.238Z | planSprint:task-write | Writing 152-022: assignedAgent=doc-writer, assignedSkills=[documentation-writer, system-architect] |
 | 2026-04-24T12:16:30.239Z | planSprint:task-write | Writing 152-023: assignedAgent=doc-writer, assignedSkills=[system-architect, documentation-writer] |
@@ -598,3 +588,13 @@
 | 2026-04-24T13:01:45.516Z | postFinalizeHooks:ruleRegen | Rule regeneration hook called |
 | 2026-04-24T13:01:45.517Z | finalizeSprint:postFinalizeHooks | memExport=4 identity=updated ruleRegen=true errors=0 |
 | 2026-04-24T13:01:45.517Z | [Brain] | Cleanup delayed 180000ms — .tasks/ files remain readable |
+| 2026-05-05T22:41:25.572Z | readJsonSafeAsync | ENOENT: no such file or directory, open '/home/alperen/.deckent/config.json' |
+| 2026-05-05T22:41:25.751Z | docker-backend:spawn | taskId=run-run-mot7q7n2 container=deckent-w-run-run-mot7q7n2 model=sonnet |
+| 2026-05-05T22:41:26.160Z | docker-backend:spawn-ok | taskId=run-run-mot7q7n2 containerId=b0129459f514 |
+| 2026-05-05T22:41:26.293Z | docker-backend:spawn | taskId=run-run-mot7q84a container=deckent-w-run-run-mot7q84a model=sonnet |
+| 2026-05-05T22:41:26.649Z | docker-backend:spawn-ok | taskId=run-run-mot7q84a containerId=05d582808c77 |
+| 2026-05-05T22:41:26.778Z | docker-backend:spawn | taskId=run-run-mot7q8ht container=deckent-w-run-run-mot7q8ht model=sonnet |
+| 2026-05-05T22:41:27.135Z | docker-backend:spawn-ok | taskId=run-run-mot7q8ht containerId=62ff85bdf58f |
+| 2026-05-05T23:01:26.664Z | docker-backend:exit | taskId=run-run-mot7q7n2 exitCode=0 |
+| 2026-05-05T23:01:27.075Z | docker-backend:exit | taskId=run-run-mot7q84a exitCode=0 |
+| 2026-05-05T23:01:27.542Z | docker-backend:exit | taskId=run-run-mot7q8ht exitCode=0 |
