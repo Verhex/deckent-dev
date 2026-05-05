@@ -16,7 +16,7 @@ function makeDoctorResult(checks: Array<{ name: string; passed: boolean; message
 describe('doctor UX — traffic light colors', () => {
   it('uses green [PASS] for passing checks', () => {
     const result = makeDoctorResult([
-      { name: 'Node.js', passed: true, message: 'v20.0.0 (>=18 required)', required: true },
+      { name: 'Node.js', passed: true, message: 'v20.0.0 (>=20 required)', required: true },
     ]);
     const output = formatDoctorResult(result);
     expect(output).toContain('[PASS]');
@@ -85,10 +85,10 @@ describe('doctor UX — error messages', () => {
 
   it('node version failure message includes upgrade suggestion', () => {
     const result = makeDoctorResult([
-      { name: 'Node.js', passed: false, message: 'v16.0.0 found but >=18 required -- Upgrade Node.js to >=18', required: true },
+      { name: 'Node.js', passed: false, message: 'v16.0.0 found but >=20 required -- Upgrade Node.js to >=20', required: true },
     ]);
     const output = formatDoctorResult(result);
-    expect(output).toContain('>=18');
+    expect(output).toContain('>=20');
   });
 
   it('multiple checks are all listed', () => {

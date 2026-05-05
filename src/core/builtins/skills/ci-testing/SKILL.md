@@ -120,7 +120,7 @@ import { foo } from './foo.js';
 ```yaml
 strategy:
   matrix:
-    node: [18, 20, 22]
+    node: [20, 22, 24]
   fail-fast: false  # See all failures, not just first
 ```
 

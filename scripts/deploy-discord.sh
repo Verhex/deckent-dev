@@ -90,9 +90,9 @@ if command -v node &>/dev/null; then
   NODE_VER=$(node --version)
   NODE_MAJOR=$(echo "$NODE_VER" | sed 's/v\([0-9]*\).*/\1/')
   if [[ "$NODE_MAJOR" -ge 18 ]]; then
-    log_ok "Node.js $NODE_VER (>= 18 gerekli)"
+    log_ok "Node.js $NODE_VER (>= 20 gerekli)"
   else
-    log_error "Node.js >= 18 gerekli, mevcut: $NODE_VER"
+    log_error "Node.js >= 20 gerekli, mevcut: $NODE_VER"
     PREREQ_FAIL=1
   fi
 else

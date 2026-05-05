@@ -114,7 +114,7 @@ describe('MCP Tool: deckent_doctor', () => {
       expect(parsed.checks.length).toBeGreaterThan(0);
     });
 
-    it('reports node check passing when version >= 18', async () => {
+    it('reports node check passing when version >= 20', async () => {
       const { registerDoctorTool } = await import('../../../src/mcp/tools/doctor.js');
       const mock = createMockServer();
       registerDoctorTool(mock as unknown as McpServer);

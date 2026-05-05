@@ -168,7 +168,7 @@ describe('formatDoctorResult', () => {
     const result: DoctorResult = {
       ok: true,
       checks: [
-        { name: 'Node.js', passed: true, message: 'v22.0.0 (>=18 required)', required: true },
+        { name: 'Node.js', passed: true, message: 'v22.0.0 (>=20 required)', required: true },
       ],
     };
     const output = formatDoctorResult(result);

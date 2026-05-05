@@ -169,7 +169,7 @@ describe('validatePackageJson', () => {
       version: '0.2.0-beta.1',
       bin: { deckent: './dist/cli/entry.js' },
       files: ['dist', 'README.md', 'LICENSE'],
-      engines: { node: '>=18.0.0' },
+      engines: { node: '>=20.0.0' },
       homepage: 'https://deckent.agency',
       license: 'MIT',
     });
@@ -308,7 +308,7 @@ describe('validateInitStructure', () => {
 describe('validateDoctorOutput', () => {
   it('passes when output contains health check results', () => {
     const output = `
-  node_version   v20.11.0 (>=18 required)     [pass]
+  node_version   v20.11.0 (>=20 required)     [pass]
   git            git 2.43.0                    [pass]
   tmux           tmux 3.3a                     [pass]
 `;

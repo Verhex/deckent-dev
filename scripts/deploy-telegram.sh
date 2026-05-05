@@ -13,7 +13,7 @@
 #
 # Gereksinimler:
 #   - curl
-#   - Node.js >= 18
+#   - Node.js >= 20
 #   - .deck dosyasında TELEGRAM_TOKEN tanımlı
 # =============================================================================
 

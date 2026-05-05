@@ -46,7 +46,7 @@ describe('CI Workflow (.github/workflows/ci.yml)', () => {
 
   describe('Test Jobs', () => {
     it('should test across multiple Node.js versions', () => {
-      expect(workflowContent).toContain('[18.x, 20.x, 22.x]')
+      expect(workflowContent).toContain('[20.x, 22.x, 24.x]')
     })
 
     it('should depend on typecheck', () => {

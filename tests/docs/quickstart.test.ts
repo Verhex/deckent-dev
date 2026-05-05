@@ -14,7 +14,7 @@ describe('docs/guide/quickstart.md', () => {
   it('contains Prerequisites section', () => {
     expect(content).toContain('## 1. Prerequisites');
     expect(content).toContain('Node.js');
-    expect(content).toContain('>= 18');
+    expect(content).toContain('>= 20');
     expect(content).toContain('git');
   });
 

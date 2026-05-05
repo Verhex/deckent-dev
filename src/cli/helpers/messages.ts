@@ -301,8 +301,8 @@ const MESSAGES: MessageMap = {
     tr: 'git bulunamadi. deckent kullanmak icin git kurun.',
   },
   'error.node_version_low': {
-    en: 'Node.js version too low. Upgrade to >=18.',
-    tr: 'Node.js surumu cok dusuk. >=18 surumune yukselin.',
+    en: 'Node.js version too low. Upgrade to >=20.',
+    tr: 'Node.js surumu cok dusuk. >=20 surumune yukselin.',
   },
 };
 

@@ -97,7 +97,7 @@ Deckent is an AI agent orchestration CLI that coordinates multiple AI agents (Cl
 ## Getting Started
 
 ### Prerequisites
-- Node.js >= 18
+- Node.js >= 20
 - git
 - At least one AI provider configured:
   - **Claude**: `claude` CLI installed and authenticated

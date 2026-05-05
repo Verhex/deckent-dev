@@ -38,7 +38,7 @@ const VALID_PACKAGE_JSON = JSON.stringify({
     deckent: './dist/cli/index.js',
     'deckent-mcp': './dist/mcp/server.js',
   },
-  engines: { node: '>=18.0.0' },
+  engines: { node: '>=20.0.0' },
   files: ['dist', 'bin', 'README.md', 'LICENSE'],
 });
 

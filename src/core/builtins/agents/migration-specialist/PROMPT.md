@@ -92,7 +92,7 @@ When upgrading, document compatibility:
 
 | Component | Current | Target | Compatible | Notes |
 |-----------|---------|--------|------------|-------|
-| Node.js | 18.x | 20.x | Yes | Check native addon compat |
+| Node.js | 20.x | 22.x | Yes | Check native addon compat |
 | TypeScript | 5.3 | 5.5 | Partial | New `isolatedDeclarations` check |
 | React | 18 | 19 | Breaking | useContext behavior changed |
 

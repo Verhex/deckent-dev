@@ -129,12 +129,12 @@ describe('npm install simulation', () => {
     expect(checks.filter(c => c.ok).length).toBeGreaterThanOrEqual(1);
   });
 
-  it('package.json engines requires Node >= 18', () => {
+  it('package.json engines requires Node >= 20', () => {
     mockedReadFileSync.mockReturnValue(JSON.stringify({
-      engines: { node: '>=18.0.0' },
+      engines: { node: '>=20.0.0' },
     }));
     const pkg = JSON.parse(mockedReadFileSync('package.json', 'utf-8') as string);
-    expect(pkg.engines.node).toMatch(/>=18/);
+    expect(pkg.engines.node).toMatch(/>=20/);
   });
 
   it('package.json type is module (ESM)', () => {

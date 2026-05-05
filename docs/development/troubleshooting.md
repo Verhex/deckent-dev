@@ -38,11 +38,11 @@ source ~/.bashrc
 
 ---
 
-### 1.2 Node.js version too old — `deckent doctor` fails with "Node.js: v16.x (>=18 required)"
+### 1.2 Node.js version too old — `deckent doctor` fails with "Node.js: v16.x (>=20 required)"
 
 **Symptom:**
 ```
-✗ Node.js  v16.x.x (>=18 required)
+✗ Node.js  v16.x.x (>=20 required)
 ```
 
 **Cause:** Deckent requires Node.js ≥ 18 for `structuredClone`, `node:readline/promises`, and ESM support.
@@ -58,7 +58,7 @@ curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
 # Verify
-node --version  # should be v22.x or >=v18.x
+node --version  # should be v22.x or >=v20.x
 ```
 
 ---
@@ -141,7 +141,7 @@ which claude
 
 **Symptom:**
 ```
-Pre-flight failed: Node.js: v16.x (>=18 required); tmux: not found
+Pre-flight failed: Node.js: v16.x (>=20 required); tmux: not found
 Use --force to skip pre-flight checks.
 ```
 

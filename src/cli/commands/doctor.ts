@@ -86,23 +86,23 @@ function checkNode(): DoctorCheck {
   const result = spawnSync('node', ['--version'], { encoding: 'utf-8' });
   if (result.status !== 0) {
     const entry = ErrorRegistry.get('DECKENT_E010');
-    return { name: 'Node.js', passed: false, message: `not found — ${entry?.suggestion ?? 'Install Node.js >=18'}`, required: true };
+    return { name: 'Node.js', passed: false, message: `not found — ${entry?.suggestion ?? 'Install Node.js >=20'}`, required: true };
   }
   const version = result.stdout.trim();
   const major = parseInt(version.replace('v', '').split('.')[0] ?? '0', 10);
-  if (major < 18) {
+  if (major < 20) {
     const entry = ErrorRegistry.get('DECKENT_E010');
     return {
       name: 'Node.js',
       passed: false,
-      message: `${version} found but >=18 required — ${entry?.suggestion ?? 'Upgrade Node.js'}`,
+      message: `${version} found but >=20 required — ${entry?.suggestion ?? 'Upgrade Node.js'}`,
       required: true,
     };
   }
   return {
     name: 'Node.js',
     passed: true,
-    message: `${version} (>=18 required)`,
+    message: `${version} (>=20 required)`,
     required: true,
   };
 }

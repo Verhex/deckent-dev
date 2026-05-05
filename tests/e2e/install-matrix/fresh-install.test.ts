@@ -1,8 +1,8 @@
 /**
- * E2E Test: Fresh Install Matrix — Node 18/20/22 × Clean Env
+ * E2E Test: Fresh Install Matrix — Node 20/22/24 × Clean Env
  *
  * Validates that deckent installs, builds, and runs correctly across
- * Node.js 18, 20, and 22. Uses programmatic imports to simulate
+ * Node.js 20, 22, and 24. Uses programmatic imports to simulate
  * the fresh install experience without requiring Docker in CI.
  *
  * For actual Docker-based multi-version testing, use:
@@ -88,7 +88,7 @@ function simulateInit(root: string): void {
 
 // ─── Node Version Matrix ─────────────────────────────────────────────
 
-const NODE_VERSIONS = [18, 20, 22] as const;
+const NODE_VERSIONS = [20, 22, 24] as const;
 
 function getNodeMajorVersion(): number {
   return parseInt(process.version.slice(1).split('.')[0], 10);
@@ -96,7 +96,7 @@ function getNodeMajorVersion(): number {
 
 // ─── Tests ───────────────────────────────────────────────────────────
 
-describe('Fresh Install Matrix — Node 18/20/22', () => {
+describe('Fresh Install Matrix — Node 20/22/24', () => {
   let projectDir: string;
 
   beforeEach(() => {
@@ -177,10 +177,10 @@ describe('Fresh Install Matrix — Node 18/20/22', () => {
       expect(pkg.name).toBe('deckent');
       expect(pkg.type).toBe('module');
 
-      // Verify engines field supports Node 18+
+      // Verify engines field supports Node 20+
       const engines = pkg.engines;
       if (engines?.node) {
-        // Parse ">=18.0.0" → extract first number sequence
+        // Parse ">=20.0.0" → extract first number sequence
         const match = engines.node.match(/(\d+)/);
         const minVersion = match ? parseInt(match[1], 10) : 0;
         expect(minVersion).toBeLessThanOrEqual(18);
@@ -188,7 +188,7 @@ describe('Fresh Install Matrix — Node 18/20/22', () => {
 
       // Verify no known problematic peer dependencies
       const deps = { ...pkg.dependencies, ...pkg.devDependencies };
-      // better-sqlite3 requires node-gyp — valid for Node 18+
+      // better-sqlite3 requires node-gyp — valid for Node 20+
       expect(deps['better-sqlite3']).toBeDefined();
 
       // Verify package-lock.json exists (required for npm ci)

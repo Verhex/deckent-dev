@@ -14,7 +14,7 @@ vi.mock('node:fs', () => ({
 vi.mock('../../src/cli/commands/doctor.js', () => ({
   runDoctorChecks: vi.fn(() => ({
     ok: true,
-    checks: [{ name: 'Node', passed: true, message: 'v18.0.0', required: true }],
+    checks: [{ name: 'Node', passed: true, message: 'v20.0.0', required: true }],
   })),
 }));
 

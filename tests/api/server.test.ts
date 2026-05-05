@@ -13,7 +13,7 @@ vi.mock('node:fs', () => ({
 vi.mock('../../src/cli/commands/doctor.js', () => ({
   runDoctorChecks: vi.fn(() => ({
     ok: true,
-    checks: [{ name: 'Node', passed: true, message: 'v18.0.0', required: true }],
+    checks: [{ name: 'Node', passed: true, message: 'v20.0.0', required: true }],
   })),
 }));
 
@@ -1350,7 +1350,7 @@ describe('createHttpServer', () => {
       mockRunDoctorChecks.mockReturnValue({
         ok: true,
         checks: [
-          { name: 'Node', passed: true, message: 'v18.0.0', required: true },
+          { name: 'Node', passed: true, message: 'v20.0.0', required: true },
           { name: 'Config', passed: true, message: 'valid', required: false },
         ],
       });
@@ -1369,7 +1369,7 @@ describe('createHttpServer', () => {
       mockRunDoctorChecks.mockReturnValue({
         ok: false,
         checks: [
-          { name: 'Node', passed: true, message: 'v18.0.0', required: true },
+          { name: 'Node', passed: true, message: 'v20.0.0', required: true },
           { name: 'Config', passed: false, message: 'config.json missing', required: false },
         ],
       });

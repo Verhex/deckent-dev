@@ -136,9 +136,9 @@ registry.set('DECKENT_E009', {
 
 registry.set('DECKENT_E010', {
   message: 'node version too low',
-  suggestion: 'Upgrade Node.js to >=18',
+  suggestion: 'Upgrade Node.js to >=20',
   whatHappened: 'Your Node.js version is below the minimum requirement.',
-  why: 'Deckent requires Node.js 18 or higher for ESM support and modern APIs.',
+  why: 'Deckent requires Node.js 20 or higher for ESM support and modern APIs.',
   howToFix: [
     'Upgrade Node.js to version 18 or higher',
     'Use nvm: nvm install 18 && nvm use 18',

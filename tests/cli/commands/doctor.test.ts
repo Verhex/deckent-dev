@@ -310,7 +310,7 @@ describe('runDoctorChecks', () => {
     expect(result.ok).toBe(false);
   });
 
-  it('marks node check failed for Node <18', () => {
+  it('marks node check failed for Node <20', () => {
     vi.mocked(spawnSync).mockImplementation((cmd: string) => {
       if (cmd === 'node') return makeSpawnResult(0, 'v16.0.0') as ReturnType<typeof spawnSync>;
       return makeSpawnResult(0, 'v22.0.0') as ReturnType<typeof spawnSync>;
@@ -840,7 +840,7 @@ describe('formatHumanDoctor', () => {
       ok: true,
       checks: [
         makeCheck('Platform', true, 'Linux (fully supported)'),
-        makeCheck('Node.js', true, 'v22.1.0 (>=18 required)', true),
+        makeCheck('Node.js', true, 'v22.1.0 (>=20 required)', true),
         makeCheck('git', true, 'v2.43.0', true),
         makeCheck('tmux', true, 'tmux 3.4', true),
         makeCheck('Claude CLI', true, 'v2.1', true),
@@ -1275,7 +1275,7 @@ describe('formatHumanDoctor enhancements', () => {
       ok: true,
       checks: [
         makeCheck('Platform', true, 'Linux (fully supported)'),
-        makeCheck('Node.js', true, 'v22.1.0 (>=18 required)', true),
+        makeCheck('Node.js', true, 'v22.1.0 (>=20 required)', true),
         makeCheck('git', true, 'v2.43.0', true),
         makeCheck('tmux', true, 'tmux 3.4', true),
         makeCheck('Claude CLI', true, 'v2.1', true),

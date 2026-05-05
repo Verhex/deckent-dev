@@ -32,9 +32,9 @@ describe('bin entry — package.json validation', () => {
     expect(pkg['type']).toBe('module');
   });
 
-  it('engines.node is >= 18 (matches entry.ts runtime guard)', () => {
+  it('engines.node is >= 20 (matches entry.ts runtime guard)', () => {
     const engines = pkg['engines'] as Record<string, string>;
-    expect(engines['node']).toMatch(/^>=\s*18/);
+    expect(engines['node']).toMatch(/^>=\s*20/);
   });
 
   it('files array contains dist so bin target is published', () => {
@@ -77,8 +77,8 @@ describe('bin entry — src/cli/entry.ts source validation', () => {
     expect(source).toContain("'SIGTERM'");
   });
 
-  it('has Node version guard requiring >= 18', () => {
-    expect(source).toContain('< 18');
+  it('has Node version guard requiring >= 20', () => {
+    expect(source).toContain('< 20');
   });
 
   it('imports handleCliError from helpers/process', () => {

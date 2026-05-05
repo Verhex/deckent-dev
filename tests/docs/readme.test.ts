@@ -82,7 +82,7 @@ describe('README.md', () => {
   it('contains Requirements section', () => {
     expect(content).toContain('## Requirements');
     expect(content).toContain('Node.js');
-    expect(content).toContain('>= 18');
+    expect(content).toContain('>= 20');
     expect(content).toContain('git');
     expect(content).toContain('Claude Code CLI');
   });
