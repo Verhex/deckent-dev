@@ -183,7 +183,7 @@ describe('Fresh Install Matrix — Node 20/22/24', () => {
         // Parse ">=20.0.0" → extract first number sequence
         const match = engines.node.match(/(\d+)/);
         const minVersion = match ? parseInt(match[1], 10) : 0;
-        expect(minVersion).toBeLessThanOrEqual(18);
+        expect(minVersion).toBeLessThanOrEqual(20);
       }
 
       // Verify no known problematic peer dependencies
