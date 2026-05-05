@@ -7,6 +7,13 @@ import { sha512 } from '@noble/hashes/sha512';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
+import { webcrypto } from 'node:crypto';
+
+// Node 18 compat: @noble/ed25519 v2 calls crypto.getRandomValues globally,
+// but globalThis.crypto only ships by default from Node 19+. Polyfill once.
+if (!globalThis.crypto) {
+  (globalThis as unknown as { crypto: typeof webcrypto }).crypto = webcrypto;
+}
 
 // Wire sha512 into ed25519 (required by @noble/ed25519 v2)
 ed.etc.sha512Sync = (...m: Uint8Array[]) => sha512(ed.etc.concatBytes(...m));

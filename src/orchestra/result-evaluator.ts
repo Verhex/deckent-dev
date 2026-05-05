@@ -493,6 +493,12 @@ export interface ResultSchemaValidation {
   reason: string;
 }
 
+/**
+ * Validate that a TaskResult has the minimum required fields for evaluation.
+ * Returns `valid: false` with a list of missing fields when the worker omitted
+ * coverage, filesChanged, or selfAssessment — used by the EVALUATE phase to
+ * downgrade results that cannot be scored to NO_GO with a clear reason.
+ */
 export function validateResultSchema(result: TaskResult): ResultSchemaValidation {
   const missingFields: string[] = [];
 
