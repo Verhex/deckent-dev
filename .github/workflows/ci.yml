@@ -47,6 +47,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: npm
       - run: npm ci
+      - name: Build native modules (better-sqlite3)
+        run: cd node_modules/better-sqlite3 && npx node-gyp rebuild --release
       - name: Run core tests
         run: npx vitest run tests/core/ tests/agents/
         timeout-minutes: 5
@@ -65,6 +67,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: npm
       - run: npm ci
+      - name: Build native modules (better-sqlite3)
+        run: cd node_modules/better-sqlite3 && npx node-gyp rebuild --release
       - name: Run orchestra tests
         # Orchestra suite is large (~118 test files) — historical OOM on default
         # 2GB heap. Bumped to 8GB + forks pool (isolated workers, no shared state).
@@ -88,6 +92,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: npm
       - run: npm ci
+      - name: Build native modules (better-sqlite3)
+        run: cd node_modules/better-sqlite3 && npx node-gyp rebuild --release
       - name: Run CLI tests
         run: npx vitest run tests/cli/
         timeout-minutes: 10
@@ -106,6 +112,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: npm
       - run: npm ci
+      - name: Build native modules (better-sqlite3)
+        run: cd node_modules/better-sqlite3 && npx node-gyp rebuild --release
       - name: Run remaining tests
         run: npx vitest run tests/mcp/ tests/api/ tests/integration/ tests/security/ tests/providers/ tests/monitor/ tests/skills/ tests/analytics/ tests/github/
         timeout-minutes: 10
@@ -125,6 +133,8 @@ jobs:
           node-version: '22.x'
           cache: npm
       - run: npm ci
+      - name: Build native modules (better-sqlite3)
+        run: cd node_modules/better-sqlite3 && npx node-gyp rebuild --release
       - name: Run docs and scripts tests
         run: npx vitest run tests/docs/ tests/scripts/ --pool=forks
         timeout-minutes: 5
@@ -140,6 +150,8 @@ jobs:
           node-version: '22.x'
           cache: npm
       - run: npm ci
+      - name: Build native modules (better-sqlite3)
+        run: cd node_modules/better-sqlite3 && npx node-gyp rebuild --release
       - name: Install dashboard dependencies
         run: npm install --prefix src/dashboard --ignore-scripts 2>/dev/null || true
       - name: Run dashboard tests
@@ -159,6 +171,8 @@ jobs:
           node-version: '22.x'
           cache: npm
       - run: npm ci
+      - name: Build native modules (better-sqlite3)
+        run: cd node_modules/better-sqlite3 && npx node-gyp rebuild --release
       - name: Run core tests (Windows informational)
         run: npx vitest run tests/core/ tests/agents/
         timeout-minutes: 10
@@ -175,6 +189,8 @@ jobs:
           node-version: '22.x'
           cache: npm
       - run: npm ci
+      - name: Build native modules (better-sqlite3)
+        run: cd node_modules/better-sqlite3 && npx node-gyp rebuild --release
       - name: Run tests with coverage
         run: npm run test:coverage
         timeout-minutes: 20
@@ -196,6 +212,8 @@ jobs:
           node-version: '22.x'
           cache: npm
       - run: npm ci
+      - name: Build native modules (better-sqlite3)
+        run: cd node_modules/better-sqlite3 && npx node-gyp rebuild --release
       - name: Install dashboard dependencies
         run: npm install --prefix src/dashboard --ignore-scripts 2>/dev/null || true
       - run: npm run build
