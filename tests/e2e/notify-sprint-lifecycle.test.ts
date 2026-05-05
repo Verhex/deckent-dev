@@ -24,7 +24,7 @@ import {
   setGlobalNotifyDispatcher,
   clearGlobalNotifyDispatcher,
 } from '../../src/core/notify-registry.js';
-import { notify } from '../../src/core/notify.js';
+import { notify } from '../../src/orchestra/notify.js';
 import { eventBus } from '../../src/orchestra/event-bus.js';
 
 // ─── Test Helpers ──────────────────────────────────────────────────────────

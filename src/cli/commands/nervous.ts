@@ -427,7 +427,15 @@ export function registerNervous(program: Command): void {
     .description('Nervous System dashboard — monitor, accept, reject proactive suggestions');
 
   // Default action: show dashboard
-  nervousCmd.action(() => {
+  // Commander treats `deckent nervous <unknown>` as the parent command + a
+  // positional arg, so without this guard `nervous subscribe` would silently
+  // fall through to showDashboard with exit 0 — masking typos in scripts/CI.
+  nervousCmd.action((_options: unknown, cmd: Command) => {
+    if (cmd.args.length > 0) {
+      process.stderr.write(`error: unknown command 'nervous ${cmd.args[0]}'\n`);
+      cmd.outputHelp({ error: true });
+      process.exit(1);
+    }
     const root = resolveProjectRoot();
     showDashboard(root);
   });

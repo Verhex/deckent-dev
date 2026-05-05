@@ -8,7 +8,7 @@
 // - nervous bridge fires notify()
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { notify } from '../../src/core/notify.js';
+import { notify } from '../../src/orchestra/notify.js';
 import {
   NotifyDispatcher,
   createNotification,

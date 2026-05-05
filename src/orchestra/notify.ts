@@ -14,14 +14,14 @@
 // Usage:
 //   await notify('sprint-started', sprintId, 'Sprint başladı', '18 task planlandı');
 
-import { eventBus } from '../orchestra/event-bus.js';
+import { eventBus } from './event-bus.js';
 import {
   createNotification,
   toEventPayload,
   type NotificationEventName,
-} from './notification-dispatcher.js';
-import { getGlobalNotifyDispatcher } from './notify-registry.js';
-import { debugLog } from './utils.js';
+} from '../core/notification-dispatcher.js';
+import { getGlobalNotifyDispatcher } from '../core/notify-registry.js';
+import { debugLog } from '../core/utils.js';
 
 // ─── Public API ─────────────────────────────────────────────────
 

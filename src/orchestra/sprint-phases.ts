@@ -36,7 +36,7 @@ import type { ProviderAdapter } from '../core/provider.js';
 import type { SpawnBackend } from './spawn-backend.js';
 
 // ─── Notify (DECKENT→USER:NOTIFY — Hot Fix H6) ──────────────────
-import { notify } from '../core/notify.js';
+import { notify } from './notify.js';
 
 // ─── Rollback ─────────────────────────────────────────────────────
 import type { SafetyPoint } from './rollback.js';

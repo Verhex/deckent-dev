@@ -32,7 +32,7 @@ import {
 import { readJsonSafe, debugLog } from '../core/utils.js';
 
 // ─── Notify (DECKENT→USER:NOTIFY — Hot Fix H6) ────────────────────
-import { notify } from '../core/notify.js';
+import { notify } from './notify.js';
 
 // ─── Sprint Utilities ─────────────────────────────────────────────
 import {

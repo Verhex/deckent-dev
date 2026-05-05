@@ -95,7 +95,7 @@ import type { PostFinalizeHookResult } from '../core/identity-generator.js';
 import { createPreArchiveSnapshot, classifyTaskFiles } from './task-restoration.js';
 
 // ─── Notify (DECKENT→USER:NOTIFY — Hot Fix H6) ────────────────────
-import { notify } from '../core/notify.js';
+import { notify } from './notify.js';
 
 
 // ═══ Types ════════════════════════════════════════════════════════

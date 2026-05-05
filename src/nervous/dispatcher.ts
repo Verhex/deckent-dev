@@ -16,7 +16,7 @@ import { join, dirname } from 'node:path';
 import { assertBrainScope } from './runtime-scope-check.js';
 
 // ─── Notify Bridge (DECKENT→USER:NOTIFY — Hot Fix H6) ───────────
-import { notify } from '../core/notify.js';
+import { notify } from '../orchestra/notify.js';
 import type { NotificationEventName } from '../core/notification-dispatcher.js';
 
 // ─── Channel Type ───────────────────────────────────────────────────────────

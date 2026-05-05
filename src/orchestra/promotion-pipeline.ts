@@ -114,8 +114,13 @@ export class PromotionPipeline {
 
       // For agents, also check persistent temp pool (.deckent/agents/temp-{id}/)
       if (entityType === 'agent') {
-        const persistentTempDir = join(this.projectRoot, '.deckent', 'agents', `temp-${entityId}`);
-        const permDir = join(this.projectRoot, '.deckent', 'agents', entityId);
+        // Callers may pass either the bare id ('react-ts-specialist') or the
+        // already-prefixed id ('temp-react-ts-specialist'); normalize so the
+        // temp dir doesn't become 'temp-temp-...' and the perm copy lands
+        // without the legacy prefix.
+        const baseId = entityId.startsWith('temp-') ? entityId.slice('temp-'.length) : entityId;
+        const persistentTempDir = join(this.projectRoot, '.deckent', 'agents', `temp-${baseId}`);
+        const permDir = join(this.projectRoot, '.deckent', 'agents', baseId);
 
         if (existsSync(persistentTempDir)) {
           // Read, update source, write to new location
@@ -127,11 +132,11 @@ export class PromotionPipeline {
             try {
               const raw = JSON.parse(readFileSync(join(permDir, 'agent.json'), 'utf-8'));
               raw.source = 'user';
-              raw.id = entityId;
+              raw.id = baseId;
               raw._promotedAt = new Date().toISOString();
               writeFileSync(join(permDir, 'agent.json'), JSON.stringify(raw, null, 2), 'utf-8');
             } catch { /* non-fatal — manifest update failed */ }
-            debugLog('promotion-pipeline:promote', `agent '${entityId}' promoted from persistent temp pool`);
+            debugLog('promotion-pipeline:promote', `agent '${baseId}' promoted from persistent temp pool`);
             return true;
           }
         }

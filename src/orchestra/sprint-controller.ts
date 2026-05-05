@@ -82,7 +82,7 @@ import { writePhaseCheckpoint } from './sprint-checkpoint.js';
 import { eventBus } from './event-bus.js';
 
 // ─── Notify (DECKENT→USER:NOTIFY wire — Hot Fix H6) ─────────────
-import { notify } from '../core/notify.js';
+import { notify } from './notify.js';
 
 // ─── Panic Guard ─────────────────────────────────────────────────
 import { PanicGuard } from '../core/panic-guard.js';

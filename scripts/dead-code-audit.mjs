@@ -81,11 +81,6 @@ const KNOWN_SUSPECTS = [
     adrProtected: false,
   },
   {
-    module: 'src/orchestra/batch-stats.ts',
-    reason: 'Stats batching utility — not imported by any src/ file',
-    adrProtected: false,
-  },
-  {
     module: 'src/orchestra/brain-context.ts',
     reason: 'Context enrichment functions — not imported by any src/ file',
     adrProtected: false,
