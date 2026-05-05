@@ -664,7 +664,8 @@ describe('Docker Backend Parity — fsync verifyResultAfterStop (unit)', () => {
     // Assert — monitorContainer must also fsync (belt-and-suspenders comment present)
     expect(src).toContain('belt-and-suspenders');
     // monitorContainer uses fsyncSync after container exit to flush volume buffers
-    const monitorIdx = src.indexOf('monitorContainer');
+    // (search for the method definition, not the first textual mention which is a comment)
+    const monitorIdx = src.indexOf('private monitorContainer');
     const monitorSection = src.slice(monitorIdx, monitorIdx + 3000);
     expect(monitorSection).toContain('fsyncSync');
   });

@@ -186,7 +186,7 @@ Single-task execution. No PLAN/SPAWN phases. Ideal for quick commands, reminders
 
 | Requirement | Version | Check |
 |-------------|---------|-------|
-| Node.js | >= 18 | `node --version` |
+| Node.js | >= 20 | `node --version` |
 | git | any | `git --version` |
 | Claude Code CLI | any | `claude --version` |
 | tmux | any (optional, Linux/macOS) | `tmux -V` |
@@ -300,7 +300,7 @@ deckent doctor
 ```
 
 ```
-  node_version   v20.11.0 (>=18 required)     [pass]
+  node_version   v20.11.0 (>=20 required)     [pass]
   git            git 2.43.0                    [pass]
   tmux           tmux 3.3a                     [pass]
   claude_cli     claude 1.2.3                  [pass]

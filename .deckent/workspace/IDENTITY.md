@@ -4,7 +4,7 @@ Type: AI agent orchestration CLI
 Language: TypeScript (ESM)
 Test: vitest
 Build: tsc
-Runtime: Node.js >=18
+Runtime: Node.js >=20
 Platform: macOS, Linux, WSL2
 Tests: 12,485 pass + 16 skipped (505 files)
 Dashboard Tests: 413
