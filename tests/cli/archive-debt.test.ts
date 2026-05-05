@@ -92,7 +92,9 @@ describe('archive-debt command', () => {
       '| debt-001 | Resolved | 001 | sprint-001 | NORMAL | 0 | true | sprint-002 | 2026-01-01 |',
     ]);
     mockExistsSync.mockImplementation((p: unknown) => {
-      if (String(p).includes('DEBT-ARCHIVE')) return false;
+      const s = String(p);
+      if (s.includes('DEBT-ARCHIVE')) return false;
+      if (s.endsWith('memory.db')) return false;
       return true;
     });
     mockReadFileSync.mockReturnValue(content);
