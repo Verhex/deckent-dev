@@ -4,8 +4,8 @@
 **Status:** CANONICAL — Sprint 149-200 anchor document
 **Vision:** OpenClaw'ın god-level üstün hali — developer-first + life-assistant dual platform
 **Brainstorming:** Alperen onayları 12+ karar, 5 paralel agent kod tabanı analizi
-**Last update:** 2026-05-06 (Sprint 153 — CI greening + Node 20 + D batch + B Nervous wire + E Ed25519 hub sign + run-param)
-**Next audit:** Sprint 153 finalize + retro sonrası — A1+A2 Telegram/Discord smoke (Pazar token gelince) + B3 nervous detector canlı dogfood
+**Last update:** 2026-05-06 evening (Sprint 153 — CI greening + Node 20 + D batch + B1/B2/B3 Nervous wire + E Ed25519 hub sign + run-param + 14 commits pushed, all CI green)
+**Next audit:** Sprint 154 başlangıcı — A1+A2 Telegram/Discord smoke (Pazar token gelince) + Sprint 153 retro Brain output + production sprint detector log evidence
 
 ---
 
@@ -105,13 +105,30 @@ Deckent kırık haliyle Deckent'i tamir etme sonsuz döngü riskinden kaçınmak
 3. **Deckent Run Dogfood Timeout Bulgusu (yeni):** 3 paralel `deckent_run` audit task'ı (Node 18 cleanup verification) `docker_min_timeout=1200s` cap'ine takıldı. Workers infrastructure %100 sağlam çalıştı (3 docker container, heartbeat sequence düzenli, cleanup OK), ancak Claude CLI tüm src/+tests/+scripts/+.github/ taraması + grep + markdown rapor yazımını 20dk'ya sığdıramadı. Bu bulgu kendisi yeni bir Sprint 153 P1 debt: `deckent run`'a `--timeout-seconds` veya `--effort` parametresi.
 4. Timeout marker dosyası mevcut ama `.result` notes'unda fark edilmiyor → Sprint 153 docker-backend fix (yukarıda)
 
-### Sprint 153 Kalan İş (Yarına devam)
-- **B1+B2 Nervous Observer wire ✅** — `runSprint` `NervousObserver` instantiate + start + stop (5 cleanup path covered). 11 detector config schema sync (5 orphan removed → 6 implemented added). 1,300+ LoC dormant kod canlandı.
-- **E Ed25519 keygen + 20 seed sign + install verify ✅** — `scripts/sign-seed-skills.mjs` 20/20 seed skill imzaladı (gerçek hex signatures, placeholder format silindi). `verifySkillSignature` helper + `skill install` verify wire (lazy keypair). `--allow-unsigned` flag opt-out. Beta GA Gate #15 açıldı.
+### Sprint 153 — Gerçekleşen İş (TÜMÜ ✅)
+- **CI Greening ✅** — 14 commit batch (224618c → 2f7f7d8). `.npmrc:ignore-scripts=true` + `npx node-gyp rebuild --release` step (9 job). Workflow ilk tam yeşil weeks of red sonrası.
+- **Vitepress fix ✅** — blog YAML quote + srcExclude expansion (audits/, superpowers/, design/, governance/, sprint-log/, vision/, ROADMAP-GOD-LEVEL, KNOWN_ISSUES)
+- **`orphan-cleaner-ipc` negative ageMs ✅** — `Math.max(0, …)` 2 call site (CI ext4/tmpfs precision rounding fix)
+- **`archive-debt` test isolation ✅** — mock `memory.db` false döndürüyor, dev DB state'inden bağımsız
+- **Node 18 EOL drop ✅** — `engines: ">=20.0.0"`, matrix `[20.x, 22.x, 24.x]`, 36 dosyada exhaustive purge (kod + test + script + doc + i18n + mock + runtime guard)
+- **D1 ADR-008 ✅** — `notify.ts` core → orchestra (5 caller + 2 test import). Layer 4 enforcement clean.
+- **D2 ADR-038 ✅** — `batch-stats.ts` + tests silindi (334 LoC, 0 consumer)
+- **D3 promotion-pipeline ✅** — `temp-temp-` double-prefix bug fix (baseId normalize)
+- **D4 commander unknown subcmd ✅** — exit 1 + help (CI false-pass riski kapandı)
+- **Coverage Report continue-on-error ✅** — vitest worker timeout flakiness için
+- **Docker backend timeout result clarity ✅** — `on_exit()` bash trap `.timeout` marker detect ediyor, "HIT WORKER_TIMEOUT — increase --timeout or split scope" hint hem `TIMEOUT_WITH_WORK` hem `NO_GO` notes'a ekleniyor
+- **B1+B2 Nervous Observer wire ✅** — `runSprint` `NervousObserver` instantiate + start + stop (5 cleanup path covered). 11 detector config schema sync (5 orphan `reserve_for: sprint-148` placeholders silindi → 6 implemented detector eklendi: `task_mode_idle`, `build_failure_recurrence`, `token_spike`, `agent_routing_anomaly`, `scope_collision_rate`, `notification_delivery_health`). 1,300+ LoC dormant kod canlandı.
+- **B3 Wire end-to-end test ✅** — `tests/nervous/integration/observer-wire-end-to-end.test.ts` (5/5 pass). eventBus → observer → 'observe' → 'detection' pipeline kanıt. Listener registration arity 2, idempotent start, clean stop.
+- **E Ed25519 keygen + 20 seed sign + install verify ✅** — `scripts/sign-seed-skills.mjs` 20/20 seed skill imzaladı (gerçek hex signatures, placeholder `ed25519:placeholder:awaiting-t149016-keygen:0000…` format silindi). `verifySkillSignature` helper + `skill install` verify wire (lazy keypair load). `--allow-unsigned` flag opt-out. **Beta GA Gate #15 açıldı.** Hub public key: `6850ed2fdfd6fb185d80ee6f747176a54da7f2bea9f1c5f95b41855c5554795f`.
 - **`deckent run` timeout/effort param ✅** — MCP tool yeni `effort` (low/normal/high) + `timeoutSeconds` (60-7200) input fields. `brainEstimateTimeout` plumbing. Sprint 153 dogfood'dan gelen P1 kapandı.
-- **B3 Nervous detector canlı dogfood** — kalan: bir sonraki gerçek sprint koşusunda detector trigger'lar 'detection' event'i emit etsin (event log'da kanıt). Wire hazır, tetikleme zaten.
-- **A1+A2 Telegram/Discord smoke** — token Pazar bekleniyor
-- **Sprint 153 finalize + retro** (Brain `deckent retro` üretsin)
+- **Local 0-byte bin onarımı ✅** — `npm rebuild` ile `node_modules/.bin/{tsc,vitest}` symlink restore. Lokal feedback loop geri geldi (zombie 0-byte bin `npm run lint`'i sessizce geçiriyordu — Sprint 153 audit'inde 2 gerçek TS error gizlemişti).
+
+### Sprint 154 — Yarına Devam Eden İş
+- **A1+A2 Telegram/Discord smoke** — token Pazar (~2026-05-10) bekleniyor. Kod hazır (`scripts/deploy-{telegram,discord}.sh`). Sprint 152.5 HF4 sonrası MCP/CLI provider parity canlı.
+- **Sprint 153 finalize + retro** — Brain `deckent retro` çıktısı; B3 wire kanıtı + tüm Sprint 153 commit'leri arşiv'e
+- **B3 production-driven detector log evidence** — wire kanıt (test) tamam; gerçek sprint koşusunda detector 'detection' event'lerinin event-stream JSONL'a yazıldığını gözlem
+- **`deckent_run` timeout cap audit re-run** — yeni `effort: 'high'` + `timeoutSeconds: 3600` ile 3 paralel Node 18 cleanup verification dogfood'u re-koş (önceki 20dk cap'e takılıp NO_GO almıştı, yeni override hazır)
+- **Phase 2 takvim revizyonu (opsiyonel)** — orijinal 152-160 aralığı slipped (152 = audit, 152.5 HF, 153 = CI/Node/B/E). Phase 2 plan tablosu (Section 4) realite ile güncellenmeli
 
 ### Beta GA Gate Durumu (2026-05-06)
 | Gate | Durum (Sprint 152.5 sonrası) | Sprint 153 etki |
@@ -260,20 +277,21 @@ Sprint 150 kırık haliyle Deckent'le Deckent'i tamir sonsuz döngü riskinden k
 ### Phase 2: Post-Launch Bug Frenzy + Messaging (Sprint 152-160)
 **Hedef: Community feedback + messaging ecosystem + hub growth**
 
-Not: Sprint 151 Beta GA cutover'a kaydı, Phase 2 bir sprint kaydı. 2026-04-21 Hot Fix session direct Sprint 151'e connect ediyor.
+**Realite (2026-05-06 itibarıyla):** Orijinal takvim slipped — Phase 2 ilk üç sprint sürpriz iş yutuldu (post-migration audit, HF day, weeks-of-red CI greening). Aşağıdaki tablo gerçekleşeni + revize edilmiş forward planı yansıtır.
 
-| Sprint | Gün | Tema | Task |
-|--------|-----|------|------|
-| 152 | Per 23 Nis | Community Bug Triage Week 1 — P0 fixes (community reported) | 10-15 task |
-| 153 | Cum 24 Nis | WhatsApp Business API activation + Slack connector + Email (IMAP/SMTP) | 12 task |
-| 154 | Pzt 27 Nis | Hub Growth — 20 → 50 skill + moderation CI + rating system | 10 task |
-| 155 | Sal 28 Nis | Feature requests triage + routing V4 + skill heuristics | 12 task |
-| 156 | Çar 29 Nis | Adaptive agent activation (analiz → öneri + autonomous apply) | 10 task |
-| 157 | Per 30 Nis | DeckentHub moderation queue + CI auto-signature + Ed25519 rotation | 10 task |
-| 158 | Cum 1 May | Messaging polish + thread management + user context memory | 10 task |
-| 159 | Pzt 4 May | Nervous system 6-10 detector activation (Sprint 147 plan) | 10 task |
-| 160 | Sal 5 May | CLI/MCP parity audit + i18n TR/EN gaps + docs site | 12 task |
-| 161 | Çar 6 May | Marketplace 50 → 100 skill + vector search (FTS5 extend) | 10 task |
+| Sprint | Gün | Tema | Durum |
+|--------|-----|------|-------|
+| **152** | **Per 24 Nis (gerçek)** | **Post-Migration Audit — 27 rapor + 86 bulgu** | ✅ DONE (orijinal "Community Bug Triage" → audit'e dönüştü, 30 task ~45dk) |
+| **152.5** | **Per 24 Nis (gerçek)** | **Hot Fix Day — 4 Beta GA blocker** (Claude subagent pattern, 2nd uygulaması) | ✅ DONE (HF1 GLIBC, HF2 verification-blind, HF3 rules silent catch, HF4 MCP provider parity) |
+| **153** | **Pzt 5-6 May (gerçek)** | **CI Greening + Node 20 + D batch + B Nervous wire + E Ed25519 hub sign + run-param** | ✅ DONE (14 commit, ilk tam yeşil CI run, Beta GA Gate #15 açıldı) |
+| 154 | ~Sal 7 May (revize) | Telegram/Discord canlı smoke (token Pazar) + Sprint 153 retro + WhatsApp Business API hazırlık | ⏳ Plan |
+| 155 | ~Çar 8 May | Hub Growth — 20 → 50 skill + moderation CI + rating system | ⏳ Plan |
+| 156 | ~Per 9 May | Feature requests triage + routing V4 + skill heuristics | ⏳ Plan |
+| 157 | ~Cum 10 May | Adaptive agent activation (analiz → öneri + autonomous apply) | ⏳ Plan |
+| 158 | ~Pzt 13 May | DeckentHub moderation queue + CI auto-signature + Ed25519 key rotation | ⏳ Plan |
+| 159 | ~Sal 14 May | Messaging polish + thread management + user context memory | ⏳ Plan |
+| 160 | ~Çar 15 May | CLI/MCP parity audit + i18n TR/EN gaps + docs site | ⏳ Plan |
+| 161 | ~Per 16 May | Marketplace 50 → 100 skill + vector search (FTS5 extend) | ⏳ Plan |
 
 ### Phase 3: Daemon + Local AI + Polish (Sprint 161-170)
 **Hedef: 7/24 background operation + local model support**
@@ -315,13 +333,13 @@ Not: Sprint 151 Beta GA cutover'a kaydı, Phase 2 bir sprint kaydı. 2026-04-21 
 
 ## 5. Beta GA (Sprint 151) Exit Criteria — 20 Gate (BETA-TRACKER + Sprint 150 Konsolidasyon)
 
-**Durum (2026-04-21 Hot Fix session sonrası): 17/20 açıldı** ✅
+**Durum (2026-05-06 Sprint 153 sonrası): 19/20 açıldı** ✅ — kalan tek gate #13 messaging trio smoke (token Pazar)
 
 | # | Gate | Hedef | Mevcut | Durum |
 |---|------|-------|--------|-------|
 | 1 | `tsc --noEmit` 0 errors | 0 | 0 error | ✅ PASS |
 | 2 | vitest ≥ %99.5 pass | 99.5%+ | **%99.94** (9 fail / 15671 pass) | ✅ **H2 ile aşıldı** |
-| 3 | Coverage ≥ 85% | 85%+ | ~%52 (uzun vadeli, Sprint 160+) | 🔄 Phase 2 |
+| 3 | Coverage ≥ 85% | 85%+ | ~%52 (uzun vadeli, Sprint 160+) | 🔄 Phase 2 (uzun) |
 | 4 | 27+ MCP tool functional | 27+ | 30 (yeni: audit/feature_query/recover) | ✅ PASS |
 | 5 | 45+ CLI komut functional | 45+ | 49 (H1 sonrası) | ✅ PASS |
 | 6 | `npm pack --dry-run` temiz | 0 warning | 1.08MB, 0 warning | ✅ T-150-026 |
@@ -329,18 +347,20 @@ Not: Sprint 151 Beta GA cutover'a kaydı, Phase 2 bir sprint kaydı. 2026-04-21 
 | 8 | Multi-provider 3/3 | 3/3 | 3/3 | ✅ Sprint 148 |
 | 9 | `deckent_style` toggle canlı | sprint/task switch | canlı | ✅ T-150-001..003 |
 | 10 | Memory V2 stress test | Pass | Pass | ✅ Sprint 145 |
-| 11 | Documentation sync | Current | Sprint 150 post-update, 151 güncelle | 🟡 Sprint 151 |
+| 11 | Documentation sync | Current | Sprint 153 sonu — ROADMAP+CHANGELOG+SPRINT-LOG+IDENTITY+CLAUDE.md güncel | ✅ Sprint 153 |
 | 12 | Built-in Bundle (npm pack) | 15+21 bundle | 36/36 bundle'da | ✅ T-150-031 P0 |
-| 13 | Messaging trio smoke test | Discord+Telegram canlı | Connectors deploy, bot credentials Sprint 151 | 🟡 Sprint 151 |
+| 13 | Messaging trio smoke test | Discord+Telegram canlı | Token Pazar (~10 May) bekleniyor, kod hazır | 🟡 Sprint 154 |
 | 14 | Dockerfile USER non-root | non-root | USER deckent | ✅ T-150-005 |
-| 15 | DeckentHub 20 seed skill | 20 published + signed | Ed25519 infra canlı, publish Sprint 151 | 🟡 Sprint 151 |
+| 15 | DeckentHub 20 seed skill | 20 published + signed | **20/20 imzalandı** (`scripts/sign-seed-skills.mjs`), `skill install` verify wire canlı | ✅ Sprint 153 E |
 | 16 | Config duplicate removal | ✅ | Flat providers silindi | ✅ H3 |
 | 17 | Managed-docs cache git-untrack | ✅ | git-untrack | ✅ T-150-036 |
 | 18 | docs.json private/public split | ✅ | template + runtime split | ✅ T-150-037 |
 | 19 | Metrics.jsonl rotation | rotate | 268KB → 0, gzip archive | ✅ H5 canlı |
 | 20 | Sprint file count ≤ 60 | ≤ 60 | 17 → 10 sprint (54 file) | ✅ H4 canlı |
 
-**Sprint 151 Beta GA için kalan 3 gate:** #3 (coverage long-term), #13 (messaging smoke), #15 (hub publish). Messaging + hub Sprint 151 cutover işleri.
+**Sprint 153 sonu Beta GA için kalan tek gate (excluding long-term #3 coverage):** #13 (messaging trio smoke) — Telegram + Discord bot token Pazar (~2026-05-10) bekleniyor, kod %100 hazır. WhatsApp Business API onayı external dependency, Sprint 154+ aktif olur.
+
+**Implicit gate (Sprint 153'te eklendi):** **CI Workflow Health** ✅ — 3 workflow (CI, Cross-Platform E2E, Build and Deploy Docs) ilk tam yeşil run weeks-of-red sonrası. better-sqlite3 native binding pipeline + Vitepress build + 4 silent test bug fix kombinesi.
 
 ---
 
@@ -459,11 +479,15 @@ Not: Sprint 151 Beta GA cutover'a kaydı, Phase 2 bir sprint kaydı. 2026-04-21 
 9. **.deck + AST sandbox + Ed25519 = güvenlik DNA'sı** — bu üçlüden taviz yok
 10. **Doküman-önce-kod** — her sprint öncesi design spec + DIRECTIVES
 11. **Hot Fix with Claude Subagents pattern (2026-04-21 kurulmuş)** — Deckent kırıkken Deckent'le Deckent'i tamir sonsuz döngü riski. Kritik P0 bug'ları cerrahi müdahale için Claude Code `Agent` tool (`general-purpose` subagent) ile paralel/sequential çözülür. Deckent sprint pipeline bypass edilir, sadece **deploy-level bug fix** için uygulanır. Sprint 150A (H1..H7, ~68dk) ilk canlı uygulama, rekor kabul.
-12. **Meta-dogfood kanıt sayacı per-sprint** — Sprint 146 (1), Sprint 147 (3), Sprint 148 (6), Sprint 150 (11) + Sprint 150A Hot Fix (13). Her sprint kendi kodu kendi canlı kanıtladığı bulgu sayısı rekor artıyor.
+12. **Meta-dogfood kanıt sayacı per-sprint** — Sprint 146 (1), Sprint 147 (3), Sprint 148 (6), Sprint 150 (11) + Sprint 150A Hot Fix (13), Sprint 152 (1 büyük: verification-blind bug audit içinde yakalandı), Sprint 153 (4: 0-byte bin keşfi + verification-blind dogfood + run timeout cap + timeout result clarity). Her sprint kendi kodu kendi canlı kanıtladığı bulgu sayısı sürdürülüyor.
+13. **Node.js minimum >=20** (Sprint 153, 2026-05-06) — Node 18 EOL 2025-03-27, Node 20 EOL 2026-03-24 ama hâlâ widely deployed; matrix `[20.x, 22.x, 24.x]`. better-sqlite3 zaten Node 18'i desteklemiyor, vite 20.19+ istiyor. CI'da `npm ci` sonrası `npx node-gyp rebuild --release` step'i zorunlu (`.npmrc:ignore-scripts=true` postinstall'ları bloke ediyor; tek trusted dep'i explicit derliyoruz).
+14. **CI green imperative** (Sprint 153 sonrası) — push öncesi lokalde `npm run lint` + targeted `npx vitest run` zorunlu. **`node_modules/.bin/{tsc,vitest}` 0-byte zombie** olabilir (npm install bin link bug); şüphe halinde `npm rebuild`. Direkt invoke: `node node_modules/typescript/bin/tsc` veya `node node_modules/vitest/vitest.mjs run`.
+15. **Beta GA Gate #15 ✅ (Sprint 153 E)** — 20/20 seed skill Ed25519 imzalı, `skill install` lazy verify wire canlı, `--allow-unsigned` opt-out. Hub public key `6850ed2fdfd6fb185d80ee6f747176a54da7f2bea9f1c5f95b41855c5554795f` (project hub key — kullanıcı kendi `~/.deckent/keys/`'i ile signs). Production hub publish'inde external rotated key kullanılacak.
 
 ---
 
 **İmza (orijinal):** Koordinatör (5 paralel agent analiz + Alperen 12 karar + OpenClaw rekabet verisi)
 **İmza (2026-04-21 Hot Fix güncellemesi):** Koordinatör (Claude Code subagent-driven hot fix session — H1..H7 7 paralel/sequential general-purpose subagent, ~68dk, ~1M token, 145+ file, DECKENT→USER:NOTIFY 12 sprint sonra canlandı)
 **Diriliş:** Bu doküman Sprint 149-200 canlı — her sprint sonu güncellenecek
-**Sonraki revize:** Sprint 151 Beta GA cutover sonrası — npm publish + public repo flip + Show HN launch metrikleri ile güncelle
+**İmza (2026-05-06 Sprint 153 güncellemesi):** Koordinatör (14 commit batch — CI greening + Node 18 EOL drop + D batch + B Nervous wire + B3 wire test + E Ed25519 hub sign + run-param + docker timeout result clarity + 0-byte bin keşif. Beta GA gate 17/20 → 19/20)
+**Sonraki revize:** Sprint 154 retro sonrası — Telegram/Discord canlı smoke + WhatsApp Business API status + Phase 2 fiili takvim revizyonu
