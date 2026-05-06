@@ -4221,9 +4221,26 @@ Commit: `241513e`
 
 `scripts/sign-seed-skills.mjs` koşusu: 20 skill imzalandı, hub public key `6850ed2fdfd6fb185d80ee6f747176a54da7f2bea9f1c5f95b41855c5554795f`. 10 sample skill cross-verify: 10/10 pass.
 
+### B3 Wire End-to-End (closing the day)
+
+`tests/nervous/integration/observer-wire-end-to-end.test.ts` — 5 tests, all
+pass. Constructs a real `NervousObserver` with the 11-detector config,
+publishes synthetic `DeckentEvent`s through `eventBus`, and asserts the
+full pipeline: `eventBus.emit('event') → onEventBusEvent → buildEvent →
+emit('observe')` with correct source, nested payload, UUID, ISO timestamp.
+`start()` is idempotent. `stop()` cleanly removes the bus listener.
+
+This is the canonical proof that the Sprint 153 B1 wire is reachable —
+detector firing in production happens whenever a real sprint event-bus
+sees a HEARTBEAT / SCOPE_COLLISION / SPRINT_PHASE_CHANGE / etc. The wire
+is verified, the trigger is now driven by real-world events.
+
+`.tasks/` cleanup: archived 16 leftover dogfood + test-docker artifacts
+to `.tasks/archive/sprint-153-run-dogfood/`. `.tasks/` is gitignored so
+the move stays local.
+
 ### Defer to Sprint 154+
 
-- **B3** Nervous detector canlı dogfood — wire hazır, sadece bir sonraki gerçek sprint koşusunda detector 'detection' event'i kanıt yazsın
 - **A1+A2** Telegram/Discord smoke — token Pazar bekleniyor
 
 ---
