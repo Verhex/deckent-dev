@@ -338,12 +338,20 @@ export interface NervousDetectorConfig {
   threshold_ms?: number;
   /** Debt trend rate threshold 0-1 (debt_trend only) */
   threshold_rate?: number;
-  /** Agent routing anomaly threshold 0-1 (agent_routing only) */
+  /** Agent routing anomaly threshold 0-1 (agent_routing, agent_routing_anomaly) */
   anomaly_threshold?: number;
   /** Auto-restore DIRECTIVES.md on corruption (directives_protection only) */
   auto_restore?: boolean;
-  /** Reserved for future sprint (reserve detectors only) */
-  reserve_for?: string;
+  /** Idle window in ms (task_mode_idle only) */
+  idle_threshold_ms?: number;
+  /** Mode this detector applies to (task_mode_idle only) */
+  deckent_style?: 'sprint' | 'task';
+  /** Repeat-fail count before alerting (build_failure_recurrence only) */
+  recurrence_threshold?: number;
+  /** USD threshold for cost alerts (token_spike only) */
+  cost_threshold?: number;
+  /** Collisions/sprint threshold (scope_collision_rate only) */
+  collision_threshold?: number;
 }
 
 /** Full Nervous System configuration schema */
@@ -387,18 +395,19 @@ export interface NervousSystemConfig {
     /** Deduplicate notification across channels by ID */
     cross_channel_dedup: boolean;
   };
-  /** Per-detector configuration — 5 active + 5 reserved */
+  /** Per-detector configuration — 11 detectors (5 original + 6 added Sprint 147-152) */
   detectors: {
     stale_worker: NervousDetectorConfig;
     scope_collision: NervousDetectorConfig;
     debt_trend: NervousDetectorConfig;
     agent_routing: NervousDetectorConfig;
     directives_protection: NervousDetectorConfig;
-    dead_event_stream: NervousDetectorConfig;
-    cost_threshold: NervousDetectorConfig;
-    prompt_quality: NervousDetectorConfig;
-    worker_output_variance: NervousDetectorConfig;
-    self_modifying_warner: NervousDetectorConfig;
+    task_mode_idle: NervousDetectorConfig;
+    build_failure_recurrence: NervousDetectorConfig;
+    token_spike: NervousDetectorConfig;
+    agent_routing_anomaly: NervousDetectorConfig;
+    scope_collision_rate: NervousDetectorConfig;
+    notification_delivery_health: NervousDetectorConfig;
   };
   /** Retention for history JSONL file in days */
   history_retention_days: number;

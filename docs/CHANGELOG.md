@@ -6,7 +6,15 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenmektedir.
 Format [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) standardına dayanır
 ve proje [Semantic Versioning](https://semver.org/spec/v2.0.0.html) kurallarına uyar.
 
-## [1.0.0-beta.1-sprint153] - 2026-05-06
+## [1.0.0-beta.1-sprint153b] - 2026-05-06
+
+### Added
+
+- **Nervous System Observer wire** (B1) — `NervousObserver` class was implemented in Sprint 147 (`src/nervous/observer.ts`) but never instantiated; ~1,300 LoC of detector + dispatcher code stayed dormant for 6 sprints. `runSprint()` (`src/orchestra/sprint-controller.ts`) now constructs the observer when `config.nervous_system?.enabled`, calls `observer.start()` after `setActiveSprint()`, and `observer.stop()` on every cleanup path (happy + checkpoint-aborted + `beforeExit` handler). All 11 detector files (`src/nervous/detectors/`) now receive runtime events.
+- **Detector config sync** (B2) — replaced 5 placeholder `reserve_for: sprint-148` entries (`dead_event_stream`, `cost_threshold`, `prompt_quality`, `worker_output_variance`, `self_modifying_warner`) — none of which had implementation files — with the 6 detectors that DO exist on disk: `task_mode_idle`, `build_failure_recurrence`, `token_spike`, `agent_routing_anomaly`, `scope_collision_rate`, `notification_delivery_health`. Updated `NervousSystemConfig.detectors` type, `createDefaultConfig()` defaults, `.deckent/config.json`, and the schema test (`tests/core/config-nervous-schema.test.ts`) to assert 11 entries. `NervousDetectorConfig` gained the per-detector option fields (`idle_threshold_ms`, `recurrence_threshold`, `cost_threshold`, `collision_threshold`, `deckent_style`).
+- **Ed25519 hub signing pipeline** (E — Beta GA Gate #15) — `scripts/sign-seed-skills.mjs` signs all 20 seed skills under `deckent-hub/skills/` with the local hub keypair (`~/.deckent/keys/`), replacing every `ed25519:placeholder:awaiting-t149016-keygen:0000…` stub with a real 128-hex-char signature. Sign payload matches `skill publish` (`SKILL.md` content + `JSON.stringify(manifest)`) so signatures verify symmetrically across publish/install. `src/core/signature.ts` exports `verifySkillSignature(skillDir, publicKey)` and `buildSkillSignPayload(skillContent, manifest)` helpers.
+- **`skill install` verify wire** (E) — `src/cli/commands/skill.ts` now runs Ed25519 verification on both git and local install paths BEFORE copying to `.deckent/skills/`. Default policy: unsigned skills are rejected; `--allow-unsigned` flag overrides for trusted local development. Bad signatures are always a hard fail (no override). Lazy keypair load: `loadOrGenerateKeypair()` is only called when `signature.ed25519` actually exists, keeping fs-mock test flow simple.
+- **`deckent_run` MCP — effort + timeoutSeconds parameters** (P1 from Sprint 153 dogfood finding) — the previous run hardcoded `effort: 'normal'` and inherited `cfg.docker_timeout`, hitting the `docker_min_timeout=1200s` cap on broad-scope audit prompts. New input schema fields: `effort: 'low'|'normal'|'high'` (drives `brainEstimateTimeout` via `effort_base`) and `timeoutSeconds` (hard override, range 60-7200). The effective timeout is plumbed through `SpawnBackendOptions.taskTimeoutSeconds` to all backends. Response payload now echoes `effort` + `timeoutSeconds` for caller debugging.
 
 ### Fixed
 

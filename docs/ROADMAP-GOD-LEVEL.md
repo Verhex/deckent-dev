@@ -4,8 +4,8 @@
 **Status:** CANONICAL — Sprint 149-200 anchor document
 **Vision:** OpenClaw'ın god-level üstün hali — developer-first + life-assistant dual platform
 **Brainstorming:** Alperen onayları 12+ karar, 5 paralel agent kod tabanı analizi
-**Last update:** 2026-05-06 (Sprint 153 partial — CI greening + Node 20 minimum + D batch + dogfood timeout finding)
-**Next audit:** Sprint 153 finalize sonrası — B (Nervous wire) + E (Ed25519 hub publish) + Telegram/Discord smoke (Pazar token gelince)
+**Last update:** 2026-05-06 (Sprint 153 — CI greening + Node 20 + D batch + B Nervous wire + E Ed25519 hub sign + run-param)
+**Next audit:** Sprint 153 finalize + retro sonrası — A1+A2 Telegram/Discord smoke (Pazar token gelince) + B3 nervous detector canlı dogfood
 
 ---
 
@@ -106,10 +106,11 @@ Deckent kırık haliyle Deckent'i tamir etme sonsuz döngü riskinden kaçınmak
 4. Timeout marker dosyası mevcut ama `.result` notes'unda fark edilmiyor → Sprint 153 docker-backend fix (yukarıda)
 
 ### Sprint 153 Kalan İş (Yarına devam)
-- **B1+B2+B3 Nervous Observer wire** (~3 saat) — 1,300+ LoC dormant kod canlanır
-- **E Ed25519 keygen + 20 seed sign + install verify** (~2 saat) — Beta GA Gate #15
+- **B1+B2 Nervous Observer wire ✅** — `runSprint` `NervousObserver` instantiate + start + stop (5 cleanup path covered). 11 detector config schema sync (5 orphan removed → 6 implemented added). 1,300+ LoC dormant kod canlandı.
+- **E Ed25519 keygen + 20 seed sign + install verify ✅** — `scripts/sign-seed-skills.mjs` 20/20 seed skill imzaladı (gerçek hex signatures, placeholder format silindi). `verifySkillSignature` helper + `skill install` verify wire (lazy keypair). `--allow-unsigned` flag opt-out. Beta GA Gate #15 açıldı.
+- **`deckent run` timeout/effort param ✅** — MCP tool yeni `effort` (low/normal/high) + `timeoutSeconds` (60-7200) input fields. `brainEstimateTimeout` plumbing. Sprint 153 dogfood'dan gelen P1 kapandı.
+- **B3 Nervous detector canlı dogfood** — kalan: bir sonraki gerçek sprint koşusunda detector trigger'lar 'detection' event'i emit etsin (event log'da kanıt). Wire hazır, tetikleme zaten.
 - **A1+A2 Telegram/Discord smoke** — token Pazar bekleniyor
-- **`deckent run` timeout/effort param** — yeni P1 (dogfood'dan)
 - **Sprint 153 finalize + retro** (Brain `deckent retro` üretsin)
 
 ### Beta GA Gate Durumu (2026-05-06)
@@ -120,7 +121,7 @@ Deckent kırık haliyle Deckent'i tamir etme sonsuz döngü riskinden kaçınmak
 | #5 45+ CLI komut | ✅ 49 | — |
 | #11 Documentation sync | 🔄 Partial → ROADMAP+CHANGELOG güncellendi | İlerleme |
 | #13 Messaging trio smoke | 🟡 Token bekleniyor (Pazar) | A1+A2 deferred |
-| #15 DeckentHub 20 seed signed | 🟡 Ed25519 infra var, sign Sprint 153 E | Beklemede |
+| #15 DeckentHub 20 seed signed | ✅ 20/20 imzalandı (`scripts/sign-seed-skills.mjs`), install verify canlı | Sprint 153 E ile açıldı |
 | **CI Workflow Health** (yeni implicit gate) | ✅ İlk yeşil run weeks of red sonrası | Sprint 153 |
 
 ---

@@ -4192,3 +4192,38 @@ Commit: `241513e`
 - Sprint 153 finalize + retro
 
 ---
+
+## Sprint 153 — B + E + run-param (Continuation, 2026-05-06)
+
+**Status:** B1+B2 ✅, E ✅, run-param ✅, B3 (live dogfood) deferred to next real sprint
+
+### Major Adds
+
+| Item | Etki |
+|------|------|
+| **B1 Nervous Observer wire** | `NervousObserver` ilk kez `runSprint`'te instantiate. 1,300+ LoC dormant kod canlandı. 5 cleanup path kapsama (happy + 2 checkpoint abort + final + beforeExit). |
+| **B2 Detector config sync** | 5 orphan reserve detector silindi (`dead_event_stream`, `cost_threshold`, `prompt_quality`, `worker_output_variance`, `self_modifying_warner` — implementation dosyası yok). 6 yeni eklendi (`task_mode_idle`, `build_failure_recurrence`, `token_spike`, `agent_routing_anomaly`, `scope_collision_rate`, `notification_delivery_health` — hepsi `src/nervous/detectors/`'da var). |
+| **E Ed25519 hub signing** | `scripts/sign-seed-skills.mjs` 20/20 seed skill imzaladı. Placeholder format (`ed25519:placeholder:awaiting-...`) silindi, gerçek hex signatures yerleşti. `verifySkillSignature` helper + `skill install` verify wire. `--allow-unsigned` opt-out flag. **Beta GA Gate #15 ✅ AÇIK** |
+| **`deckent_run` effort + timeoutSeconds** | MCP tool input schema'sına eklendi. Sprint 153 dogfood'da çıkan P1 (`docker_min_timeout=1200s` cap audit task'ları için yetersizdi). `effort: 'high'` veya `timeoutSeconds: N` ile override mümkün. |
+| **Local 0-byte bin onarımı** | `npm rebuild` ile `node_modules/.bin/{tsc,vitest}` symlink'leri restore edildi. Lokal feedback loop geri geldi (önce `npm run lint` zombie 0-byte bin'den geçip sessizce TS error'larını gizliyordu — Sprint 153 audit `dead_event_stream` cleanup'ında ortaya çıktı). |
+
+### Tests
+
+| Suite | Sonuç |
+|-------|-------|
+| Wide sweep (orchestra+nervous+core+cli+mcp+scripts+github+integration+security+api+providers+monitor+skills+analytics) | **608/608 file, 14055/14055 test pass** |
+| `tests/cli/commands/skill.test.ts` | 41/41 pass (3 happy-path test'ine `--allow-unsigned` eklendi) |
+| `tests/cli/commands/skill-improvements.test.ts` | 24/24 pass (3 install test'ine `--allow-unsigned` eklendi) |
+| `tests/core/config-nervous-schema.test.ts` | 6/6 pass (10→11 detector iddiası güncellendi) |
+| `tests/core/signature.test.ts` | 9/9 pass |
+
+### Live Verification
+
+`scripts/sign-seed-skills.mjs` koşusu: 20 skill imzalandı, hub public key `6850ed2fdfd6fb185d80ee6f747176a54da7f2bea9f1c5f95b41855c5554795f`. 10 sample skill cross-verify: 10/10 pass.
+
+### Defer to Sprint 154+
+
+- **B3** Nervous detector canlı dogfood — wire hazır, sadece bir sonraki gerçek sprint koşusunda detector 'detection' event'i kanıt yazsın
+- **A1+A2** Telegram/Discord smoke — token Pazar bekleniyor
+
+---

@@ -11,6 +11,7 @@ import { resolveProjectRoot } from '../helpers/process.js';
 import { registerSkillMarketplace } from './skill-marketplace.js';
 import { ErrorRegistry } from '../../core/errors.js';
 import { analyzeNewSkill, persistSkillActivation } from '../../orchestra/ecosystem-intelligence.js';
+import { verifySkillSignature, loadOrGenerateKeypair } from '../../core/signature.js';
 // Note: `skill publish` is registered by registerSkillMarketplace() below —
 // the unified pipeline (sandbox + Ed25519 sign + registry upload) lives there.
 
@@ -290,7 +291,8 @@ export function registerSkill(program: Command): void {
     .command('install <source>')
     .description('Install a skill from local path or git URL (supports version pinning: url#tag)')
     .option('--force', 'Overwrite existing')
-    .action(async (source: string, opts: { force?: boolean }) => {
+    .option('--allow-unsigned', 'Permit installing a skill without signature.ed25519 (default: reject unsigned)')
+    .action(async (source: string, opts: { force?: boolean; allowUnsigned?: boolean }) => {
       try {
         const root = resolveProjectRoot();
         const skillsDir = getSkillsDir(root);
@@ -340,6 +342,33 @@ export function registerSkill(program: Command): void {
             const targetDir = join(skillsDir, manifestData.id);
             if (existsSync(targetDir) && !opts.force) {
               throw ErrorRegistry.createError('DECKENT_E025', { message: `Skill "${manifestData.id}" already exists. Use --force to overwrite.` });
+            }
+
+            // Sprint 153 — Ed25519 verify BEFORE copying to skills dir.
+            // Symmetric with `skill publish` which uses the local hub key
+            // from ~/.deckent/keys/. Reject mismatched/missing signatures
+            // unless --allow-unsigned. Rejection deletes nothing — the
+            // tmpDir cleanup happens in the outer finally.
+            // Lazy keypair load: only touch ~/.deckent/keys/ when a signature
+            // file is actually present (avoids unnecessary keygen for
+            // unsigned-with-override installs and keeps fs-mock tests simple).
+            const cloneSigPath = join(tmpDir, 'signature.ed25519');
+            if (!existsSync(cloneSigPath)) {
+              if (!opts.allowUnsigned) {
+                throw ErrorRegistry.createError('DECKENT_E028', {
+                  message: `Skill "${manifestData.id}" is unsigned (signature.ed25519 missing). Re-publish with sign or pass --allow-unsigned to override.`,
+                });
+              }
+              print(`⚠️  Installing unsigned skill "${manifestData.id}" (--allow-unsigned)`);
+            } else {
+              const verifyKeypair = loadOrGenerateKeypair();
+              const verifyResult = await verifySkillSignature(tmpDir, verifyKeypair.publicKey);
+              if (!verifyResult.valid) {
+                throw ErrorRegistry.createError('DECKENT_E028', {
+                  message: `Ed25519 verification failed for "${manifestData.id}": ${verifyResult.reason}`,
+                });
+              }
+              print(`✓ Ed25519 signature verified for "${manifestData.id}"`);
             }
 
             if (existsSync(targetDir)) {
@@ -411,6 +440,27 @@ export function registerSkill(program: Command): void {
           const targetDir = join(skillsDir, manifestData.id);
           if (existsSync(targetDir) && !opts.force) {
             throw ErrorRegistry.createError('DECKENT_E025', { message: `Skill "${manifestData.id}" already exists. Use --force to overwrite.` });
+          }
+
+          // Sprint 153 — Ed25519 verify (local install). Same policy + lazy
+          // keypair load as the git path above.
+          const localSigPath = join(sourcePath, 'signature.ed25519');
+          if (!existsSync(localSigPath)) {
+            if (!opts.allowUnsigned) {
+              throw ErrorRegistry.createError('DECKENT_E028', {
+                message: `Skill "${manifestData.id}" is unsigned (signature.ed25519 missing). Re-publish with sign or pass --allow-unsigned to override.`,
+              });
+            }
+            print(`⚠️  Installing unsigned skill "${manifestData.id}" (--allow-unsigned)`);
+          } else {
+            const localVerifyKeypair = loadOrGenerateKeypair();
+            const localVerifyResult = await verifySkillSignature(sourcePath, localVerifyKeypair.publicKey);
+            if (!localVerifyResult.valid) {
+              throw ErrorRegistry.createError('DECKENT_E028', {
+                message: `Ed25519 verification failed for "${manifestData.id}": ${localVerifyResult.reason}`,
+              });
+            }
+            print(`✓ Ed25519 signature verified for "${manifestData.id}"`);
           }
 
           if (!existsSync(skillsDir)) {

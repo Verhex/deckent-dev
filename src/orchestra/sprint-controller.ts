@@ -44,6 +44,10 @@ import type { Connector } from './connector.js';
 // ─── Core — sprint lock ───────────────────────────────────────────
 import { acquireSprintLock, releaseSprintLock } from '../core/multi-ide.js';
 
+// ─── Nervous System (Sprint 153 — observer wire) ─────────────────────
+import { NervousObserver } from '../nervous/observer.js';
+import type { DetectorConfig } from '../nervous/detector-registry.js';
+
 // ─── Sprint Utilities ─────────────────────────────────────────────
 import {
   now, isDocTask,
@@ -331,6 +335,27 @@ export async function runSprint(
 
   setActiveSprint(projectRoot, sprint, spawnBackend);
 
+  // Nervous System Observer (Sprint 153 wire — was dormant since Sprint 147).
+  // Activated when nervous_system.enabled. Observer subscribes to event-bus,
+  // watches .tasks/+.brain/+DIRECTIVES.md+.deckent/, and ticks every 15s.
+  // Detector results emit via 'detection' event for downstream proposers.
+  let nervousObserver: NervousObserver | null = null;
+  if (config.nervous_system?.enabled) {
+    try {
+      // NervousSystemConfig.detectors and DetectorConfig share the same shape
+      // (NervousDetectorConfig has all optional fields a detector might use),
+      // so a structural cast is safe.
+      const detectorConfig = config.nervous_system.detectors as unknown as DetectorConfig;
+      nervousObserver = new NervousObserver(projectRoot, 15_000, detectorConfig);
+      nervousObserver.start();
+      debugLog('runSprint:nervous', `Observer started for sprint=${sprint.id}`);
+    } catch (err) {
+      // Observer must never block sprint execution — log and continue.
+      debugLog('runSprint:nervous', `Observer start failed: ${err instanceof Error ? err.message : String(err)}`);
+      nervousObserver = null;
+    }
+  }
+
   // PID + Snapshot Setup
   try { writePid(projectRoot, sprint.id); } catch (e) { debugLog('runSprint:writePid', e); }
 
@@ -363,6 +388,7 @@ export async function runSprint(
   const beforeExitHandler = (): void => {
     try { void writePeriodicSnapshot(); } catch { /* best effort */ }
     try { clearPid(projectRoot, sprint.id); } catch { /* best effort */ }
+    try { nervousObserver?.stop(); } catch { /* best effort */ }
   };
   process.on('beforeExit', beforeExitHandler);
 
@@ -554,6 +580,7 @@ export async function runSprint(
     if (!approved) {
       sprint.status = SprintStatus.ABORTED;
       sprint.completedAt = now();
+      try { nervousObserver?.stop(); } catch { /* best effort */ }
       clearActiveSprint();
       releaseSprintLock(projectRoot);
       clearSprintState(projectRoot);
@@ -570,6 +597,7 @@ export async function runSprint(
       if (!approved) {
         sprint.status = SprintStatus.ABORTED;
         sprint.completedAt = now();
+        try { nervousObserver?.stop(); } catch { /* best effort */ }
         clearActiveSprint();
         releaseSprintLock(projectRoot);
         clearSprintState(projectRoot);
@@ -612,6 +640,11 @@ export async function runSprint(
 
   // Nervous System: SPRINT_COMPLETED
   emitSprintEvent('SPRINT_COMPLETED', { sprintId: sprint.id });
+
+  // Nervous System Observer cleanup (Sprint 153)
+  try { nervousObserver?.stop(); } catch (err) {
+    debugLog('runSprint:nervous-stop', err instanceof Error ? err.message : String(err));
+  }
 
   releaseSprintLock(projectRoot);
   clearActiveSprint();

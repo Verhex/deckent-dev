@@ -436,11 +436,14 @@ describe('skill install — local path', () => {
       const pathStr = String(p);
       if (pathStr.includes('manifest.json') && pathStr.includes('/mock/root/')) return false;
       if (pathStr.includes('.deckent/skills/test-skill')) return false;
+      // Sprint 153: fs mock can't materialise a real signature.ed25519 →
+      // tests use --allow-unsigned to bypass the verifier
+      if (pathStr.endsWith('signature.ed25519')) return false;
       return true;
     });
     vi.mocked(statSync).mockReturnValue({ isDirectory: () => true } as any);
     vi.mocked(readFileSync).mockReturnValue(JSON.stringify(manifest));
-    await runCommand(['skill', 'install', '/tmp/my-skill-source']);
+    await runCommand(['skill', 'install', '/tmp/my-skill-source', '--allow-unsigned']);
     expect(cpSync).toHaveBeenCalled();
     expect(print).toHaveBeenCalledWith(expect.stringContaining('installed'));
   });
@@ -502,10 +505,15 @@ describe('skill install — local path', () => {
 
   it('overwrites existing with --force', async () => {
     const manifest = makeSkillManifest();
-    vi.mocked(existsSync).mockReturnValue(true);
+    // Sprint 153: signature.ed25519 explicitly absent so the verifier
+    // hits the unsigned branch (then --allow-unsigned permits install).
+    vi.mocked(existsSync).mockImplementation((p: any) => {
+      if (String(p).endsWith('signature.ed25519')) return false;
+      return true;
+    });
     vi.mocked(statSync).mockReturnValue({ isDirectory: () => true } as any);
     vi.mocked(readFileSync).mockReturnValue(JSON.stringify(manifest));
-    await runCommand(['skill', 'install', '/tmp/my-skill-source', '--force']);
+    await runCommand(['skill', 'install', '/tmp/my-skill-source', '--force', '--allow-unsigned']);
     expect(rmSync).toHaveBeenCalled();
     expect(cpSync).toHaveBeenCalled();
     expect(print).toHaveBeenCalledWith(expect.stringContaining('installed'));
@@ -533,6 +541,9 @@ describe('skill install — git URL', () => {
     vi.mocked(spawnSync).mockReturnValue({ status: 0, stderr: '', stdout: '' } as any);
     vi.mocked(existsSync).mockImplementation((p: any) => {
       const pathStr = String(p);
+      // Sprint 153: signature.ed25519 explicitly absent in the cloned tmp →
+      // verifier hits unsigned branch, --allow-unsigned permits install
+      if (pathStr.endsWith('signature.ed25519')) return false;
       if (pathStr.includes('.tmp-clone') && !pathStr.includes('manifest.json') && !pathStr.includes('.git')) return true;
       if (pathStr.includes('.tmp-clone/manifest.json')) return true;
       if (pathStr.includes('.tmp-clone/.git')) return true;
@@ -540,7 +551,7 @@ describe('skill install — git URL', () => {
       return false;
     });
     vi.mocked(readFileSync).mockReturnValue(JSON.stringify(manifest));
-    await runCommand(['skill', 'install', 'https://github.com/user/skill-repo.git']);
+    await runCommand(['skill', 'install', 'https://github.com/user/skill-repo.git', '--allow-unsigned']);
     expect(spawnSync).toHaveBeenCalledWith(
       'git',
       expect.arrayContaining(['clone']),

@@ -159,25 +159,29 @@
         "enabled": true,
         "auto_restore": true
       },
-      "dead_event_stream": {
+      "task_mode_idle": {
         "enabled": false,
-        "reserve_for": "sprint-148"
+        "idle_threshold_ms": 300000,
+        "deckent_style": "task"
       },
-      "cost_threshold": {
-        "enabled": false,
-        "reserve_for": "sprint-148"
+      "build_failure_recurrence": {
+        "enabled": true,
+        "recurrence_threshold": 3
       },
-      "prompt_quality": {
-        "enabled": false,
-        "reserve_for": "sprint-148"
+      "token_spike": {
+        "enabled": true,
+        "cost_threshold": 50
       },
-      "worker_output_variance": {
-        "enabled": false,
-        "reserve_for": "sprint-148"
+      "agent_routing_anomaly": {
+        "enabled": true,
+        "anomaly_threshold": 0.5
       },
-      "self_modifying_warner": {
-        "enabled": false,
-        "reserve_for": "sprint-148"
+      "scope_collision_rate": {
+        "enabled": true,
+        "collision_threshold": 5
+      },
+      "notification_delivery_health": {
+        "enabled": true
       }
     },
     "history_retention_days": 30

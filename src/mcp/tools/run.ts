@@ -11,6 +11,7 @@ import { loadConfig } from '../../core/config.js';
 import { SpawnBackendFactory } from '../../orchestra/spawn-backend.js';
 import { buildWorkerPrompt } from '../../orchestra/brain.js';
 import { resolveAgentPrompt, resolveSkillPrompts } from '../../orchestra/sprint-controller.js';
+import { brainEstimateTimeout } from '../../orchestra/timeout-estimator.js';
 
 function generateJobId(): string {
   return `run-${Date.now().toString(36)}`;
@@ -28,9 +29,11 @@ export function registerRunTool(server: McpServer): void {
         model: z.enum(ALL_MODELS as unknown as readonly [string, ...string[]]).optional().default('sonnet').describe('AI model to use. Supports all providers (Claude, OpenAI, Gemini). Default: sonnet'),
         scope: z.string().optional().describe('Comma-separated directory paths the worker may modify (e.g. "src/,tests/"). Defaults to "src/" if omitted.'),
         autoApprove: z.boolean().optional().default(true).describe('Auto-approve worker tool calls with --dangerously-skip-permissions. Deckent standard: workers MUST have full write permissions.'),
+        effort: z.enum(['low', 'normal', 'high']).optional().default('normal').describe('Estimated effort. Drives the per-task timeout via timeout.effort_base in config (low ~10m, normal ~20m, high ~40m on docker). Use "high" for broad codebase audits.'),
+        timeoutSeconds: z.number().int().min(60).max(7200).optional().describe('Hard timeout override (seconds). Bypasses effort-based estimation. Range 60-7200. Use when you know the task needs more than `high` effort grants (e.g. multi-file analysis + report writing).'),
       }),
     },
-    async ({ description, model, scope, autoApprove }) => {
+    async ({ description, model, scope, autoApprove, effort, timeoutSeconds }) => {
       const root = process.cwd();
 
       try {
@@ -45,7 +48,7 @@ export function registerRunTool(server: McpServer): void {
           title: description.slice(0, 80),
           description,
           model,
-          effort: 'normal',
+          effort,
           priority: 'NORMAL',
           scope: { directories, filesRead: [], filesWrite: [] },
           reason: 'One-off task via MCP deckent_run',
@@ -78,9 +81,18 @@ export function registerRunTool(server: McpServer): void {
           dockerImage: cfg.docker_image,
           dockerTimeoutSeconds: cfg.docker_timeout,
         });
+
+        // Per-task timeout: explicit override wins, else estimate from effort.
+        // Sprint 153 dogfood: default 1200s docker_min was hitting on broad
+        // audit prompts; effort="high" or timeoutSeconds=N gives the caller
+        // an escape hatch without raising the global default.
+        const effectiveTimeoutSeconds = timeoutSeconds
+          ?? brainEstimateTimeout(task as Task, cfg, { avgTaskDurationMs: 0, sprintCount: 0 }).timeoutSeconds;
+
         backend.spawn(taskId, model as ModelType, prompt, {
           autoApprove,
           projectDir: root,
+          taskTimeoutSeconds: effectiveTimeoutSeconds,
         });
 
         writeJobState(root, {
@@ -94,6 +106,8 @@ export function registerRunTool(server: McpServer): void {
           taskId,
           status: 'RUNNING',
           model,
+          effort,
+          timeoutSeconds: effectiveTimeoutSeconds,
           scope: directories,
           backend: backend.name,
         });

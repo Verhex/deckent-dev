@@ -101,38 +101,33 @@ describe('nervous_system config schema', () => {
     }
   });
 
-  // ─── Test 6: detectors has exactly 10 entries ─────────────────────────────
-  it('nervous_system.detectors has exactly 10 entries (5 active + 5 reserve)', () => {
+  // ─── Test 6: detectors has exactly 11 entries (Sprint 153 — 5 original + 6 added since Sprint 147)
+  it('nervous_system.detectors has 11 entries (5 original + 6 implemented post-Sprint-147)', () => {
     const config = createDefaultConfig();
     const detectors = config.nervous_system!.detectors;
     const detectorKeys = Object.keys(detectors);
-    expect(detectorKeys.length).toBe(10);
+    expect(detectorKeys.length).toBe(11);
 
-    // 5 active detectors
-    const activeDetectors = detectorKeys.filter(
-      k => detectors[k as keyof typeof detectors].enabled,
-    );
-    expect(activeDetectors.length).toBe(5);
-    expect(activeDetectors).toContain('stale_worker');
-    expect(activeDetectors).toContain('scope_collision');
-    expect(activeDetectors).toContain('debt_trend');
-    expect(activeDetectors).toContain('agent_routing');
-    expect(activeDetectors).toContain('directives_protection');
+    // 5 original active detectors (Sprint 145-147 wave)
+    expect(detectorKeys).toContain('stale_worker');
+    expect(detectorKeys).toContain('scope_collision');
+    expect(detectorKeys).toContain('debt_trend');
+    expect(detectorKeys).toContain('agent_routing');
+    expect(detectorKeys).toContain('directives_protection');
 
-    // 5 reserved detectors (enabled: false)
-    const reservedDetectors = detectorKeys.filter(
+    // 6 detectors added Sprint 147+ (T-152-012 audit confirmed implementations exist)
+    expect(detectorKeys).toContain('task_mode_idle');
+    expect(detectorKeys).toContain('build_failure_recurrence');
+    expect(detectorKeys).toContain('token_spike');
+    expect(detectorKeys).toContain('agent_routing_anomaly');
+    expect(detectorKeys).toContain('scope_collision_rate');
+    expect(detectorKeys).toContain('notification_delivery_health');
+
+    // task_mode_idle is the only one disabled by default (it only fires
+    // when deckent_style='task' which is not the default sprint mode).
+    const disabled = detectorKeys.filter(
       k => !detectors[k as keyof typeof detectors].enabled,
     );
-    expect(reservedDetectors.length).toBe(5);
-    expect(reservedDetectors).toContain('dead_event_stream');
-    expect(reservedDetectors).toContain('cost_threshold');
-    expect(reservedDetectors).toContain('prompt_quality');
-    expect(reservedDetectors).toContain('worker_output_variance');
-    expect(reservedDetectors).toContain('self_modifying_warner');
-
-    // All reserved detectors have reserve_for='sprint-148'
-    for (const key of reservedDetectors) {
-      expect(detectors[key as keyof typeof detectors].reserve_for).toBe('sprint-148');
-    }
+    expect(disabled).toEqual(['task_mode_idle']);
   });
 });

@@ -81,3 +81,78 @@ export async function verifySignature(
  */
 export const bytesToHex = ed.etc.bytesToHex;
 export const hexToBytes = ed.etc.hexToBytes;
+
+// ─── Skill Signature Helpers ────────────────────────────────────────
+
+export interface VerifySkillResult {
+  /** true when signature.ed25519 is present AND verifies against publicKey. */
+  readonly valid: boolean;
+  /** false when signature.ed25519 file is missing (skill is unsigned). */
+  readonly hasSignature: boolean;
+  /** Diagnostic explanation — empty when valid is true. */
+  readonly reason: string;
+}
+
+/**
+ * Build the canonical signing payload for a skill. Mirrors the format used by
+ * `deckent skill publish` (skill-marketplace.ts:218) so signatures produced by
+ * either path verify identically.
+ */
+export function buildSkillSignPayload(skillContent: string, manifest: unknown): string {
+  return skillContent + JSON.stringify(manifest);
+}
+
+/**
+ * Verify a skill's signature.ed25519 against the supplied hub public key.
+ *
+ * Returns:
+ *   - { valid: true,  hasSignature: true,  reason: '' }                — pass
+ *   - { valid: false, hasSignature: false, reason: 'no signature' }   — unsigned
+ *   - { valid: false, hasSignature: true,  reason: <explanation> }    — tampered or bad key
+ *
+ * Callers decide policy: `skill install` rejects { valid: false } unless
+ * `--allow-unsigned` is passed. The placeholder format
+ * `ed25519:placeholder:…` (used by Sprint 149 seed skills before keygen)
+ * is treated as INVALID — Sprint 153 sign-seed-skills.mjs replaces these.
+ */
+export async function verifySkillSignature(
+  skillDir: string,
+  publicKey: Uint8Array,
+): Promise<VerifySkillResult> {
+  const sigPath = join(skillDir, 'signature.ed25519');
+  const skillMdPath = join(skillDir, 'SKILL.md');
+  const manifestPath = join(skillDir, 'manifest.json');
+
+  if (!existsSync(sigPath)) {
+    return { valid: false, hasSignature: false, reason: 'signature.ed25519 missing' };
+  }
+  const sigRaw = readFileSync(sigPath, 'utf-8').trim();
+
+  // Reject Sprint 149 placeholder format outright
+  if (sigRaw.startsWith('ed25519:placeholder')) {
+    return { valid: false, hasSignature: true, reason: 'placeholder signature — re-sign with keygen' };
+  }
+
+  // Tolerate `ed25519:hub:<pubkey>:<sig>` long form (future format) or bare hex
+  let sigHex = sigRaw;
+  const colonParts = sigRaw.split(':');
+  if (colonParts.length === 4 && colonParts[0] === 'ed25519') {
+    sigHex = colonParts[3] ?? '';
+  }
+  // Sanity: ed25519 sig is 64 bytes = 128 hex chars
+  if (!/^[0-9a-fA-F]{128}$/.test(sigHex)) {
+    return { valid: false, hasSignature: true, reason: 'malformed signature (expected 128 hex chars)' };
+  }
+
+  if (!existsSync(skillMdPath) || !existsSync(manifestPath)) {
+    return { valid: false, hasSignature: true, reason: 'SKILL.md or manifest.json missing' };
+  }
+  const skillContent = readFileSync(skillMdPath, 'utf-8');
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
+  const payload = buildSkillSignPayload(skillContent, manifest);
+
+  const ok = await verifySignature(payload, sigHex, publicKey);
+  return ok
+    ? { valid: true, hasSignature: true, reason: '' }
+    : { valid: false, hasSignature: true, reason: 'signature does not match content + hub public key' };
+}

@@ -235,7 +235,7 @@ describe('skill improvements', () => {
       writeFileSync(join(sourceDir, 'manifest.json'), JSON.stringify(manifest, null, 2));
       writeFileSync(join(sourceDir, 'SKILL.md'), '# Test');
 
-      await run(['skill', 'install', sourceDir]);
+      await run(['skill', 'install', sourceDir, '--allow-unsigned']);
 
       const targetDir = join(testRoot, '.deckent/skills/no-nm-skill');
       expect(existsSync(targetDir)).toBe(true);
@@ -266,7 +266,7 @@ describe('skill improvements', () => {
       writeFileSync(join(sourceDir, 'manifest.json'), JSON.stringify(manifest, null, 2));
       writeFileSync(join(sourceDir, 'SKILL.md'), '# Meta');
 
-      await run(['skill', 'install', sourceDir]);
+      await run(['skill', 'install', sourceDir, '--allow-unsigned']);
 
       const targetDir = join(testRoot, '.deckent/skills/meta-skill');
       const metaPath = join(targetDir, '.source.json');
@@ -299,7 +299,7 @@ describe('skill improvements', () => {
       writeFileSync(join(sourceDir, 'manifest.json'), JSON.stringify(manifest, null, 2));
       writeFileSync(join(sourceDir, 'SKILL.md'), '# Checksum');
 
-      await run(['skill', 'install', sourceDir]);
+      await run(['skill', 'install', sourceDir, '--allow-unsigned']);
 
       expect(output.some(o => o.includes('Checksum') || o.includes('SHA-256'))).toBe(true);
 
