@@ -29,10 +29,11 @@ vi.mock('node:fs', () => ({
   existsSync: vi.fn().mockReturnValue(true),
   openSync: vi.fn().mockReturnValue(3),
   closeSync: vi.fn(),
+  readFileSync: vi.fn().mockReturnValue('{}'),
 }));
 
 import { spawn, spawnSync } from 'node:child_process';
-import { writeFileSync, mkdirSync, existsSync, openSync, closeSync } from 'node:fs';
+import { writeFileSync, mkdirSync, existsSync, openSync, closeSync, readFileSync } from 'node:fs';
 
 const mockSpawn = spawn as unknown as MockInstance;
 const mockSpawnSync = spawnSync as unknown as MockInstance;
@@ -41,6 +42,7 @@ const mockMkdirSync = mkdirSync as unknown as MockInstance;
 const mockExistsSync = existsSync as unknown as MockInstance;
 const mockOpenSync = openSync as unknown as MockInstance;
 const mockCloseSync = closeSync as unknown as MockInstance;
+const mockReadFileSync = readFileSync as unknown as MockInstance;
 
 // ─── Helpers ─────────────────────────────────────────────────────────
 
@@ -200,7 +202,7 @@ describe('GeminiAdapter', () => {
 
   it('buildArgs returns correct Gemini CLI arguments', () => {
     const args = adapter.buildArgs('gemini-2.5-pro', 'Hello Gemini');
-    expect(args).toEqual(['-p', 'Hello Gemini', '--output-format', 'json', '-m', 'gemini-2.5-pro', '--approval-mode', 'plan']);
+    expect(args).toEqual(['-p', 'Hello Gemini', '--output-format', 'json', '-m', 'gemini-2.5-pro', '--approval-mode', 'plan', '--skip-trust']);
   });
 
   it('buildArgs includes -p flag for headless mode', () => {
@@ -320,15 +322,38 @@ describe('GeminiAdapter', () => {
     ).toThrow(/Unsupported model/);
   });
 
-  it('spawn throws when API key is missing', () => {
+  it('spawn throws when no auth is configured (no OAuth creds, no API key)', () => {
     delete process.env.GOOGLE_API_KEY;
     delete process.env.DECKENT_GOOGLE_API_KEY;
+    delete process.env.GEMINI_API_KEY;
+    // Simulate clean host: no ~/.gemini/settings.json or oauth_creds.json
+    mockExistsSync.mockReturnValueOnce(false).mockReturnValueOnce(false);
     expect(() =>
       adapter.spawn('task-005', 'gemini-2.5-pro', 'Test'),
     ).toThrow(ProviderError);
+    mockExistsSync.mockReturnValueOnce(false).mockReturnValueOnce(false);
     expect(() =>
       adapter.spawn('task-005', 'gemini-2.5-pro', 'Test'),
-    ).toThrow(/GOOGLE_API_KEY/);
+    ).toThrow(/auth not configured/);
+  });
+
+  it('spawn succeeds with OAuth creds even without API key (subscription mode)', () => {
+    delete process.env.GOOGLE_API_KEY;
+    delete process.env.DECKENT_GOOGLE_API_KEY;
+    delete process.env.GEMINI_API_KEY;
+    // Simulate cached OAuth login: settings.json with oauth-personal selectedType
+    mockReadFileSync.mockReturnValue(
+      JSON.stringify({ security: { auth: { selectedType: 'oauth-personal' } } }),
+    );
+    setupMockChild();
+    expect(() =>
+      adapter.spawn('task-005-oauth', 'gemini-2.5-pro', 'Test'),
+    ).not.toThrow();
+    // Spawn env must NOT carry GEMINI_API_KEY in oauth mode
+    const callArgs = mockSpawn.mock.calls[mockSpawn.mock.calls.length - 1];
+    const env = callArgs?.[2]?.env ?? {};
+    expect(env.GEMINI_API_KEY).toBeUndefined();
+    expect(env.GOOGLE_API_KEY).toBeUndefined();
   });
 
   it('spawn throws for duplicate taskId', () => {

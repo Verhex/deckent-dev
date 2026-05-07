@@ -1,7 +1,7 @@
 /** doctor-checks.ts — Health check functions for `deckent doctor`. Sprint 144 split. */
 import { readFileSync, existsSync, readdirSync, accessSync, constants as fsConstants } from 'node:fs';
 import { join } from 'node:path';
-import { platform } from 'node:os';
+import { platform, homedir } from 'node:os';
 import { spawnSync } from 'node:child_process';
 import type { DoctorResult } from '../../core/types.js';
 import {
@@ -169,6 +169,115 @@ export function checkClaude(checkAuth = false): DoctorCheck {
     passed: true,
     message: `v${version}`,
     required: true,
+  };
+}
+
+export function checkGemini(providerNames?: string[]): DoctorCheck {
+  const required = !providerNames || providerNames.includes('gemini');
+  const result = spawnSync('gemini', ['--version'], { encoding: 'utf-8', timeout: 5_000 });
+  if (result.status !== 0) {
+    return {
+      name: 'Gemini CLI',
+      passed: !required,
+      message: required
+        ? 'not found — install: npm i -g @google/gemini-cli'
+        : 'not installed (optional — only required when gemini provider is selected)',
+      required,
+    };
+  }
+  const version = (result.stdout ?? '').trim();
+  // Inline auth detection (mirrors GeminiAdapter.detectAuthMode without instantiation cost)
+  let mode = 'none';
+  let source = 'unconfigured';
+  try {
+    const settingsPath = join(homedir(), '.gemini', 'settings.json');
+    if (existsSync(settingsPath)) {
+      const settings = JSON.parse(readFileSync(settingsPath, 'utf-8')) as {
+        security?: { auth?: { selectedType?: string } };
+      };
+      const sel = settings.security?.auth?.selectedType;
+      if (sel === 'oauth-personal') { mode = 'oauth'; source = 'Google login (oauth-personal)'; }
+      else if (sel === 'gemini-api-key') { mode = 'api_key'; source = 'gemini-api-key (settings.json)'; }
+      else if (sel === 'vertex-ai') { mode = 'vertex'; source = 'Vertex AI'; }
+      else if (sel === 'cloud-shell') { mode = 'cloud_shell'; source = 'Cloud Shell'; }
+    }
+  } catch {
+    // fall through
+  }
+  if (mode === 'none' && existsSync(join(homedir(), '.gemini', 'oauth_creds.json'))) {
+    mode = 'oauth';
+    source = '~/.gemini/oauth_creds.json';
+  }
+  if (mode === 'none') {
+    const envKey = process.env.DECKENT_GOOGLE_API_KEY ?? process.env.GOOGLE_API_KEY ?? process.env.GEMINI_API_KEY;
+    if (envKey) {
+      mode = 'api_key';
+      source = process.env.DECKENT_GOOGLE_API_KEY
+        ? 'env: DECKENT_GOOGLE_API_KEY'
+        : process.env.GOOGLE_API_KEY ? 'env: GOOGLE_API_KEY' : 'env: GEMINI_API_KEY';
+    }
+  }
+  if (mode === 'none') {
+    return {
+      name: 'Gemini CLI',
+      passed: !required,
+      message: `v${version} — not authenticated. Run \`gemini\` to login OR set GEMINI_API_KEY`,
+      required,
+    };
+  }
+  return {
+    name: 'Gemini CLI',
+    passed: true,
+    message: `v${version} — auth: ${mode} (${source})`,
+    required,
+  };
+}
+
+export function checkCodex(providerNames?: string[]): DoctorCheck {
+  const required = !providerNames || providerNames.includes('codex');
+  const result = spawnSync('codex', ['--version'], { encoding: 'utf-8', timeout: 5_000 });
+  if (result.status !== 0) {
+    return {
+      name: 'Codex CLI',
+      passed: !required,
+      message: required
+        ? 'not found — install: npm i -g @openai/codex'
+        : 'not installed (optional — only required when codex provider is selected)',
+      required,
+    };
+  }
+  const version = (result.stdout ?? '').trim();
+  // Auth detection: env var first (fast path), then `codex auth status`
+  let mode = 'none';
+  let source = 'unconfigured';
+  const envKey = process.env.DECKENT_OPENAI_API_KEY ?? process.env.OPENAI_API_KEY;
+  if (envKey) {
+    mode = 'api_key';
+    source = process.env.DECKENT_OPENAI_API_KEY ? 'env: DECKENT_OPENAI_API_KEY' : 'env: OPENAI_API_KEY';
+  } else {
+    try {
+      const auth = spawnSync('codex', ['auth', 'status'], { encoding: 'utf-8', timeout: 5_000 });
+      if (auth.status === 0 && auth.stdout?.includes('logged in')) {
+        mode = 'subscription';
+        source = 'codex auth (ChatGPT subscription)';
+      }
+    } catch {
+      // codex auth status not supported in this CLI variant — fall through
+    }
+  }
+  if (mode === 'none') {
+    return {
+      name: 'Codex CLI',
+      passed: !required,
+      message: `v${version} — not authenticated. Run \`codex login\` OR set OPENAI_API_KEY`,
+      required,
+    };
+  }
+  return {
+    name: 'Codex CLI',
+    passed: true,
+    message: `v${version} — auth: ${mode} (${source})`,
+    required,
   };
 }
 
@@ -430,6 +539,7 @@ export function runDoctorChecks(root: string, providerNames?: string[], spawnBac
   const checks: DoctorCheck[] = [
     checkPlatform(),
     checkNode(), checkGit(), checkTmux(providerNames, spawnBackend), checkDocker(spawnBackend), checkClaude(),
+    checkGemini(providerNames), checkCodex(providerNames),
     checkWorkspace(root), checkBrainDir(root), checkDirectives(root),
     checkBrainBudget(root), checkDebt(root), checkStaleLocks(root),
     checkDeckSecurity(root), checkWritePermissions(root), checkGitignore(root),

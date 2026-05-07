@@ -10,7 +10,9 @@ import {
   existsSync,
   openSync,
   closeSync,
+  readFileSync,
 } from 'node:fs';
+import { homedir } from 'node:os';
 import { join } from 'node:path';
 import type { ModelType, GeminiModel } from '../core/types.js';
 import type { ProviderAdapter, ProviderSpawnOptions } from '../core/provider.js';
@@ -42,6 +44,17 @@ const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models
 
 /** Auth header name per official Google AI docs (used by REST API fallback) */
 export const GEMINI_AUTH_HEADER = 'x-goog-api-key';
+
+/** Auth modes supported by Gemini CLI */
+export type GeminiAuthMode = 'api_key' | 'oauth' | 'vertex' | 'cloud_shell' | 'none';
+
+/** Structured auth detection result for doctor and observability surfaces */
+export interface GeminiAuthDetails {
+  mode: GeminiAuthMode;
+  source: string;
+  ready: boolean;
+  hint?: string;
+}
 
 // ─── Gemini CLI Output Parser ────────────────────────────────────────
 
@@ -198,10 +211,10 @@ export class GeminiAdapter implements ProviderAdapter {
       );
     }
 
-    const apiKey = this.getApiKey();
-    if (!apiKey) {
+    const auth = this.getAuthDetails();
+    if (!auth.ready) {
       throw new ProviderError(
-        'GOOGLE_API_KEY environment variable is not set',
+        `Gemini auth not configured: ${auth.hint ?? 'no credentials found'}`,
         this.name,
       );
     }
@@ -216,10 +229,22 @@ export class GeminiAdapter implements ProviderAdapter {
     // Build args for the Gemini CLI
     const args = this.buildArgs(model, prompt);
 
+    // Build env per auth mode:
+    //   api_key → inject GEMINI_API_KEY + GOOGLE_API_KEY (CLI accepts both)
+    //   oauth/vertex/cloud_shell → leave env clean, CLI reads cached creds
+    const spawnEnv: NodeJS.ProcessEnv = { ...process.env };
+    if (auth.mode === 'api_key') {
+      const apiKey = this.getApiKey();
+      if (apiKey) {
+        if (!spawnEnv.GEMINI_API_KEY) spawnEnv.GEMINI_API_KEY = apiKey;
+        if (!spawnEnv.GOOGLE_API_KEY) spawnEnv.GOOGLE_API_KEY = apiKey;
+      }
+    }
+
     const spawnOpts: NodeSpawnOptions = {
       cwd: dir,
       stdio: ['pipe', logFd, logFd],
-      env: { ...process.env, GOOGLE_API_KEY: apiKey },
+      env: spawnEnv,
     };
 
     const child = spawn('gemini', args, spawnOpts);
@@ -283,10 +308,13 @@ export class GeminiAdapter implements ProviderAdapter {
    * Build CLI arguments for `gemini` binary invocation.
    * Uses `-p` flag for headless/non-interactive mode.
    * Uses `-m` short flag (Gemini CLI docs: `-m gemini-2.5-flash`).
-   * Adds `--approval-mode plan` for non-interactive auto-approval.
+   * Adds `--approval-mode plan` for read-only execution.
+   * Adds `--skip-trust` so the worker's containerized cwd (e.g. /workspace)
+   * doesn't trip Gemini's trusted-folders check, which silently overrides
+   * approval-mode → 'default' and then hangs waiting for interactive approval.
    */
   buildArgs(model: ModelType, prompt: string): string[] {
-    return ['-p', prompt, '--output-format', 'json', '-m', model, '--approval-mode', 'plan'];
+    return ['-p', prompt, '--output-format', 'json', '-m', model, '--approval-mode', 'plan', '--skip-trust'];
   }
 
   // ─── buildCommand() ────────────────────────────────────────────────
@@ -296,7 +324,7 @@ export class GeminiAdapter implements ProviderAdapter {
     promptPath: string,
     _opts?: Pick<ProviderSpawnOptions, 'allowedTools' | 'autoApprove'>,
   ): string {
-    return `gemini -p "$(cat ${promptPath})" --output-format json -m ${model} --approval-mode plan`;
+    return `gemini -p "$(cat ${promptPath})" --output-format json -m ${model} --approval-mode plan --skip-trust`;
   }
 
   /**
@@ -479,7 +507,77 @@ export class GeminiAdapter implements ProviderAdapter {
   }
 
   getApiKey(): string | undefined {
-    return process.env.DECKENT_GOOGLE_API_KEY ?? process.env.GOOGLE_API_KEY;
+    return (
+      process.env.DECKENT_GOOGLE_API_KEY ??
+      process.env.GOOGLE_API_KEY ??
+      process.env.GEMINI_API_KEY
+    );
+  }
+
+  /**
+   * Detect the active auth mode for Gemini CLI.
+   *
+   * Resolution order:
+   *   1. ~/.gemini/settings.json → security.auth.selectedType (explicit user choice)
+   *   2. ~/.gemini/oauth_creds.json present → cached OAuth login
+   *   3. Env var (DECKENT_GOOGLE_API_KEY | GOOGLE_API_KEY | GEMINI_API_KEY)
+   *   4. 'none'
+   *
+   * `oauth-personal` covers both free Code Assist license and AI Pro/Ultra subs;
+   * Google routes quota by Google account, not by selectedType.
+   */
+  detectAuthMode(): GeminiAuthMode {
+    try {
+      const settingsPath = join(homedir(), '.gemini', 'settings.json');
+      if (existsSync(settingsPath)) {
+        const raw = readFileSync(settingsPath, 'utf-8');
+        const settings = JSON.parse(raw) as { security?: { auth?: { selectedType?: string } } };
+        const sel = settings.security?.auth?.selectedType;
+        if (sel === 'oauth-personal') return 'oauth';
+        if (sel === 'gemini-api-key') return 'api_key';
+        if (sel === 'vertex-ai') return 'vertex';
+        if (sel === 'cloud-shell') return 'cloud_shell';
+      }
+    } catch {
+      // settings.json unreadable or malformed → fall through to file/env probes
+    }
+
+    if (existsSync(join(homedir(), '.gemini', 'oauth_creds.json'))) {
+      return 'oauth';
+    }
+
+    if (this.getApiKey()) return 'api_key';
+
+    return 'none';
+  }
+
+  /** Structured auth detail for `deckent doctor` and observability surfaces. */
+  getAuthDetails(): GeminiAuthDetails {
+    const mode = this.detectAuthMode();
+    switch (mode) {
+      case 'oauth':
+        return { mode, source: '~/.gemini/oauth_creds.json (Google login)', ready: true };
+      case 'api_key': {
+        const src = process.env.DECKENT_GOOGLE_API_KEY
+          ? 'DECKENT_GOOGLE_API_KEY'
+          : process.env.GOOGLE_API_KEY
+            ? 'GOOGLE_API_KEY'
+            : 'GEMINI_API_KEY';
+        return { mode, source: `env: ${src}`, ready: true };
+      }
+      case 'vertex':
+        return { mode, source: 'Vertex AI (settings.json)', ready: true };
+      case 'cloud_shell':
+        return { mode, source: 'Google Cloud Shell', ready: true };
+      case 'none':
+      default:
+        return {
+          mode: 'none',
+          source: 'unconfigured',
+          ready: false,
+          hint: 'Run `gemini` to login OR set GEMINI_API_KEY / GOOGLE_API_KEY',
+        };
+    }
   }
 
   /**

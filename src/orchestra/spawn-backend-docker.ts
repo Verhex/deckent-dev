@@ -11,8 +11,78 @@ import { homedir, totalmem } from 'node:os';
 import type { ModelType } from '../core/types.js';
 import { TASKS_DIR } from '../core/constants.js';
 import { debugLog } from '../core/utils.js';
+import { getProviderForModel } from '../core/task-types.js';
+import type { ProviderName } from '../core/model-equivalence.js';
 import type { SpawnBackend, SpawnBackendOptions } from './spawn-backend.js';
 import { SpawnBackendError } from './spawn-backend.js';
+
+// ─── Provider-aware command builder ────────────────────────────────────────
+
+interface ProviderInvocation {
+  /** Full shell command (including args). Prompt is either embedded or fed via stdin. */
+  cliCmd: string;
+  /** If true, runner appends `< "${promptPath}"` for stdin redirection. */
+  promptViaStdin: boolean;
+  /** Shell lines to run before invocation (e.g., session-env scaffolding). */
+  preExec: string[];
+}
+
+/**
+ * Build provider-specific CLI invocation for the in-container worker script.
+ *
+ * Each provider has different argument grammar:
+ *   - Claude:  stdin via `-p -`, `--allowedTools`, `--dangerously-skip-permissions`
+ *   - Gemini:  inline prompt via `-p "$(cat ...)"`, `--skip-trust` (trust folder bypass),
+ *              `--approval-mode plan` (read-only worker), `-m <model>`
+ *   - Codex:   inline prompt via positional arg, `exec --full-auto --model <model>`
+ *
+ * Cred mounts (~/.claude, ~/.gemini, ~/.codex) are handled by the mount block above —
+ * here we only construct the command + any pre-exec scaffolding the CLI requires.
+ */
+function buildProviderInvocation(
+  provider: ProviderName,
+  model: ModelType,
+  promptContainerPath: string,
+  containerHome: string,
+  opts?: SpawnBackendOptions,
+): ProviderInvocation {
+  switch (provider) {
+    case 'claude': {
+      const args = ['-p', '-', '--model', model];
+      if (opts?.allowedTools) {
+        args.push('--allowedTools', `"${opts.allowedTools}"`);
+      }
+      args.push('--dangerously-skip-permissions');
+      return {
+        cliCmd: `claude ${args.join(' ')}`,
+        promptViaStdin: true,
+        preExec: [
+          `mkdir -p "${containerHome}/.claude" 2>/dev/null || true`,
+          `touch "${containerHome}/.claude/session-env" 2>/dev/null || true`,
+        ],
+      };
+    }
+    case 'gemini':
+      return {
+        cliCmd: `gemini -p "$(cat ${promptContainerPath})" --output-format json -m ${model} --approval-mode plan --skip-trust`,
+        promptViaStdin: false,
+        preExec: [],
+      };
+    case 'codex':
+      return {
+        cliCmd: `codex exec --full-auto "$(cat ${promptContainerPath})" --model ${model}`,
+        promptViaStdin: false,
+        preExec: [],
+      };
+    default: {
+      const _exhaustive: never = provider;
+      throw new SpawnBackendError(
+        `Unknown provider for Docker backend: ${String(_exhaustive)}`,
+        'docker',
+      );
+    }
+  }
+}
 
 // ─── Constants ────────────────────────────────────────────────────────────
 
@@ -98,17 +168,13 @@ export class DockerSpawnBackend implements SpawnBackend {
     const promptHostPath = join(tasksDir, promptFileName);
     writeFileSync(promptHostPath, prompt, 'utf-8');
 
-    // Build Claude CLI command inside container
-    const claudeArgs: string[] = ['-p', '-', '--model', model];
-    if (opts?.allowedTools) {
-      // Double-quote the value — allowedTools contains parentheses like Write(.tasks/)
-      // which sh (dash) interprets as subshell syntax without quoting
-      claudeArgs.push('--allowedTools', `"${opts.allowedTools}"`);
-    }
-    // IMMUTABLE — Deckent standard: workers MUST have full write permissions
-    claudeArgs.push('--dangerously-skip-permissions');
+    // Provider-aware CLI invocation: routes to claude / gemini / codex per model.
+    // Pre-Sprint-154, this was hardcoded to claude regardless of model — broke multi-provider Docker.
+    const provider = getProviderForModel(model);
+    const promptContainerPath = `${CONTAINER_WORKSPACE}/${TASKS_DIR}/${promptFileName}`;
+    const containerHome = '/tmp/deckent-home';
+    const invocation = buildProviderInvocation(provider, model, promptContainerPath, containerHome, opts);
 
-    const claudeCmd = `claude ${claudeArgs.join(' ')}`;
     const resultPath = `${CONTAINER_WORKSPACE}/${TASKS_DIR}/task-${taskId}.result`;
     const timeoutPath = `${CONTAINER_WORKSPACE}/${TASKS_DIR}/task-${taskId}.timeout`;
     // Build docker run args
@@ -116,11 +182,6 @@ export class DockerSpawnBackend implements SpawnBackend {
     const uid = process.getuid?.() ?? 1000;
     const gid = process.getgid?.() ?? 1000;
     const home = homedir();
-
-    // Container HOME: use /tmp/deckent-home to avoid missing host HOME directory
-    // Host HOME (e.g. /home/alperen) doesn't exist in container filesystem.
-    // Claude CLI needs a writable HOME for config + cache.
-    const containerHome = '/tmp/deckent-home';
 
     // Write worker script to .tasks/ — avoids shell quoting issues with allowedTools parentheses
     const scriptFileName = `.worker-${taskId}.sh`;
@@ -179,7 +240,7 @@ export class DockerSpawnBackend implements SpawnBackend {
       '    local signal_info=""',
       '    [ "$exit_code" -gt 128 ] && signal_info=" signal=$((exit_code - 128))"',
       `    cat > "$RFILE" <<RESULTEOF`,
-      `{"taskId":"${taskId}","selfAssessment":"TIMEOUT_WITH_WORK","filesChanged":$json_array,"exitCode":$exit_code,"notes":"Worker timeout/killed (exitCode=$exit_code$signal_info)$timeout_hit but git diff shows $count files modified. Brain should reconcile via Spurious NO_GO helper.","tokenUsage":{"inputTokens":0,"outputTokens":0,"cacheReadTokens":0,"provider":"claude","model":"${model}"}}`,
+      `{"taskId":"${taskId}","selfAssessment":"TIMEOUT_WITH_WORK","filesChanged":$json_array,"exitCode":$exit_code,"notes":"Worker timeout/killed (exitCode=$exit_code$signal_info)$timeout_hit but git diff shows $count files modified. Brain should reconcile via Spurious NO_GO helper.","tokenUsage":{"inputTokens":0,"outputTokens":0,"cacheReadTokens":0,"provider":"${provider}","model":"${model}"}}`,
       'RESULTEOF',
       '  else',
       // No partial work AND no result written — fall back to NO_GO
@@ -187,7 +248,7 @@ export class DockerSpawnBackend implements SpawnBackend {
       '    local signal_info_nw=""',
       '    [ "$exit_code" -gt 128 ] && signal_info_nw=" signal=$((exit_code - 128))"',
       `    cat > "$RFILE" <<NORESULTEOF`,
-      `{"taskId":"${taskId}","workerId":"docker-${taskId}","filesChanged":[],"linesAdded":0,"linesRemoved":0,"testsPassed":false,"coverage":0,"selfAssessment":"NO_GO","exitCode":$exit_code,"notes":"Worker exited without writing result (exitCode=$exit_code$signal_info_nw)$timeout_hit","tokenUsage":{"inputTokens":0,"outputTokens":0,"cacheReadTokens":0,"provider":"claude","model":"${model}"}}`,
+      `{"taskId":"${taskId}","workerId":"docker-${taskId}","filesChanged":[],"linesAdded":0,"linesRemoved":0,"testsPassed":false,"coverage":0,"selfAssessment":"NO_GO","exitCode":$exit_code,"notes":"Worker exited without writing result (exitCode=$exit_code$signal_info_nw)$timeout_hit","tokenUsage":{"inputTokens":0,"outputTokens":0,"cacheReadTokens":0,"provider":"${provider}","model":"${model}"}}`,
       'NORESULTEOF',
       '  fi',
       '  fsync_file "$RFILE"',
@@ -210,14 +271,13 @@ export class DockerSpawnBackend implements SpawnBackend {
       'fsync_file() { [ -f "$1" ] && dd if="$1" of="$1.fsync" bs=4096 conv=fsync 2>/dev/null && mv "$1.fsync" "$1" 2>/dev/null; }',
       // Sprint 145: git-diff-aware EXIT trap function
       onExitFn,
-      // Ensure session-env exists (Claude CLI requires it)
-      `mkdir -p "${containerHome}/.claude" 2>/dev/null || true`,
-      `touch "${containerHome}/.claude/session-env" 2>/dev/null || true`,
-      // Sprint 151: Write .partial-result BEFORE Claude CLI starts — OOM kill safety net.
+      // Provider-specific pre-exec scaffolding (e.g. claude session-env, no-ops for gemini/codex)
+      ...invocation.preExec,
+      // Sprint 151: Write .partial-result BEFORE provider CLI starts — OOM kill safety net.
       // If container is SIGKILL'd (OOM), this file survives on the shared volume.
       // Host-side monitorContainer promotes it to .result with NO_GO_PARTIAL assessment.
       `cat > "$PRFILE" <<PARTIALEOF`,
-      `{"taskId":"${taskId}","selfAssessment":"NO_GO","notes":"Worker started but did not complete — partial-result written at startup. If you see this, the container was likely OOM-killed or force-stopped before Claude CLI could write a .result.","partialMarker":true,"tokenUsage":{"inputTokens":0,"outputTokens":0,"cacheReadTokens":0,"provider":"claude","model":"${model}"}}`,
+      `{"taskId":"${taskId}","selfAssessment":"NO_GO","notes":"Worker started but did not complete — partial-result written at startup. If you see this, the container was likely OOM-killed or force-stopped before the provider CLI could write a .result.","partialMarker":true,"tokenUsage":{"inputTokens":0,"outputTokens":0,"cacheReadTokens":0,"provider":"${provider}","model":"${model}"}}`,
       'PARTIALEOF',
       'fsync_file "$PRFILE"',
       // EXIT trap: Sprint 145 — calls on_exit() which detects partial work via git diff
@@ -228,7 +288,11 @@ export class DockerSpawnBackend implements SpawnBackend {
       `( SEQ=2; while true; do sleep 15; SEQ=$((SEQ+1)); echo "{\\"workerId\\":\\"docker-${taskId}\\",\\"taskId\\":\\"${taskId}\\",\\"status\\":\\"EXECUTING\\",\\"sequence\\":$SEQ,\\"timestamp\\":\\"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\\",\\"backend\\":\\"docker\\"}" > "$HBFILE"; done ) &`,
       'HB_PID=$!',
       `TIMEOUT=\${TASK_TIMEOUT:-${effectiveTimeout}}`,
-      `timeout $TIMEOUT ${claudeCmd} < "${CONTAINER_WORKSPACE}/${TASKS_DIR}/${promptFileName}" || echo "WORKER_TIMEOUT" > "${timeoutPath}"`,
+      // Provider-aware exec: claude reads prompt via stdin (`< promptPath`); gemini/codex
+      // embed it inline via `$(cat promptPath)` in their cliCmd, so no stdin redirect.
+      invocation.promptViaStdin
+        ? `timeout $TIMEOUT ${invocation.cliCmd} < "${promptContainerPath}" || echo "WORKER_TIMEOUT" > "${timeoutPath}"`
+        : `timeout $TIMEOUT ${invocation.cliCmd} || echo "WORKER_TIMEOUT" > "${timeoutPath}"`,
       // Sprint 151: Clean up .partial-result on normal exit — on_exit/EXIT trap handles abnormal exit
       'rm -f "$PRFILE" 2>/dev/null',
     ].join('\n');
@@ -261,6 +325,15 @@ export class DockerSpawnBackend implements SpawnBackend {
       ...(existsSync(join(home, '.claude.json'))
         ? ['-v', `${join(home, '.claude.json')}:${containerHome}/.claude.json`]
         : []),
+      // Gemini auth — OAuth creds + settings cached in ~/.gemini/ (mounted rw: gemini CLI
+      // refreshes oauth_creds.json on token expiry; ro mount triggers EROFS hang)
+      ...(existsSync(join(home, '.gemini'))
+        ? ['-v', `${join(home, '.gemini')}:${containerHome}/.gemini`]
+        : []),
+      // Codex auth — subscription tokens cached in ~/.codex/ (rw: token refresh symmetry with Gemini)
+      ...(existsSync(join(home, '.codex'))
+        ? ['-v', `${join(home, '.codex')}:${containerHome}/.codex`]
+        : []),
       // Working directory
       '-w', CONTAINER_WORKSPACE,
     ];
@@ -272,7 +345,16 @@ export class DockerSpawnBackend implements SpawnBackend {
     dockerArgs.push('-e', `TASK_TIMEOUT=${effectiveTimeout}`);
 
     // Pass API keys if available (for Codex/Gemini providers)
-    const envKeys = ['ANTHROPIC_API_KEY', 'OPENAI_API_KEY', 'GOOGLE_API_KEY', 'DECKENT_DEBUG'];
+    // GEMINI_API_KEY: official Gemini CLI env (added Sprint 154 — parity with deckent's GOOGLE_API_KEY alias)
+    const envKeys = [
+      'ANTHROPIC_API_KEY',
+      'OPENAI_API_KEY',
+      'DECKENT_OPENAI_API_KEY',
+      'GOOGLE_API_KEY',
+      'GEMINI_API_KEY',
+      'DECKENT_GOOGLE_API_KEY',
+      'DECKENT_DEBUG',
+    ];
     for (const key of envKeys) {
       if (process.env[key]) {
         dockerArgs.push('-e', `${key}=${process.env[key]}`);
