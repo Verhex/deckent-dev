@@ -1,0 +1,32 @@
+{
+  "id": "153-004-fix",
+  "title": "Fix: `opus.apiId` model ID güncelle (4-6 → 4-7)",
+  "description": "Priority fix for NO_GO task 153-004.\nOriginal worker notes: Worker timeout/killed (exitCode=0) — HIT WORKER_TIMEOUT (task exceeded its timeout budget; re-run with longer --timeout or split scope) but git diff shows 12 files modified. Brain should reconcile via Spurious NO_GO helper.\nExpected scope: src/core/, tests/core/\nFiles that should change: src/core/model-registry.ts, tests/core/model-registry.test.ts",
+  "model": "sonnet",
+  "effort": "low",
+  "priority": "CRITICAL",
+  "reason": "Task 153-004 evaluated as NO_GO; tests failed",
+  "scope": {
+    "directories": [
+      "src/core/",
+      "tests/core/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "src/core/model-registry.ts",
+      "tests/core/model-registry.test.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanit:** `grep \"claude-opus-4-7\" src/core/model-registry.ts` → 1 hit; `grep \"claude-opus-4-6\" src/` → 0 hit (test fixture hariç)",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "EXECUTING",
+  "sprintId": "sprint-153",
+  "isPriorityFix": true,
+  "fixForTaskId": "153-004",
+  "createdAt": "2026-05-07T06:52:28.342Z",
+  "estimatedTokens": 68
+}

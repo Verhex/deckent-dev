@@ -1,0 +1,98 @@
+{
+  "id": "153-006",
+  "title": "SSE keepalive heartbeat",
+  "description": "SSE keepalive heartbeat\n- Model: sonnet\n- Effort: normal\n- Skills: typescript-expert, performance-optimizer\n- Files: src/api/server.ts, tests/api/sse.test.ts\n- Scope: src/api/, tests/api/\n\n### Description\n`/api/events` SSE endpoint 20s aralıklarla `:keepalive\\n\\n` comment frame yazsın (Nginx/Cloudflare default 60s idle timeout altında). `setInterval` event-loop unref'lı, response close olunca clear.\n\n**Kanit:** `grep \":keepalive\" src/api/server.ts` → 1 hit\n**Test:** 2+ test (keepalive interval gönderir, response close cleanup)\n\n---",
+  "model": "sonnet",
+  "effort": "normal",
+  "priority": "NORMAL",
+  "reason": "Directive (model: sonnet -- user override)",
+  "scope": {
+    "directories": [
+      "src/api/",
+      "tests/api/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "src/api/server.ts",
+      "tests/api/sse.test.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanit:** `grep \":keepalive\" src/api/server.ts` → 1 hit",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-153",
+  "provider": "claude",
+  "forceModel": "sonnet",
+  "forceEffort": "normal",
+  "forceSkills": [
+    "typescript-expert",
+    "performance-optimizer"
+  ],
+  "assignedAgent": "api-builder",
+  "assignedSkills": [
+    "typescript-expert",
+    "performance-optimizer"
+  ],
+  "createdAt": "2026-05-07T06:14:43.784Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "implementation",
+        "secondary": [
+          "documentation"
+        ],
+        "confidence": 0.95
+      },
+      "subIntent": "config",
+      "tags": [
+        "test-coverage"
+      ],
+      "domains": [
+        {
+          "name": "api",
+          "weight": 1
+        }
+      ],
+      "operations": [
+        {
+          "type": "delete",
+          "weight": 0.25
+        },
+        {
+          "type": "test",
+          "weight": 0.25
+        },
+        {
+          "type": "document",
+          "weight": 0.25
+        },
+        {
+          "type": "create",
+          "weight": 0.25
+        }
+      ],
+      "complexity": {
+        "fileCount": 2,
+        "moduleCount": 1,
+        "crossCutting": false,
+        "estimatedSize": "small"
+      },
+      "scope": {
+        "writeRatio": {
+          "src/": 0.5,
+          "tests/": 0.5
+        },
+        "primaryWriteTarget": "src/",
+        "testWriteRatio": 0.5
+      }
+    },
+    "confidence": "low",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 1755,
+  "updatedAt": "2026-05-07T06:52:28.343Z"
+}

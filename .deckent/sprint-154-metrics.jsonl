@@ -1,0 +1,3 @@
+{"type":"metric","name":"collision.detected","value":2,"tags":{"pairs":"2","sprintId":"sprint-154"},"timestamp":"2026-05-07T05:35:34.193Z"}
+{"type":"metric","name":"wave.start","value":0,"tags":{"wave":"legacy","count":"6","sprintId":"sprint-154"},"timestamp":"2026-05-07T05:35:34.193Z"}
+{"type":"metric","name":"hb.stale","value":1,"tags":{"taskId":"test-docker-54405","sprintId":"sprint-154"},"timestamp":"2026-05-07T05:38:39.986Z"}

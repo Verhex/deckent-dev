@@ -1,0 +1,11 @@
+{
+  "taskId": "153-008",
+  "workerId": "w-153-008",
+  "filesChanged": [],
+  "linesAdded": 0,
+  "linesRemoved": 0,
+  "testsPassed": false,
+  "coverage": 0,
+  "selfAssessment": "NO_GO",
+  "notes": "Worker had heartbeat but failed to write result within grace period — kill blocked by panic guard (user approval required)"
+}

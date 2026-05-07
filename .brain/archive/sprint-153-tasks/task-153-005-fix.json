@@ -1,0 +1,35 @@
+{
+  "id": "153-005-fix",
+  "title": "Fix: FIX phase timeout 600s → 1800s",
+  "description": "Priority fix for NO_GO task 153-005.\nOriginal worker notes: Worker timeout/killed (exitCode=0) — HIT WORKER_TIMEOUT (task exceeded its timeout budget; re-run with longer --timeout or split scope) but git diff shows 12 files modified. Brain should reconcile via Spurious NO_GO helper.\nExpected scope: src/orchestra/, src/core/, tests/orchestra/\nFiles that should change: src/orchestra/sprint-controller.ts, src/core/config-types.ts, src/core/config.ts, tests/orchestra/fix-phase.test.ts",
+  "model": "sonnet",
+  "effort": "low",
+  "priority": "CRITICAL",
+  "reason": "Task 153-005 evaluated as NO_GO; tests failed",
+  "scope": {
+    "directories": [
+      "src/orchestra/",
+      "src/core/",
+      "tests/orchestra/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "src/orchestra/sprint-controller.ts",
+      "src/core/config-types.ts",
+      "src/core/config.ts",
+      "tests/orchestra/fix-phase.test.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanit:** `grep \"fix_phase_timeout\" src/core/config-types.ts` → 1 hit; default `1800`",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "EXECUTING",
+  "sprintId": "sprint-153",
+  "isPriorityFix": true,
+  "fixForTaskId": "153-005",
+  "createdAt": "2026-05-07T06:52:28.343Z",
+  "estimatedTokens": 72
+}

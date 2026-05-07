@@ -4244,3 +4244,35 @@ the move stays local.
 - **A1+A2** Telegram/Discord smoke — token Pazar bekleniyor
 
 ---
+## Sprint 153 — sprint-153
+
+**Status:** RETROSPECTIVE
+**Date:** 2026-05-07
+**Duration:** 2871s
+
+### Results
+
+| Metric | Value |
+|--------|-------|
+| Total Tasks | 6 |
+| Completed | 0 |
+| Tech Debt | 0 |
+| No-Go | 6 |
+| Coverage | NaN% |
+| Duration | 2870883ms |
+
+### Tasks
+
+- 153-001: Doc drift — version + agent/CLI/MCP count senk (NO_GO)
+- 153-002: `deckent config read` subcommand implement (NO_GO)
+- 153-003: `deckent memory-query` CLI wrapper (NO_GO)
+- 153-004: `opus.apiId` model ID güncelle (4-6 → 4-7) (NO_GO)
+- 153-005: FIX phase timeout 600s → 1800s (NO_GO)
+- 153-006: SSE keepalive heartbeat (NO_GO)
+- 153-007: 3 `shell:true` residual fix (ADR-006 literal compliance) (PENDING)
+- 153-008: Dockerfile.worker USER deckent directive (PENDING)
+- 153-009: Dashboard StatusPage.tsx orphan kaldır (PENDING)
+- 153-010: Dashboard routes.tsx vs App.tsx drift fix (PENDING)
+- 153-011: Vitest 9 residual fail triage (PENDING)
+
+---

@@ -1,0 +1,52 @@
+{
+  "id": "153-001-fix",
+  "title": "Fix: Doc drift — version + agent/CLI/MCP count senk",
+  "description": "Priority fix for NO_GO task 153-001.\nOriginal worker notes: Worker timeout/killed (exitCode=0) — HIT WORKER_TIMEOUT (task exceeded its timeout budget; re-run with longer --timeout or split scope) but git diff shows 12 files modified. Brain should reconcile via Spurious NO_GO helper.\nExpected scope: src/cli/commands/, src/mcp/tools/, docs/, src/cli/commands/help.ts/, src/mcp/tools/help.ts/, .deckent/workspace/, top-level .md files/, src/cli/, tests/cli/, tests/mcp/\nFiles that should change: .deckent/workspace/IDENTITY.md, DECKENT.md, CLAUDE.md, README.md, src/cli/commands/help.ts, src/mcp/tools/help.ts, IDENTITY.md, .md, src/cli/index.ts, .4, .0-beta, .ts, tests/cli/help.test.ts, tests/mcp/help.test.ts",
+  "model": "sonnet",
+  "effort": "low",
+  "priority": "CRITICAL",
+  "reason": "Task 153-001 evaluated as NO_GO; tests failed",
+  "scope": {
+    "directories": [
+      "src/cli/commands/",
+      "src/mcp/tools/",
+      "docs/",
+      "src/cli/commands/help.ts/",
+      "src/mcp/tools/help.ts/",
+      ".deckent/workspace/",
+      "top-level .md files/",
+      "src/cli/",
+      "tests/cli/",
+      "tests/mcp/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      ".deckent/workspace/IDENTITY.md",
+      "DECKENT.md",
+      "CLAUDE.md",
+      "README.md",
+      "src/cli/commands/help.ts",
+      "src/mcp/tools/help.ts",
+      "IDENTITY.md",
+      ".md",
+      "src/cli/index.ts",
+      ".4",
+      ".0-beta",
+      ".ts",
+      "tests/cli/help.test.ts",
+      "tests/mcp/help.test.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanit:** `grep -rE \"(16 built-in|49 CLI|22 tool|23 tool|27 tool|0\\.4\\.0-beta)\" --include=\"*.md\" --include=\"*.ts\" docs/ DECKENT.md CLAUDE.md README.md src/` → 0 hit",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "EXECUTING",
+  "sprintId": "sprint-153",
+  "isPriorityFix": true,
+  "fixForTaskId": "153-001",
+  "createdAt": "2026-05-07T06:52:28.340Z",
+  "estimatedTokens": 98
+}

@@ -1,0 +1,103 @@
+{
+  "id": "153-005",
+  "title": "FIX phase timeout 600s → 1800s",
+  "description": "FIX phase timeout 600s → 1800s\n- Model: sonnet\n- Effort: low\n- Skills: typescript-expert\n- Files: src/orchestra/sprint-controller.ts, src/core/config-types.ts, src/core/config.ts, tests/orchestra/fix-phase.test.ts\n- Scope: src/orchestra/, src/core/, tests/orchestra/\n\n### Description\nSprint 152 audit kanıtı: opus FIX task'ları 600s'de tamamlanamadı (timeout cascade). Default'u 1800s (30dk) yap, config key ile override edilebilir bırak (`fix_phase_timeout_seconds`). Default değişimi backward-compat — eski config'ler etkilenmez.\n\n**Kanit:** `grep \"fix_phase_timeout\" src/core/config-types.ts` → 1 hit; default `1800`\n**Test:** 2+ test (default value, config override)\n\n---",
+  "model": "sonnet",
+  "effort": "low",
+  "priority": "NORMAL",
+  "reason": "Directive (model: sonnet -- user override)",
+  "scope": {
+    "directories": [
+      "src/orchestra/",
+      "src/core/",
+      "tests/orchestra/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "src/orchestra/sprint-controller.ts",
+      "src/core/config-types.ts",
+      "src/core/config.ts",
+      "tests/orchestra/fix-phase.test.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanit:** `grep \"fix_phase_timeout\" src/core/config-types.ts` → 1 hit; default `1800`",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-153",
+  "provider": "claude",
+  "forceModel": "sonnet",
+  "forceEffort": "low",
+  "forceSkills": [
+    "typescript-expert"
+  ],
+  "assignedAgent": "temp-react-ts-specialist",
+  "assignedSkills": [
+    "typescript-expert"
+  ],
+  "createdAt": "2026-05-07T06:14:43.784Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "implementation",
+        "secondary": [
+          "config"
+        ],
+        "confidence": 0.95
+      },
+      "subIntent": "types",
+      "tags": [
+        "test-coverage"
+      ],
+      "domains": [
+        {
+          "name": "orchestra",
+          "weight": 0.57
+        },
+        {
+          "name": "core",
+          "weight": 0.43
+        }
+      ],
+      "operations": [
+        {
+          "type": "modify",
+          "weight": 0.25
+        },
+        {
+          "type": "test",
+          "weight": 0.25
+        },
+        {
+          "type": "configure",
+          "weight": 0.25
+        },
+        {
+          "type": "create",
+          "weight": 0.25
+        }
+      ],
+      "complexity": {
+        "fileCount": 4,
+        "moduleCount": 2,
+        "crossCutting": true,
+        "estimatedSize": "medium"
+      },
+      "scope": {
+        "writeRatio": {
+          "src/": 0.75,
+          "tests/": 0.25
+        },
+        "primaryWriteTarget": "src/",
+        "testWriteRatio": 0.25
+      }
+    },
+    "confidence": "low",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 689,
+  "updatedAt": "2026-05-07T06:52:28.343Z"
+}

@@ -128,3 +128,10 @@
 - MCP Smoke Part 3 — Docs + Agent/Skill + Nervous + Beta Trio (9 tool): NO_GO — READ-ONLY audit of 12 MCP tools (deckent_docs, deckent_agent_list, deckent_skill_list, deckent_kill, deckent_nervous_sub
 - MCP 8 Resource Fetch Test: NO_GO — READ-ONLY MCP 8 resource fetch audit. Live stdio JSON-RPC 2.0 invocation of dist/mcp/server.js inside docker worker cont
 - Memory V2 DB Integrity + FTS5 Recall Test: NO_GO — Memory V2 DB integrity audit completed. 464-line report written to docs/audits/sprint-152/T-152-011-memory-v2-integrity.
+## Sprint sprint-153 Learnings
+- Doc drift — version + agent/CLI/MCP count senk: NO_GO — Worker timeout/killed (exitCode=0) — HIT WORKER_TIMEOUT (task exceeded its timeout budget; re-run with longer --timeout 
+- `deckent config read` subcommand implement: NO_GO — Worker timeout/killed (exitCode=0) — HIT WORKER_TIMEOUT (task exceeded its timeout budget; re-run with longer --timeout 
+- `deckent memory-query` CLI wrapper: NO_GO — Worker timeout/killed (exitCode=0) — HIT WORKER_TIMEOUT (task exceeded its timeout budget; re-run with longer --timeout 
+- `opus.apiId` model ID güncelle (4-6 → 4-7): NO_GO — Worker timeout/killed (exitCode=0) — HIT WORKER_TIMEOUT (task exceeded its timeout budget; re-run with longer --timeout 
+- FIX phase timeout 600s → 1800s: NO_GO — Worker timeout/killed (exitCode=0) — HIT WORKER_TIMEOUT (task exceeded its timeout budget; re-run with longer --timeout 
+- SSE keepalive heartbeat: NO_GO — Worker timeout/killed (exitCode=0) — HIT WORKER_TIMEOUT (task exceeded its timeout budget; re-run with longer --timeout 

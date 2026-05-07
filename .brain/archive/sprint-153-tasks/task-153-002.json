@@ -1,0 +1,96 @@
+{
+  "id": "153-002",
+  "title": "`deckent config read` subcommand implement",
+  "description": "`deckent config read` subcommand implement\n- Model: sonnet\n- Effort: low\n- Skills: typescript-expert\n- Files: src/cli/commands/config.ts, tests/cli/config.test.ts\n- Scope: src/cli/commands/, tests/cli/\n\n### Description\nHelp-info `config read` subcmd advertise ediyor ama implementasyon yok (`deckent config` no-args fallback). Subcmd ekle: `deckent config read [key]` → tüm config yazdır veya tek key. JSON output (`--json` flag opsiyonel).\n\n**Kanit:** `node dist/cli/entry.js config read max_workers` → numeric değer; `node dist/cli/entry.js config read --json` → valid JSON\n**Test:** 3+ test (read no-args, read with key, read non-existent key returns undefined cleanly)\n\n---",
+  "model": "sonnet",
+  "effort": "low",
+  "priority": "NORMAL",
+  "reason": "Directive (model: sonnet -- user override)",
+  "scope": {
+    "directories": [
+      "src/cli/commands/",
+      "tests/cli/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "src/cli/commands/config.ts",
+      "tests/cli/config.test.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanit:** `node dist/cli/entry.js config read max_workers` → numeric değer; `node dist/cli/entry.js config read --json` → valid JSON",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-153",
+  "provider": "claude",
+  "forceModel": "sonnet",
+  "forceEffort": "low",
+  "forceSkills": [
+    "typescript-expert"
+  ],
+  "assignedAgent": "temp-react-ts-specialist",
+  "assignedSkills": [
+    "typescript-expert"
+  ],
+  "createdAt": "2026-05-07T06:14:43.784Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "implementation",
+        "secondary": [
+          "config"
+        ],
+        "confidence": 0.95
+      },
+      "subIntent": "config",
+      "tags": [
+        "test-coverage"
+      ],
+      "domains": [
+        {
+          "name": "cli",
+          "weight": 1
+        }
+      ],
+      "operations": [
+        {
+          "type": "create",
+          "weight": 0.4
+        },
+        {
+          "type": "delete",
+          "weight": 0.2
+        },
+        {
+          "type": "test",
+          "weight": 0.2
+        },
+        {
+          "type": "configure",
+          "weight": 0.2
+        }
+      ],
+      "complexity": {
+        "fileCount": 2,
+        "moduleCount": 1,
+        "crossCutting": false,
+        "estimatedSize": "small"
+      },
+      "scope": {
+        "writeRatio": {
+          "src/": 0.5,
+          "tests/": 0.5
+        },
+        "primaryWriteTarget": "src/",
+        "testWriteRatio": 0.5
+      }
+    },
+    "confidence": "low",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 706,
+  "updatedAt": "2026-05-07T06:52:28.340Z"
+}

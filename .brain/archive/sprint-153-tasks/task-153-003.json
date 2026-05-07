@@ -1,0 +1,93 @@
+{
+  "id": "153-003",
+  "title": "`deckent memory-query` CLI wrapper",
+  "description": "`deckent memory-query` CLI wrapper\n- Model: sonnet\n- Effort: low\n- Skills: typescript-expert\n- Files: src/cli/commands/memory.ts, src/cli/index.ts, tests/cli/memory.test.ts\n- Scope: src/cli/, tests/cli/\n\n### Description\nMCP'de `deckent_memory_query` var, CLI'de yok (parity gap). `deckent memory query \"<text>\" [--type adr,memory] [--limit 5]` ekle. `searchMemory()` çağır, sonuçları formatlı yazdır.\n\n**Kanit:** `node dist/cli/entry.js memory query \"docker heartbeat\" --limit 3` → 3 sonuç\n**Test:** 3+ test (basic query, type filter, limit, empty result)\n\n---",
+  "model": "sonnet",
+  "effort": "low",
+  "priority": "NORMAL",
+  "reason": "Directive (model: sonnet -- user override)",
+  "scope": {
+    "directories": [
+      "src/cli/commands/",
+      "src/cli/",
+      "tests/cli/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "src/cli/commands/memory.ts",
+      "src/cli/index.ts",
+      "tests/cli/memory.test.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanit:** `node dist/cli/entry.js memory query \"docker heartbeat\" --limit 3` → 3 sonuç",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-153",
+  "provider": "claude",
+  "forceModel": "sonnet",
+  "forceEffort": "low",
+  "forceSkills": [
+    "typescript-expert"
+  ],
+  "assignedAgent": "temp-react-ts-specialist",
+  "assignedSkills": [
+    "typescript-expert"
+  ],
+  "createdAt": "2026-05-07T06:14:43.784Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "implementation",
+        "secondary": [
+          "documentation"
+        ],
+        "confidence": 0.92
+      },
+      "tags": [
+        "test-coverage"
+      ],
+      "domains": [
+        {
+          "name": "cli",
+          "weight": 1
+        }
+      ],
+      "operations": [
+        {
+          "type": "test",
+          "weight": 0.33
+        },
+        {
+          "type": "document",
+          "weight": 0.33
+        },
+        {
+          "type": "create",
+          "weight": 0.33
+        }
+      ],
+      "complexity": {
+        "fileCount": 3,
+        "moduleCount": 1,
+        "crossCutting": false,
+        "estimatedSize": "medium"
+      },
+      "scope": {
+        "writeRatio": {
+          "src/": 0.67,
+          "tests/": 0.33
+        },
+        "primaryWriteTarget": "src/",
+        "testWriteRatio": 0.33
+      }
+    },
+    "confidence": "low",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 681,
+  "updatedAt": "2026-05-07T06:52:28.341Z"
+}

@@ -1,0 +1,32 @@
+{
+  "id": "153-002-fix",
+  "title": "Fix: `deckent config read` subcommand implement",
+  "description": "Priority fix for NO_GO task 153-002.\nOriginal worker notes: Worker timeout/killed (exitCode=0) — HIT WORKER_TIMEOUT (task exceeded its timeout budget; re-run with longer --timeout or split scope) but git diff shows 12 files modified. Brain should reconcile via Spurious NO_GO helper.\nExpected scope: src/cli/commands/, tests/cli/\nFiles that should change: src/cli/commands/config.ts, tests/cli/config.test.ts",
+  "model": "sonnet",
+  "effort": "low",
+  "priority": "CRITICAL",
+  "reason": "Task 153-002 evaluated as NO_GO; tests failed",
+  "scope": {
+    "directories": [
+      "src/cli/commands/",
+      "tests/cli/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "src/cli/commands/config.ts",
+      "tests/cli/config.test.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanit:** `node dist/cli/entry.js config read max_workers` → numeric değer; `node dist/cli/entry.js config read --json` → valid JSON",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "EXECUTING",
+  "sprintId": "sprint-153",
+  "isPriorityFix": true,
+  "fixForTaskId": "153-002",
+  "createdAt": "2026-05-07T06:52:28.340Z",
+  "estimatedTokens": 68
+}

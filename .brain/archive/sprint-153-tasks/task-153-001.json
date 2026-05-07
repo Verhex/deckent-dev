@@ -1,0 +1,119 @@
+{
+  "id": "153-001",
+  "title": "Doc drift — version + agent/CLI/MCP count senk",
+  "description": "Doc drift — version + agent/CLI/MCP count senk\n- Model: sonnet\n- Effort: low\n- Skills: documentation-writer\n- Files: .deckent/workspace/IDENTITY.md, DECKENT.md, CLAUDE.md, README.md, src/cli/commands/help.ts, src/mcp/tools/help.ts\n- Scope: docs/, src/cli/commands/help.ts, src/mcp/tools/help.ts, .deckent/workspace/, top-level .md files\n\n### Description\nKNOWN_ISSUES.md \"Documentation Drift\" 4-bullet senk:\n- \"16 built-in agents\" → 15 (test-writer Sprint 148 reform sonrası kaldırıldı)\n- \"49 CLI komut\" → fiili kanonik sayı (`grep -c \"register\" src/cli/index.ts` ile doğrula)\n- MCP tool count 22/23/27/31 → fiili **31** (live `tools/list` source of truth)\n- `--version` package.json `1.0.0-beta.1` ile IDENTITY/CLAUDE.md tutarlı olsun (hâlihazırda IDENTITY 1.0.0-beta.1 ama wider grep yap)\n\n**Kanit:** `grep -rE \"(16 built-in|49 CLI|22 tool|23 tool|27 tool|0\\.4\\.0-beta)\" --include=\"*.md\" --include=\"*.ts\" docs/ DECKENT.md CLAUDE.md README.md src/` → 0 hit\n**Test:** Yeni test eklenmiyor; mevcut `tests/cli/help.test.ts` ve `tests/mcp/help.test.ts` güncel sayıyı assert ediyorsa pass.\n\n---",
+  "model": "sonnet",
+  "effort": "low",
+  "priority": "NORMAL",
+  "reason": "Directive (model: sonnet -- user override)",
+  "scope": {
+    "directories": [
+      "src/cli/commands/",
+      "src/mcp/tools/",
+      "docs/",
+      "src/cli/commands/help.ts/",
+      "src/mcp/tools/help.ts/",
+      ".deckent/workspace/",
+      "top-level .md files/",
+      "src/cli/",
+      "tests/cli/",
+      "tests/mcp/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      ".deckent/workspace/IDENTITY.md",
+      "DECKENT.md",
+      "CLAUDE.md",
+      "README.md",
+      "src/cli/commands/help.ts",
+      "src/mcp/tools/help.ts",
+      "IDENTITY.md",
+      ".md",
+      "src/cli/index.ts",
+      ".4",
+      ".0-beta",
+      ".ts",
+      "tests/cli/help.test.ts",
+      "tests/mcp/help.test.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanit:** `grep -rE \"(16 built-in|49 CLI|22 tool|23 tool|27 tool|0\\.4\\.0-beta)\" --include=\"*.md\" --include=\"*.ts\" docs/ DECKENT.md CLAUDE.md README.md src/` → 0 hit",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-153",
+  "provider": "claude",
+  "forceModel": "sonnet",
+  "forceEffort": "low",
+  "forceSkills": [
+    "documentation-writer"
+  ],
+  "assignedAgent": "architect",
+  "assignedSkills": [
+    "documentation-writer"
+  ],
+  "createdAt": "2026-05-07T06:14:43.784Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "documentation",
+        "secondary": [],
+        "confidence": 0.95
+      },
+      "tags": [
+        "test-coverage"
+      ],
+      "domains": [
+        {
+          "name": "cli",
+          "weight": 0.29
+        },
+        {
+          "name": "mcp",
+          "weight": 0.21
+        },
+        {
+          "name": "docs",
+          "weight": 0.04
+        }
+      ],
+      "operations": [
+        {
+          "type": "document",
+          "weight": 0.5
+        },
+        {
+          "type": "test",
+          "weight": 0.33
+        },
+        {
+          "type": "create",
+          "weight": 0.17
+        }
+      ],
+      "complexity": {
+        "fileCount": 14,
+        "moduleCount": 5,
+        "crossCutting": true,
+        "estimatedSize": "epic"
+      },
+      "scope": {
+        "writeRatio": {
+          ".deckent/": 0.07,
+          "./": 0.57,
+          "src/": 0.21,
+          "tests/": 0.14
+        },
+        "primaryWriteTarget": "./",
+        "testWriteRatio": 0.14
+      }
+    },
+    "confidence": "uncertain",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 2091,
+  "updatedAt": "2026-05-07T06:52:28.339Z"
+}

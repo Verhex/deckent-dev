@@ -1,0 +1,58 @@
+{
+  "description": "Expert in React + TypeScript component architecture, hooks, and testing with Vitest/RTL.",
+  "systemPrompt": "React + TypeScript specialist. Focus on functional components, custom hooks, strict typing, and Vitest/RTL test patterns.",
+  "expertise": [
+    "react",
+    "typescript",
+    "hooks",
+    "vite",
+    "component-architecture"
+  ],
+  "allowedTools": [],
+  "deniedTools": [],
+  "preferredModel": "sonnet",
+  "effortMultiplier": 1,
+  "triggerKeywords": [
+    "component",
+    "hook",
+    "jsx",
+    "tsx",
+    "react",
+    "props",
+    "state",
+    "context"
+  ],
+  "triggerScopes": [
+    "src/dashboard",
+    "src/components",
+    "src/pages",
+    "src/ui"
+  ],
+  "triggerFilePatterns": [],
+  "persistent": false,
+  "enabled": true,
+  "source": "user",
+  "stats": {
+    "totalUses": 38,
+    "successRate": 0.868421052631579,
+    "avgCoverage": 0,
+    "lastUsedInSprint": "sprint-153"
+  },
+  "id": "react-ts-specialist",
+  "name": "React TypeScript Specialist",
+  "manifestVersion": 2,
+  "activation": {
+    "rules": [
+      {
+        "name": "temp-agent-react-ts-specialist",
+        "when": {
+          "intent.primary": "implementation"
+        },
+        "score": 6
+      }
+    ],
+    "exclude": [],
+    "minScore": 5
+  },
+  "_promotedAt": "2026-05-07T07:03:59.617Z"
+}
