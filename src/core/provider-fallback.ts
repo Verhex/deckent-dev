@@ -27,6 +27,16 @@ import type { ProviderName } from './task-types.js';
  * chain fallback-of-fallback because the most common cause is provider
  * capacity, and a third attempt against the same chain is unlikely to
  * succeed before timing out the sprint.
+ *
+ * @example
+ * ```ts
+ * // Guard against infinite retry loops in result-evaluator:
+ * if (task.retryCount >= MAX_FALLBACK_RETRIES) {
+ *   return { decision: 'NO_GO', reason: 'exceeded fallback retry limit' };
+ * }
+ * ```
+ *
+ * @see {@link decideFallbackRetry} — consumes this constant indirectly via callers
  */
 export const MAX_FALLBACK_RETRIES = 1;
 
@@ -39,6 +49,22 @@ export const MAX_FALLBACK_RETRIES = 1;
  * pattern matched a Gemini-specific phrase). It is `null` when the
  * detection only matched a generic HTTP 429 / quota signal that cannot
  * be attributed to a specific provider.
+ *
+ * @example
+ * ```ts
+ * // Typical Gemini capacity hit (Sprint 154 live evidence):
+ * const detection: CapacityErrorDetection = detectCapacityError(
+ *   'No capacity available for model gemini-2.5-flash on the server'
+ * );
+ * // → { hit: true, reason: 'gemini capacity error detected (pattern: no_capacity)', provider: 'gemini' }
+ *
+ * // Generic 429 — provider cannot be determined from text alone:
+ * const generic: CapacityErrorDetection = detectCapacityError('HTTP 429 Too Many Requests');
+ * // → { hit: true, reason: 'generic capacity/rate-limit error detected (pattern: http_429)', provider: null }
+ * ```
+ *
+ * @see {@link detectCapacityError} — produces this value
+ * @see {@link decideFallbackRetry} — consumes this value
  */
 export interface CapacityErrorDetection {
   /** Whether a capacity/429/quota error pattern was detected */
@@ -116,6 +142,38 @@ const GENERIC_PATTERNS: ReadonlyArray<{ name: string; regex: RegExp }> = [
  *
  * @param workerOutput Raw worker output string (notes + errorOutput concat).
  *                     Empty/undefined input returns `{ hit: false }` immediately.
+ * @returns A {@link CapacityErrorDetection} object. `hit` is `true` when a
+ *          capacity/rate-limit pattern matches. `provider` identifies which
+ *          provider's error was detected, or `null` for generic 429 signals.
+ *
+ * @example
+ * ```ts
+ * // Gemini capacity error (Sprint 154 live observed string):
+ * detectCapacityError(
+ *   'No capacity available for model gemini-2.5-flash on the server'
+ * );
+ * // → { hit: true, reason: 'gemini capacity error detected (pattern: no_capacity)', provider: 'gemini' }
+ *
+ * // Anthropic overloaded (HTTP 529):
+ * detectCapacityError('overloaded_error: The API is temporarily overloaded');
+ * // → { hit: true, reason: 'claude capacity error detected (pattern: overloaded_error)', provider: 'claude' }
+ *
+ * // OpenAI rate limit:
+ * detectCapacityError('error code: rate_limit_exceeded, tokens per minute exceeded');
+ * // → { hit: true, reason: 'codex capacity error detected (pattern: openai_rate_limit)', provider: 'codex' }
+ *
+ * // Clean output — no capacity error:
+ * detectCapacityError('Task completed successfully');
+ * // → { hit: false, reason: 'no capacity error pattern matched', provider: null }
+ *
+ * // Empty/null input:
+ * detectCapacityError(null);
+ * // → { hit: false, reason: 'empty worker output', provider: null }
+ * ```
+ *
+ * @see {@link selectFallbackProvider} — next step after a positive detection
+ * @see {@link decideFallbackRetry} — combines detection + provider selection
+ * @see {@link CapacityErrorDetection} — return type definition
  */
 export function detectCapacityError(workerOutput: string | undefined | null): CapacityErrorDetection {
   if (!workerOutput || workerOutput.length === 0) {
@@ -160,6 +218,27 @@ export function detectCapacityError(workerOutput: string | undefined | null): Ca
  *
  * @param currentProvider Provider used on the original failed attempt.
  * @param fallbackProvider Configured fallback from `config.fallback_provider`.
+ * @returns The fallback {@link ProviderName} to retry with, or `null` if no
+ *          eligible fallback is available. A `null` return means the caller
+ *          should treat this as a final failure with no retry.
+ *
+ * @example
+ * ```ts
+ * // Gemini failed → Claude is configured fallback:
+ * selectFallbackProvider('gemini', 'claude');
+ * // → 'claude'
+ *
+ * // Self-loop guard — fallback equals current (misconfigured):
+ * selectFallbackProvider('claude', 'claude');
+ * // → null
+ *
+ * // No fallback configured (config gap):
+ * selectFallbackProvider('gemini', undefined);
+ * // → null
+ * ```
+ *
+ * @see {@link decideFallbackRetry} — higher-level wrapper that calls this
+ * @see {@link MAX_FALLBACK_RETRIES} — limits how many times this may be acted upon
  */
 export function selectFallbackProvider(
   currentProvider: ProviderName | undefined,
@@ -179,6 +258,20 @@ export function selectFallbackProvider(
  *
  * Returns `null` when no fallback retry should occur (no capacity error,
  * or no eligible fallback).
+ *
+ * @example
+ * ```ts
+ * // Sprint 155 live scenario — Gemini 429, fallback to Claude:
+ * const decision: FallbackRetryDecision = {
+ *   targetProvider: 'claude',
+ *   reason: 'gemini capacity error detected (pattern: no_capacity)',
+ *   detectedProvider: 'gemini',
+ * };
+ * ```
+ *
+ * @see {@link decideFallbackRetry} — produces this value
+ * @see {@link detectCapacityError} — supplies `reason` and `detectedProvider`
+ * @see {@link selectFallbackProvider} — supplies `targetProvider`
  */
 export interface FallbackRetryDecision {
   /** Provider to swap the task to for the retry */
@@ -192,10 +285,48 @@ export interface FallbackRetryDecision {
 /**
  * Decide whether a failed task should be retried with the fallback provider.
  *
+ * Composes {@link detectCapacityError} and {@link selectFallbackProvider} into
+ * a single call. The result-evaluator passes worker output here and acts on
+ * the returned decision (or skips retry when `null` is returned).
+ *
  * @param workerOutput   Concatenated worker notes + error output to scan.
  * @param currentProvider Provider used on the failed attempt.
  * @param fallbackProvider Configured fallback (from config.fallback_provider).
- * @returns FallbackRetryDecision when retry is warranted, null otherwise.
+ * @returns A {@link FallbackRetryDecision} when all of the following hold:
+ *   1. Worker output contains a capacity/429/quota error pattern.
+ *   2. A fallback provider is configured.
+ *   3. The fallback provider differs from the current one.
+ *   Returns `null` when any condition is unmet — no retry should occur.
+ *
+ * @example
+ * ```ts
+ * // Gemini hit "No capacity available" — fallback_provider=claude in config:
+ * const decision = decideFallbackRetry(
+ *   'No capacity available for model gemini-2.5-flash on the server',
+ *   'gemini',
+ *   'claude'
+ * );
+ * // → { targetProvider: 'claude',
+ * //     reason: 'gemini capacity error detected (pattern: no_capacity)',
+ * //     detectedProvider: 'gemini' }
+ *
+ * // Clean output — no retry needed:
+ * decideFallbackRetry('Task completed successfully', 'gemini', 'claude');
+ * // → null
+ *
+ * // No fallback configured — no retry possible:
+ * decideFallbackRetry('overloaded_error', 'claude', undefined);
+ * // → null
+ *
+ * // Self-loop guard — fallback equals current provider:
+ * decideFallbackRetry('rate_limit_exceeded', 'claude', 'claude');
+ * // → null
+ * ```
+ *
+ * @see {@link detectCapacityError} — step 1: error pattern detection
+ * @see {@link selectFallbackProvider} — step 2: fallback provider resolution
+ * @see {@link FallbackRetryDecision} — return type definition
+ * @see {@link MAX_FALLBACK_RETRIES} — callers must guard retry count against this constant
  */
 export function decideFallbackRetry(
   workerOutput: string | undefined | null,

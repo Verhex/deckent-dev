@@ -321,8 +321,10 @@ export class GeminiAdapter implements ProviderAdapter {
     if (!this.isCliInstalled()) {
       return false;
     }
-    // Check 2: API key must be set
-    return this.getApiKey() !== undefined;
+    // Check 2: any auth mode is configured (Sprint 156 fix — was previously
+    // API-key-only, which silently rerouted OAuth-subscription users to
+    // fallback provider during pre-spawn task-router availability checks).
+    return this.detectAuthMode() !== 'none';
   }
 
   // ─── buildArgs() ───────────────────────────────────────────────────

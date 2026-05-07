@@ -156,11 +156,26 @@ describe('GeminiAdapter', () => {
     expect(result).toBe(true);
   });
 
-  it('isAvailable returns false when GOOGLE_API_KEY is not set', async () => {
+  it('isAvailable returns false when no auth is configured (no OAuth, no API key)', async () => {
     delete process.env.GOOGLE_API_KEY;
     delete process.env.DECKENT_GOOGLE_API_KEY;
+    delete process.env.GEMINI_API_KEY;
+    // Simulate no OAuth creds either: settings.json + oauth_creds.json absent
+    mockExistsSync.mockReturnValue(false);
     const result = await adapter.isAvailable();
     expect(result).toBe(false);
+  });
+
+  it('isAvailable returns true when OAuth subscription is detected (no API key needed)', async () => {
+    delete process.env.GOOGLE_API_KEY;
+    delete process.env.DECKENT_GOOGLE_API_KEY;
+    delete process.env.GEMINI_API_KEY;
+    // Mock ~/.gemini/settings.json with oauth-personal selectedType
+    mockReadFileSync.mockReturnValue(
+      JSON.stringify({ security: { auth: { selectedType: 'oauth-personal' } } }),
+    );
+    const result = await adapter.isAvailable();
+    expect(result).toBe(true);
   });
 
   it('isAvailable returns false when gemini CLI is not installed', async () => {

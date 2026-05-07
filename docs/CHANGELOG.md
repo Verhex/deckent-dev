@@ -6,6 +6,21 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenmektedir.
 Format [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) standardına dayanır
 ve proje [Semantic Versioning](https://semver.org/spec/v2.0.0.html) kurallarına uyar.
 
+## [1.0.0-beta.1-sprint155] - 2026-05-07
+
+### Added
+
+- Runtime Fallback Chain — 429/Capacity Auto-Recovery
+- Adapter-Side provider_auth.mode Runtime Enforcement
+- Sprint 154 Retro + Memory Sync
+
+### Changed
+
+- Codex Live Install + Dogfood (BLOCKED on external) (completed with tech debt)
+
+
+_Tasks: 5 total, 4 done, 1 tech debt, 1 no-go_
+
 ## [1.0.0-beta.1-sprint154-multi-provider] - 2026-05-07
 
 ### Added
