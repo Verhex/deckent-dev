@@ -1,7 +1,7 @@
 <!-- Language: EN | Technical terms remain as-is -->
 # Deckent Beta Tracker
 
-**Last updated:** 2026-05-07 (Sprint 154 multi-provider) | **Sprint:** 154 multi-provider Faz A→C DONE | **Tests:** 15,671 + Sprint 154 Δ (1,217 in modified areas, 99.94%) | **Version:** v1.0.0-beta.1 (target tag pending #13)
+**Last updated:** 2026-05-07 (Sprint 157 routing hotfix) | **Sprint:** 154→157 multi-provider stack DONE | **Tests:** 6,088 in modified areas (orchestra+providers+cli) all pass | **Version:** v1.0.0-beta.1 (target tag pending #13 + Sprint 158 codex E2E)
 
 **Related:** [ROADMAP-GOD-LEVEL.md](docs/ROADMAP-GOD-LEVEL.md) — Sprint 149-200 master plan
 **Gate schema canonical source:** `docs/ROADMAP-GOD-LEVEL.md` Section 5 (Sprint 149-200 anchor). This file mirrors that schema verbatim — any change must update ROADMAP first, then propagate here (EN) and to `BETA-TRACKER-TR.md` (TR).
@@ -10,7 +10,14 @@
 
 ## Sprint 151+ — Beta GA Exit Criteria — 20 Gate (BETA-TRACKER + Sprint 150 Consolidation)
 
-**Status (post-Sprint 154 multi-provider, 2026-05-07): 18/20 PASS** — gate #8 reopened from PASS→PARTIAL after Sprint 154 surfaced that the previous "Multi-provider 3/3" claim was based on adapter-level unit tests, not Docker-backend live E2E. `spawn-backend-docker.ts:102-111` was hardcoded to `claude -p - --model X` regardless of model, so any non-claude `deckent run` in Docker mode silently routed to Claude CLI which then errored on the unknown model name. Sprint 154 closed this gap for Claude + Gemini (live `Result: DONE` with `gemini-2.5-flash` via OAuth subscription); Codex live E2E pending external CLI access. Gate #13 messaging trio smoke remains pending tokens.
+**Status (post-Sprint 157 routing hotfix, 2026-05-07): 18/20 PASS** — gate #8 still PARTIAL but with substantially deeper foundation than the original Sprint 148 claim:
+
+- **Sprint 154** (`da7c93f`, `fe5c3a4`, `a285961`): infrastructure — Gemini OAuth detection, multi-provider Docker command builder, per-provider auth schema, effort translator, doctor parity for Gemini/Codex
+- **Sprint 155** (`c31cf51`, `729cba3`): runtime hardening — fallback chain (429/capacity-aware), adapter-side mode enforcement, model registry remote refresh
+- **Sprint 156** (`60566eb`): dogfood + hidden bug — `isAvailable()` was API-key-only despite Sprint 154 OAuth detection; pre-spawn router silently rerouted Gemini→Claude for OAuth-only users
+- **Sprint 157** (`b4df0e2`): planner provider preservation — DIRECTIVES `Model: gemini-2.5-flash` was being mapped to `sonnet` at planner→task hop because `resolveTaskModel` defaulted `targetProvider` to `'claude'` and `sprint-planner.ts` dropped `src.provider` field
+
+Live evidence: post-Sprint-157 dry-run plans now produce `gemini-2.5-flash` in the resolved-model column instead of `sonnet`. Smoke test `deckent run --model gemini-2.5-flash` reaches `cloudcode-pa.googleapis.com/v1internal:streamGenerateContent` (real Gemini Code Assist OAuth endpoint, not Claude). Sprint 158 candidate: Gemini sprint dogfood with all three fixes in place — final empirical validation for gate #8 close on the claude+gemini side. Codex live E2E remains pending external CLI access. Gate #13 messaging trio smoke remains pending tokens.
 
 Before tagging `v1.0.0-beta.1` and running `npm publish`, **all 20 gates must PASS** (excluding long-term #3 coverage which targets Sprint 160+):
 
@@ -23,7 +30,7 @@ Before tagging `v1.0.0-beta.1` and running `npm publish`, **all 20 gates must PA
 | 5 | 45+ CLI commands functional | 45+ | 49 (post-H1) | ✅ PASS |
 | 6 | `npm pack --dry-run` clean | 0 warning | 1.08MB, 0 warning | ✅ T-150-026 |
 | 7 | Cross-platform 3/3 | 3/3 | 3/3 | ✅ Sprint 148 |
-| 8 | Multi-provider 3/3 | 3/3 | 2/3 live (claude+gemini Docker E2E DONE; codex install pending external CLI access) — Sprint 154 closed real architectural gap (`spawn-backend-docker.ts` was hardcoded to claude pre-Sprint 154 despite Sprint 148's claim) | 🟡 Sprint 155 (codex E2E) |
+| 8 | Multi-provider 3/3 | 3/3 | claude live ✅, gemini live ✅ (Sprint 156-157 chain closed 3 hidden routing regressions: isAvailable OAuth path, resolveTaskModel provider default, sprint-planner provider hop), codex pending external CLI access. Sprint 158 will run Gemini sprint dogfood as final empirical close. | 🟡 Sprint 158 (gemini sprint scale + codex E2E) |
 | 9 | `deckent_style` toggle live | sprint/task switch | live | ✅ T-150-001..003 |
 | 10 | Memory V2 stress test | Pass | Pass | ✅ Sprint 145 |
 | 11 | Documentation sync | Current | Sprint 153 end — ROADMAP+CHANGELOG+SPRINT-LOG+IDENTITY+CLAUDE.md current | ✅ Sprint 153 |
@@ -78,12 +85,12 @@ Before tagging `v1.0.0-beta.1` and running `npm publish`, **all 20 gates must PA
 | Metric | Value |
 |--------|-------|
 | Version | 1.0.0-beta.1 |
-| Sprint | sprint-149 |
-| MCP Tools | 24 |
+| Sprint | sprint-155 |
+| MCP Tools | 27 |
 | MCP Resources | 8 |
-| CLI Commands | 52+ |
-| Dashboard Pages | 6 |
-| Agents | 15 built-in + 2 custom |
+| CLI Commands | 55+ |
+| Dashboard Pages | 7 |
+| Agents | 15 built-in + 3 custom |
 | Skills | 21 built-in |
 | Providers | 3 (Claude, Codex, Gemini) |
 
@@ -935,13 +942,13 @@ Every blocker was directly verified in the codebase. False claims have been corr
 ## Sprint Metrics
 | Metric | Value |
 |--------|-------|
-| Sprint | sprint-149 |
-| Total Tasks | 4 |
+| Sprint | sprint-155 |
+| Total Tasks | 5 |
 | Completed | 4 |
 | Tech Debt | 1 |
-| No-Go | 0 |
-| Duration | 33dk 23sn |
-| Coverage | NaN% |
+| No-Go | 1 |
+| Duration | 23dk 12sn |
+| Coverage | 40.0% |
 
 ## Sprint History (Sprint 136-145)
 | Sprint | Tasks | Done | NO_GO | Duration | Avg Rubric | Theme |

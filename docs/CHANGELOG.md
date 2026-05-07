@@ -6,6 +6,39 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenmektedir.
 Format [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) standardına dayanır
 ve proje [Semantic Versioning](https://semver.org/spec/v2.0.0.html) kurallarına uyar.
 
+## [1.0.0-beta.1-sprint157-routing-hotfix] - 2026-05-07
+
+### Fixed
+
+- **Planner provider preservation** (`src/orchestra/sprint-planner.ts`, `src/orchestra/model-selector.ts`) — DIRECTIVES `Model: gemini-2.5-flash` was silently mapped to `sonnet` at the planner→task hop. Two-layer bug: (1) `model-selector.ts:212` defaulted `targetProvider` to `'claude'` when caller didn't pass one, so Layer 0 forceModel branch ran `getEquivalentModel(forceModel, 'claude')` → returned the Claude equivalent; (2) `sprint-planner.ts` createTask call dropped `src.provider` even though `parseStructuredDirectives` extracted it correctly on line 519. Fix: `model-selector.ts` now infers provider from `forceModel` via `PROVIDER_MODEL_MAP` when caller omits it; `sprint-planner.ts` extends `directiveSources` type with `provider?` field and passes `src.provider` through both `resolveTaskModel()` call and `createTask()`. Live verified via dry-run: `Model: gemini-2.5-flash` directive → planner output column `gemini-2.5-flash` (was `sonnet`). Tests 6088/6088 pass.
+
+### Notes
+
+Third in a chain of routing-layer regressions exposed by Sprint 156 dogfood:
+1. Sprint 154 added `detectAuthMode()` but `isAvailable()` stayed API-key-only — fixed in `60566eb` (Sprint 156).
+2. `resolveTaskModel` provider-default bug — fixed in this commit.
+3. `sprint-planner.ts` provider field hop drop — fixed in this commit.
+
+All three originate from the same root cause: Sprint 154's symmetric auth refactor missed cross-cutting touchpoints. See `docs/development/auth-surface-checklist.md` (Sprint 157 deliverable) for the full surface map.
+
+### Commits
+
+- `b4df0e2` fix(sprint-157): preserve DIRECTIVES `Model:` provider through planner chain
+
+## [1.0.0-beta.1-sprint156] - 2026-05-07
+
+### Added
+
+- docs/development/ Staleness Audit
+- src/core/provider-fallback.ts JSDoc Genişletme
+
+### Changed
+
+- README + BETA-TRACKER TR/EN Senk Audit (completed with tech debt)
+
+
+_Tasks: 3 total, 3 done, 1 tech debt, 0 no-go_
+
 ## [1.0.0-beta.1-sprint155] - 2026-05-07
 
 ### Added

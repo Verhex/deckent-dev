@@ -1,5 +1,9 @@
 # Sprint Learnings (auto-generated)
 
+## Sprint sprint-156 Learnings
+- Sprint sprint-156 Learnings: ## Sprint sprint-156 Learnings
+- README + BETA-TRACKER TR/EN Senk Audit: GO_WITH_TECH_DEBT — Audit complete. Read all 4 docs (README.md, README-TR.md, BETA-TRACKER.md, BETA-TRACKER-TR.md). Created docs/audits/spri
+
 ## Sprint sprint-155 Learnings
 - Sprint sprint-155 Learnings: ## Sprint sprint-155 Learnings
 - Model Registry Remote Refresh: NO_GO — Implemented stale-while-revalidate model registry refresh. All 23 new tests pass, 78 existing model-registry tests pass.

@@ -49,8 +49,11 @@
 | adr-043 | Hot Fix with Claude Subagents — Pipeline-Bypass Repair Pattern | accepted |
 | adr-044 | Sprint 154 Comprehensive Audit — 10-Agent Parallel Pass + Pipeline Wire Validation | accepted |
 | user-1778150182657 | ADR-045: Multi-Provider Docker Backend Parity | active |
+| user-1778154724426 | ADR-046: Auth Surface Atomicity — Symmetric Refactor Discipline | active |
 
 ## Recent Learnings
+- **Sprint sprint-156 Learnings** (sprint-156): ## Sprint sprint-156 Learnings
+- README + BETA-TRACKER TR/EN Senk Audit: GO_WITH_TECH_DEBT — Audit complete. Read all...
 - **Sprint sprint-155 Learnings** (sprint-155): ## Sprint sprint-155 Learnings
 - Model Registry Remote Refresh: NO_GO — Implemented stale-while-revalidate model regi...
 - **Sprint sprint-153 Learnings** (sprint-153): ## Sprint sprint-153 Learnings
@@ -68,8 +71,6 @@
 - **Sprint sprint-147 Learnings** (sprint-147): ## Sprint sprint-147 Learnings
 - **Sprint sprint-146 Learnings** (sprint-146): ## Sprint sprint-146 Learnings
 - Agent Truncation Bug Fix: GO_WITH_TECH_DEBT — Root cause: task-builder.ts:761 had `a...
-- **Sprint sprint-145 Learnings** (sprint-145): ## Sprint sprint-145 Learnings
-- Brain Heuristic Timeout Estimator: NO_GO — Brain Heuristic Timeout Estimator impleme...
 
 ## Active Technical Debt
 _No active technical debt._
@@ -77,4 +78,4 @@ _No active technical debt._
 ## Active Patterns
 _No active patterns._
 
-_Total entries: 184 | Generated: 2026-05-07_
+_Total entries: 188 | Generated: 2026-05-07_

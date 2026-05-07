@@ -30,11 +30,11 @@
   - ConfigPage i18n tam kapsam (Sprint 084), AgentDetail geniş panel (Sprint 084)
 
 ## Current State
-- Last Sprint: sprint-155
-- Total Sprints: 155
-- Completed Tasks: 4
-- Coverage: 40.0%
-- No-Go Rate: 20.0%
+- Last Sprint: sprint-156
+- Total Sprints: 156
+- Completed Tasks: 3
+- Coverage: 0.0%
+- No-Go Rate: 0.0%
 - ADR Count: 45
 - CLI Commands: 41+
 - MCP Tools: 22
