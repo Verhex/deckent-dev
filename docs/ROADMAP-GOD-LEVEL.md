@@ -4,8 +4,8 @@
 **Status:** CANONICAL — Sprint 149-200 anchor document
 **Vision:** OpenClaw'ın god-level üstün hali — developer-first + life-assistant dual platform
 **Brainstorming:** Alperen onayları 12+ karar, 5 paralel agent kod tabanı analizi
-**Last update:** 2026-05-07 — Sprint 154 Hot Fix Day TAMAMLANDI (10-agent comprehensive audit + 13 P0 hot fix + LIVE dogfood verification — Sprint 144→153 9-sprint kronik bug zinciri KIRILDI)
-**Next audit:** A1+A2 Telegram/Discord smoke (Pazar token ~2026-05-10) + B3 production detector log evidence (gerçek sprint koşusu) + Phase 2 fiili takvim revize
+**Last update:** 2026-05-07 (yenilenmiş, akşam) — Sprint 154→159 multi-provider stack TAMAMLANDI (Sprint 154 Hot Fix Day + 5 hidden routing/labeling bug + 3 file-lifecycle bug = 8/9 KAPATILDI; Sprint 159 plan'da: ilk **mixed Claude+Gemini production sprint**)
+**Next audit:** A1+A2 Telegram/Discord smoke (Pazar token ~2026-05-10) + Sprint 159 mixed-provider production stress test (fallback chain ilk gerçek 429 dogfood) + Bug 4 (.prompt mid-sprint deletion mystery) empirical validation Sprint 159 sonrası
 
 ---
 
@@ -347,14 +347,18 @@ Sprint 150 kırık haliyle Deckent'le Deckent'i tamir sonsuz döngü riskinden k
 | **152.5** | **Per 24 Nis (gerçek)** | **Hot Fix Day — 4 Beta GA blocker** (Claude subagent pattern, 2nd uygulaması) | ✅ DONE (HF1 GLIBC, HF2 verification-blind, HF3 rules silent catch, HF4 MCP provider parity) |
 | **153** | **Pzt 5-6 May (gerçek)** | **CI Greening + Node 20 + D batch + B Nervous wire + E Ed25519 hub sign + run-param** | ✅ DONE (14 commit, ilk tam yeşil CI run, Beta GA Gate #15 açıldı) |
 | **154** | **Çar 7 May (gerçek)** | **🔥 HOT FIX DAY (3rd uygulama) — 10-agent comprehensive audit (87 finding) + 13 P0 fix (4 wave)** — KESIN ROOT CAUSE: claude.json:ro mount → silent EROFS exit. LIVE dogfood: 52sn × 1 file (Sprint 153: 47dk × 0 line). ADR-043 + ADR-044 yeni. Pipeline LIVE. | ✅ DONE (5 commit chain, +6037 / -94 LoC, 45 ADR, mimari kemikler production'a bağlı) |
-| 155 | ~Per 8 May (revize) | Telegram/Discord canlı smoke (Pazar token) + B3 production detector evidence (gerçek sprint koşusu) + Sprint 154 P1 stretch (memory-query CLI + config read + nervous status CLI parity) | ⏳ Plan |
-| 155 | ~Çar 8 May | Hub Growth — 20 → 50 skill + moderation CI + rating system | ⏳ Plan |
-| 156 | ~Per 9 May | Feature requests triage + routing V4 + skill heuristics | ⏳ Plan |
-| 157 | ~Cum 10 May | Adaptive agent activation (analiz → öneri + autonomous apply) | ⏳ Plan |
-| 158 | ~Pzt 13 May | DeckentHub moderation queue + CI auto-signature + Ed25519 key rotation | ⏳ Plan |
-| 159 | ~Sal 14 May | Messaging polish + thread management + user context memory | ⏳ Plan |
-| 160 | ~Çar 15 May | CLI/MCP parity audit + i18n TR/EN gaps + docs site | ⏳ Plan |
-| 161 | ~Per 16 May | Marketplace 50 → 100 skill + vector search (FTS5 extend) | ⏳ Plan |
+| **155** | **Çar 7 May (gerçek)** | **Multi-Provider Runtime Hardening** — runtime fallback chain (429/capacity-aware respawn) + adapter-side `provider_auth.mode` enforcement + model registry stale-while-revalidate refresh + Sprint 154 retro/memory sync | ✅ DONE (4/5 tasks 23min, 0 tech debt, +2301/-32 LoC, 1 NO_GO Codex BLOCKED-external; commits `c31cf51`+`729cba3`) |
+| **156** | **Çar 7 May (gerçek)** | **Gemini Sprint Dogfood — Hidden Bug Hunt #1** — 3 doc/audit task `worker_provider=gemini`; ilk Gemini sprint orchestration testi → `isAvailable()` Sprint 154 regression açığa çıktı (API-key-only check). Plus prompt-template + result-collector hardcoded `provider:claude` injection bulundu. | ✅ DONE (3/3 tasks DONE; 1 hidden bug fixed `60566eb`; Sprint 156 sonucu: gerçek dogfood validation = öngörülmemiş bug bulma yaratıcı bir araç) |
+| **157** | **Çar 7 May (gerçek)** | **Routing Hotfix — Hidden Bug Hunt #2** — `resolveTaskModel` provider-default `'claude'` + `sprint-planner` `src.provider` hop drop ikinci bug zinciri. DIRECTIVES `Model: gemini-2.5-flash` planner çıktısında `sonnet` oluyordu. Live dry-run kanıt: post-fix Model column gemini-2.5-flash gösteriyor. **`docs/development/auth-surface-checklist.md` (7 surface) yeni doc**. | ✅ DONE (commit `b4df0e2` fix + `c14a1fc` docs; ADR-046 in-DB) |
+| **158** | **Çar 7 May (gerçek)** | **Provider Labeling + File Lifecycle Hotfix — Hidden Bug Hunt #3** — `prompt-god-template:291` + `result-collector:73` task.provider hardcoded → worker prompt "provider: MUST be claude" injection; `spawn-backend-docker:706` over-aggressive `.worker-*.sh` cleanup; Docker workers hiç `.plan` yazmıyor (worker.ts dead code); `.prompt` mid-sprint deletion mystery (static analiz çözemedi → Sprint 159 empirical). Sprint 158 dogfood + 6/7 bug fix. | ✅ DONE (3 fix commit: `e1a47a1`+`932356f`+`6b39ac3`; tasks 158-003 ilk doğru gemini-labeled DONE) |
+| **159** | **Çar 7 May (gerçek)** | 🎯 **İlk Mixed Claude+Gemini Production Sprint** — auth-surface 7→9, `--refresh-models` doctor flag wire, `deckent metrics summary` CLI, README/CHANGELOG TR/EN normalize. **3 Claude (sonnet/opus reasoning-heavy) + 2 Gemini (flash large-context doc-friendly)** — fallback chain ilk production stress test (Gemini quota 429 hit'i fallback claude'a swap edecek senaryosu). Sprint 159 başında `detectGemini`/`detectCodex` legacy 8th routing bug fixed (`7bec80b`). | ⏳ PLANLANDI (5 task, ~30dk hedef) |
+| 160 | ~Per 8 May (revize) | Sprint 159 retro + Bug 4 (.prompt mid-sprint deletion) empirical validation + Telegram/Discord canlı smoke (Pazar token bekleniyor) + B3 production detector log evidence | ⏳ Plan |
+| 161 | ~Cum 9 May | Hub Growth — 20 → 50 skill + moderation CI + rating system | ⏳ Plan |
+| 162 | ~Pzt 12 May | Feature requests triage + routing V4 + skill heuristics | ⏳ Plan |
+| 163 | ~Sal 13 May | Adaptive agent activation (analiz → öneri + autonomous apply) | ⏳ Plan |
+| 164 | ~Çar 14 May | DeckentHub moderation queue + CI auto-signature + Ed25519 key rotation | ⏳ Plan |
+| 165 | ~Per 15 May | Messaging polish + thread management + user context memory | ⏳ Plan |
+| 166 | ~Cum 16 May | CLI/MCP parity audit + i18n TR/EN gaps + docs site | ⏳ Plan |
 
 ### Phase 3: Daemon + Local AI + Polish (Sprint 161-170)
 **Hedef: 7/24 background operation + local model support**
