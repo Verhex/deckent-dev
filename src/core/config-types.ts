@@ -172,8 +172,22 @@ export interface DeckentConfig {
   multi_ide_mode?: boolean;
 
   // ─── Auth ──────────────────────────────────────────────────────────
-  /** Auth mode (default: 'subscription') */
+  /**
+   * Global auth mode default (Sprint 154 deprecated for per-provider override —
+   * still respected as fallback when `provider_auth.{name}.mode` is unset).
+   * Default: 'subscription'.
+   */
   auth_mode?: 'subscription' | 'api' | 'hybrid';
+  /**
+   * Per-provider auth preference (Sprint 154 Faz B).
+   * Each provider can declare 'auto' | 'api_key' | 'subscription' independently.
+   * Doctor surfaces mismatches between configured and detected modes.
+   */
+  provider_auth?: {
+    claude?: { mode?: 'auto' | 'api_key' | 'subscription'; api_key_env?: string };
+    codex?: { mode?: 'auto' | 'api_key' | 'subscription'; api_key_env?: string };
+    gemini?: { mode?: 'auto' | 'api_key' | 'subscription'; api_key_env?: string };
+  };
   /** Bearer token for HTTP API authentication. Falls back to DECKENT_API_TOKEN env var. */
   api_auth_token?: string;
 

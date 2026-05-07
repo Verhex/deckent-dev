@@ -474,6 +474,31 @@ export interface ConfigProviders {
 }
 
 /**
+ * Per-provider auth preference (Sprint 154 Faz B).
+ *
+ * Replaces the global `auth_mode` field with explicit per-provider config.
+ * - 'auto': adapter's detectAuthMode() decides at runtime (recommended default)
+ * - 'api_key': force env-var auth even if subscription creds are cached
+ * - 'subscription': force OAuth/cached-cred auth even if env vars are set
+ *
+ * `api_key_env` overrides the default env var name for the api_key path
+ * (claude: ANTHROPIC_API_KEY, codex: OPENAI_API_KEY, gemini: GEMINI_API_KEY).
+ * Doctor surfaces mismatches between configured mode and detected mode.
+ */
+export type ProviderAuthMode = 'auto' | 'api_key' | 'subscription';
+
+export interface ConfigProviderAuth {
+  mode?: ProviderAuthMode;
+  api_key_env?: string;
+}
+
+export interface ConfigProviderAuthMap {
+  claude?: ConfigProviderAuth;
+  codex?: ConfigProviderAuth;
+  gemini?: ConfigProviderAuth;
+}
+
+/**
  * Apply v1 → v2 migration rules to a config object in-memory.
  *
  * Migration rules:

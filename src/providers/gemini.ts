@@ -15,7 +15,7 @@ import {
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import type { ModelType, GeminiModel } from '../core/types.js';
-import type { ProviderAdapter, ProviderSpawnOptions } from '../core/provider.js';
+import type { ProviderAdapter, ProviderSpawnOptions, TaskEffort } from '../core/provider.js';
 import { ProviderError } from '../core/provider.js';
 import { TASKS_DIR } from '../core/constants.js';
 import type { ModelTier } from '../core/model-equivalence.js';
@@ -549,6 +549,16 @@ export class GeminiAdapter implements ProviderAdapter {
     if (this.getApiKey()) return 'api_key';
 
     return 'none';
+  }
+
+  /**
+   * Translate effort — Gemini CLI has no equivalent flag (model handles internally).
+   * Sprint 154 Faz C: returns [] so callers can concat without conditional branching.
+   * Effort hints get encoded into the prompt by upstream code if the user wants
+   * influence over reasoning depth.
+   */
+  translateEffort(_effort: TaskEffort, _model: ModelType): string[] {
+    return [];
   }
 
   /** Structured auth detail for `deckent doctor` and observability surfaces. */

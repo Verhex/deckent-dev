@@ -3,7 +3,7 @@ import { readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import type { ModelType } from '../core/types.js';
 import { CLAUDE_MODELS } from '../core/types.js';
-import type { ProviderAdapter, ProviderSpawnOptions } from '../core/provider.js';
+import type { ProviderAdapter, ProviderSpawnOptions, TaskEffort } from '../core/provider.js';
 import { ProviderError } from '../core/provider.js';
 import {
   spawnWorker,
@@ -213,6 +213,21 @@ export class ClaudeAdapter implements ProviderAdapter {
       return true; // subprocess doesn't need tmux session
     }
     return isSessionActive();
+  }
+
+  /**
+   * Translate effort tier to Claude `--max-tokens` budget.
+   * Conservative ceilings — leave headroom under model context limits so
+   * prompt + tool output still fits. Model param accepted for future
+   * per-model tuning but currently uniform across opus/sonnet/haiku.
+   */
+  translateEffort(effort: TaskEffort, _model: ModelType): string[] {
+    const tokenMap: Record<TaskEffort, string> = {
+      low: '4096',
+      normal: '16384',
+      high: '64000',
+    };
+    return ['--max-tokens', tokenMap[effort]];
   }
 }
 

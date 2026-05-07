@@ -555,4 +555,20 @@ describe('ClaudeAdapter — claude_backend', () => {
     expect(adapter).toBeInstanceOf(ClaudeAdapter);
     expect(adapter.getBackend()).toBe('mcp');
   });
+
+  // ─── translateEffort (Sprint 154 Faz C) ───────────────────────────
+
+  describe('translateEffort', () => {
+    const effortAdapter = createClaudeAdapter('/tmp/claude-effort');
+
+    it('maps low to 4096 max-tokens', () => {
+      expect(effortAdapter.translateEffort('low', 'sonnet')).toEqual(['--max-tokens', '4096']);
+    });
+    it('maps normal to 16384 max-tokens', () => {
+      expect(effortAdapter.translateEffort('normal', 'opus')).toEqual(['--max-tokens', '16384']);
+    });
+    it('maps high to 64000 max-tokens', () => {
+      expect(effortAdapter.translateEffort('high', 'opus')).toEqual(['--max-tokens', '64000']);
+    });
+  });
 });

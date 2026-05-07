@@ -13,6 +13,7 @@ vi.mock('node:fs', () => ({
 
 vi.mock('node:os', () => ({
   platform: vi.fn().mockReturnValue('linux'),
+  homedir: vi.fn().mockReturnValue('/home/test-user'),
 }));
 
 vi.mock('node:child_process', () => ({
@@ -279,7 +280,9 @@ describe('runDoctorChecks', () => {
 
   it('marks ok=true when all required checks pass', () => {
     vi.mocked(spawnSync).mockReturnValue(makeSpawnResult(0, 'v22.0.0') as ReturnType<typeof spawnSync>);
-    const result = runDoctorChecks('/mock/root');
+    // Sprint 154: scope to claude-only — gemini/codex auth detection requires fs/env
+    // setup that's outside this test's concern; their checks are exercised separately.
+    const result = runDoctorChecks('/mock/root', ['claude']);
     expect(result.ok).toBe(true);
   });
 
@@ -326,7 +329,8 @@ describe('runDoctorChecks', () => {
     vi.mocked(spawnSync).mockReturnValue(makeSpawnResult(0, 'v22.0.0') as ReturnType<typeof spawnSync>);
     vi.mocked(existsSync).mockReturnValue(false); // workspace/brain missing
     vi.mocked(readFileSync).mockImplementation(() => { throw new Error('no file'); });
-    const result = runDoctorChecks('/mock/root');
+    // Sprint 154: scope to claude-only — see comment in earlier test
+    const result = runDoctorChecks('/mock/root', ['claude']);
     // Required checks (node, git, tmux, claude) still pass → ok=true
     expect(result.ok).toBe(true);
     const workspaceCheck = result.checks.find(c => c.name === 'Workspace');
@@ -634,8 +638,8 @@ describe('i18n integration', () => {
     const calls = vi.mocked(print).mock.calls.map(c => c[0]);
     const passedMsg = calls.find(c => String(c).includes('checks passed'));
     expect(passedMsg).toBeDefined();
-    // runDoctorChecks returns 15 checks total (including platform, Docker, .deck security, write permissions, gitignore)
-    expect(String(passedMsg)).toMatch(/\/15/);
+    // runDoctorChecks returns 17 checks total (Sprint 154 added Gemini + Codex CLI checks)
+    expect(String(passedMsg)).toMatch(/\/17/);
   });
 
   it('uses tr language when config has language=tr in legacy mode', async () => {
@@ -761,7 +765,8 @@ describe('checkPlatform', () => {
     vi.mocked(readdirSync).mockReturnValue([] as ReturnType<typeof readdirSync>);
     mockMemoryStore.totalCount.mockReturnValue(50);
     vi.mocked(readFileSync).mockReturnValue('# Content' as unknown as ReturnType<typeof readFileSync>);
-    const result = runDoctorChecks('/mock/root');
+    // Sprint 154: scope to claude-only (gemini/codex checks require fs/env scaffolding)
+    const result = runDoctorChecks('/mock/root', ['claude']);
     // Platform check is not required — ok still true when other required checks pass
     expect(result.ok).toBe(true);
     const platformCheck = result.checks.find(c => c.name === 'Platform');
@@ -2092,8 +2097,12 @@ describe('runDoctorChecks - includes new checks', () => {
   });
 
   it('passes providerNames to checkTmux — tmux not required for non-claude', () => {
-    vi.mocked(spawnSync).mockImplementation((cmd: string) => {
+    vi.mocked(spawnSync).mockImplementation((cmd: string, args?: readonly string[]) => {
       if (cmd === 'tmux') return { status: 1, stdout: '', stderr: '', pid: 1, signal: null, output: [] } as ReturnType<typeof spawnSync>;
+      // Sprint 154: codex auth status must include 'logged in' for checkCodex to pass
+      if (cmd === 'codex' && args?.[0] === 'auth') {
+        return { status: 0, stdout: 'logged in as test@example.com', stderr: '', pid: 1, signal: null, output: [] } as ReturnType<typeof spawnSync>;
+      }
       return { status: 0, stdout: 'v22.0.0', stderr: '', pid: 1, signal: null, output: [] } as ReturnType<typeof spawnSync>;
     });
     // Pass only codex providers → tmux not required
@@ -2102,6 +2111,49 @@ describe('runDoctorChecks - includes new checks', () => {
     expect(tmuxCheck?.required).toBe(false);
     // ok should still be true since tmux not required
     expect(result.ok).toBe(true);
+  });
+});
+
+describe('checkProviderAuthConsistency (Sprint 154 Faz B)', () => {
+  beforeEach(() => {
+    vi.mocked(existsSync).mockReturnValue(false);
+    vi.mocked(readFileSync).mockImplementation(() => { throw new Error('no file'); });
+    delete process.env.GEMINI_API_KEY;
+    delete process.env.GOOGLE_API_KEY;
+    delete process.env.DECKENT_GOOGLE_API_KEY;
+    delete process.env.OPENAI_API_KEY;
+    delete process.env.DECKENT_OPENAI_API_KEY;
+    delete process.env.ANTHROPIC_API_KEY;
+    delete process.env.DECKENT_ANTHROPIC_API_KEY;
+  });
+
+  it('returns empty array when authMap is undefined', async () => {
+    const { checkProviderAuthConsistency } = await import('../../../src/cli/commands/doctor-checks.js');
+    expect(checkProviderAuthConsistency(undefined)).toEqual([]);
+  });
+
+  it('skips providers with mode=auto (no override means trust adapter detection)', async () => {
+    const { checkProviderAuthConsistency } = await import('../../../src/cli/commands/doctor-checks.js');
+    const checks = checkProviderAuthConsistency({ gemini: { mode: 'auto' }, codex: { mode: 'auto' } });
+    expect(checks).toEqual([]);
+  });
+
+  it('emits failing check when configured=subscription but detected=none', async () => {
+    const { checkProviderAuthConsistency } = await import('../../../src/cli/commands/doctor-checks.js');
+    const checks = checkProviderAuthConsistency({ gemini: { mode: 'subscription' } });
+    expect(checks).toHaveLength(1);
+    expect(checks[0]?.passed).toBe(false);
+    expect(checks[0]?.message).toContain('configured=subscription');
+    expect(checks[0]?.message).toContain('detected=none');
+  });
+
+  it('emits passing check when configured=api_key matches env var', async () => {
+    process.env.GEMINI_API_KEY = 'AIza-fake';
+    const { checkProviderAuthConsistency } = await import('../../../src/cli/commands/doctor-checks.js');
+    const checks = checkProviderAuthConsistency({ gemini: { mode: 'api_key' } });
+    expect(checks).toHaveLength(1);
+    expect(checks[0]?.passed).toBe(true);
+    expect(checks[0]?.message).toContain('✓');
   });
 });
 

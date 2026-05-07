@@ -735,6 +735,14 @@ describe('GeminiAdapter', () => {
     expect(adapter.getCliVersion()).toBeUndefined();
   });
 
+  // ─── translateEffort (Sprint 154 Faz C) ───────────────────────────
+
+  it('translateEffort returns empty array for all efforts (Gemini has no equivalent)', () => {
+    expect(adapter.translateEffort('low', 'gemini-2.5-flash')).toEqual([]);
+    expect(adapter.translateEffort('normal', 'gemini-2.5-pro')).toEqual([]);
+    expect(adapter.translateEffort('high', 'gemini-2.0-flash')).toEqual([]);
+  });
+
   // ─── Factory ───────────────────────────────────────────────────────
 
   it('createGeminiAdapter returns GeminiAdapter instance', () => {

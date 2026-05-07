@@ -535,11 +535,119 @@ export function readAllCIReports(root: string, count = 5): CIReport[] {
   }
 }
 
-export function runDoctorChecks(root: string, providerNames?: string[], spawnBackend?: string): DoctorResult {
+/**
+ * Per-provider auth preference, sourced from config.provider_auth.
+ * Sprint 154 Faz B — opt-in override of adapter's auto-detection.
+ */
+export interface ProviderAuthPref {
+  mode?: 'auto' | 'api_key' | 'subscription';
+  api_key_env?: string;
+}
+
+export interface ProviderAuthMap {
+  claude?: ProviderAuthPref;
+  codex?: ProviderAuthPref;
+  gemini?: ProviderAuthPref;
+}
+
+/**
+ * Detect each provider's actual auth mode (mirrors adapter.detectAuthMode without import).
+ * Returns 'oauth' / 'subscription' as the configurable label 'subscription'.
+ */
+function detectProviderModeForCheck(provider: 'claude' | 'codex' | 'gemini'): 'api_key' | 'subscription' | 'none' {
+  if (provider === 'claude') {
+    if (process.env.ANTHROPIC_API_KEY ?? process.env.DECKENT_ANTHROPIC_API_KEY) return 'api_key';
+    const result = spawnSync('claude', ['config', 'get', 'account'], { encoding: 'utf-8', timeout: 3_000 });
+    if (result.status === 0 && (result.stdout?.trim() || result.stderr?.trim())) return 'subscription';
+    return 'none';
+  }
+  if (provider === 'codex') {
+    if (process.env.OPENAI_API_KEY ?? process.env.DECKENT_OPENAI_API_KEY) return 'api_key';
+    try {
+      const r = spawnSync('codex', ['auth', 'status'], { encoding: 'utf-8', timeout: 3_000 });
+      if (r.status === 0 && r.stdout?.includes('logged in')) return 'subscription';
+    } catch { /* fall through */ }
+    return 'none';
+  }
+  // gemini
+  try {
+    const settingsPath = join(homedir(), '.gemini', 'settings.json');
+    if (existsSync(settingsPath)) {
+      const settings = JSON.parse(readFileSync(settingsPath, 'utf-8')) as { security?: { auth?: { selectedType?: string } } };
+      const sel = settings.security?.auth?.selectedType;
+      if (sel === 'oauth-personal') return 'subscription';
+      if (sel === 'gemini-api-key') return 'api_key';
+    }
+  } catch { /* fall through */ }
+  if (existsSync(join(homedir(), '.gemini', 'oauth_creds.json'))) return 'subscription';
+  if (process.env.GEMINI_API_KEY ?? process.env.GOOGLE_API_KEY ?? process.env.DECKENT_GOOGLE_API_KEY) return 'api_key';
+  return 'none';
+}
+
+/**
+ * Doctor warning when worker_provider is non-claude but fallback_provider is unset.
+ * Sprint 154 audit A6.F3 — non-claude providers hit capacity/rate-limits more
+ * frequently in subscription mode (especially Gemini's 'No capacity available'
+ * 429s); without a fallback the sprint stalls when that happens.
+ */
+export function checkFallbackProviderGap(
+  workerProvider?: string,
+  fallbackProvider?: string,
+): DoctorCheck | null {
+  if (!workerProvider || workerProvider === 'claude') return null;
+  if (fallbackProvider) return null;
+  return {
+    name: 'Fallback Provider',
+    passed: false,
+    required: false,
+    message: `worker_provider='${workerProvider}' but fallback_provider unset — set 'fallback_provider' to absorb 429/capacity errors (Sprint 154 audit A6.F3)`,
+  };
+}
+
+/**
+ * Compare configured `provider_auth.{name}.mode` against detected mode for each provider.
+ * Emits one DoctorCheck per configured provider — pass when modes match (or mode=auto),
+ * fail with hint when they diverge so the user can see *exactly* what's wrong.
+ */
+export function checkProviderAuthConsistency(authMap?: ProviderAuthMap): DoctorCheck[] {
+  if (!authMap) return [];
+  const checks: DoctorCheck[] = [];
+  for (const provider of ['claude', 'codex', 'gemini'] as const) {
+    const pref = authMap[provider];
+    if (!pref?.mode || pref.mode === 'auto') continue;
+    const detected = detectProviderModeForCheck(provider);
+    const matches = detected === pref.mode;
+    checks.push({
+      name: `Provider Auth (${provider})`,
+      passed: matches,
+      required: false,
+      message: matches
+        ? `configured=${pref.mode}, detected=${detected} ✓`
+        : `configured=${pref.mode} but detected=${detected} — set credentials to match or change mode to 'auto'`,
+    });
+  }
+  return checks;
+}
+
+export interface ProviderConfigSummary {
+  worker?: string;
+  fallback?: string;
+}
+
+export function runDoctorChecks(
+  root: string,
+  providerNames?: string[],
+  spawnBackend?: string,
+  providerAuth?: ProviderAuthMap,
+  providerConfig?: ProviderConfigSummary,
+): DoctorResult {
+  const fallbackGap = checkFallbackProviderGap(providerConfig?.worker, providerConfig?.fallback);
   const checks: DoctorCheck[] = [
     checkPlatform(),
     checkNode(), checkGit(), checkTmux(providerNames, spawnBackend), checkDocker(spawnBackend), checkClaude(),
     checkGemini(providerNames), checkCodex(providerNames),
+    ...checkProviderAuthConsistency(providerAuth),
+    ...(fallbackGap ? [fallbackGap] : []),
     checkWorkspace(root), checkBrainDir(root), checkDirectives(root),
     checkBrainBudget(root), checkDebt(root), checkStaleLocks(root),
     checkDeckSecurity(root), checkWritePermissions(root), checkGitignore(root),

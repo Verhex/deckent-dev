@@ -79,7 +79,23 @@ export interface ProviderAdapter {
    * @returns command (CLI binary) and args array
    */
   buildPlannerCommand?(prompt: string, model: ModelType): { command: string; args: string[] };
+
+  /**
+   * Translate task effort ('low' | 'normal' | 'high') into provider-specific CLI flags.
+   *
+   * Sprint 154 Faz C — effort is a deckent abstraction that doesn't map 1:1 across providers:
+   *   - Claude: --max-tokens budget mapping (low: 4096, normal: 16384, high: 64000)
+   *   - Codex:  --reasoning-effort for reasoning models only (gpt-5/o3/o4-mini); no-op otherwise
+   *   - Gemini: no equivalent flag — returns []
+   *
+   * Returning [] means "skip — provider doesn't support effort tuning for this model."
+   * Adapters concatenate this output into their existing args without further branching.
+   */
+  translateEffort?(effort: TaskEffort, model: ModelType): string[];
 }
+
+/** Task effort tier — mirrors task.effort field in DIRECTIVES.md */
+export type TaskEffort = 'low' | 'normal' | 'high';
 
 // ─── ProviderError ───────────────────────────────────────────────────
 export class ProviderError extends Error {

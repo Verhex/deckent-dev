@@ -6,12 +6,8 @@ import type { Command } from 'commander';
 import type { DoctorResult, SystemProfile } from '../../core/types.js';
 import type { DetectedProvider } from '../../core/provider.js';
 import type { HealthCheckResult } from '../../orchestra/connector.js';
-import {
-  DECKENT_DIR, BRAIN_DIR, MEMORY_FILE, DEBT_FILE, DECISIONS_FILE,
-  DIRECTIVES_FILE, LOCKS_DIR, DEBT_TABLE_HEADER, MEMORY_DB_FILE,
-  PROJECT_CONFIG_PATH,
-} from '../../core/constants.js';
-import { MemoryStore } from '../../core/memory-store.js';
+import { PROJECT_CONFIG_PATH, BRAIN_DIR } from '../../core/constants.js';
+import { getMemoryEntryCount as getMemoryEntryCountFromChecks } from './doctor-checks.js';
 import { getSystemProfile } from '../../core/system-profile.js';
 import { detectSubscription } from '../../core/subscription.js';
 import { print, formatDoctorResult, formatCIHealthSection } from '../helpers/output.js';
@@ -82,45 +78,7 @@ export function checkPlatform(): DoctorCheck {
   };
 }
 
-function checkNode(): DoctorCheck {
-  const result = spawnSync('node', ['--version'], { encoding: 'utf-8' });
-  if (result.status !== 0) {
-    const entry = ErrorRegistry.get('DECKENT_E010');
-    return { name: 'Node.js', passed: false, message: `not found — ${entry?.suggestion ?? 'Install Node.js >=20'}`, required: true };
-  }
-  const version = result.stdout.trim();
-  const major = parseInt(version.replace('v', '').split('.')[0] ?? '0', 10);
-  if (major < 20) {
-    const entry = ErrorRegistry.get('DECKENT_E010');
-    return {
-      name: 'Node.js',
-      passed: false,
-      message: `${version} found but >=20 required — ${entry?.suggestion ?? 'Upgrade Node.js'}`,
-      required: true,
-    };
-  }
-  return {
-    name: 'Node.js',
-    passed: true,
-    message: `${version} (>=20 required)`,
-    required: true,
-  };
-}
-
-function checkGit(): DoctorCheck {
-  const result = spawnSync('git', ['--version'], { encoding: 'utf-8' });
-  if (result.status !== 0) {
-    const entry = ErrorRegistry.get('DECKENT_E009');
-    return { name: 'git', passed: false, message: `not found — ${entry?.suggestion ?? 'Install git'}. Needed for: rollback, safety points, branch management`, required: true };
-  }
-  const match = result.stdout.trim().match(/(\d+\.\d+\.\d+)/);
-  return {
-    name: 'git',
-    passed: true,
-    message: match ? `v${match[1]}` : result.stdout.trim(),
-    required: true,
-  };
-}
+// checkNode/checkGit removed — duplicates of doctor-checks.ts canonical versions (Sprint 154)
 
 export function checkTmux(providerNames?: string[], spawnBackend?: string): DoctorCheck {
   // tmux is NOT required on Windows, subprocess, or Docker backend
@@ -174,113 +132,9 @@ export function checkClaude(checkAuth = false): DoctorCheck {
   };
 }
 
-function checkWorkspace(root: string): DoctorCheck {
-  const exists = existsSync(join(root, DECKENT_DIR));
-  return {
-    name: 'Workspace',
-    passed: exists,
-    message: exists ? '.deckent/ found' : '.deckent/ missing — run `deckent init`',
-    required: false,
-  };
-}
-
-function checkBrainDir(root: string): DoctorCheck {
-  const brainPath = join(root, BRAIN_DIR);
-  if (!existsSync(brainPath)) {
-    return { name: 'Brain Dir', passed: false, message: '.brain/ missing', required: false };
-  }
-  const requiredFiles = [MEMORY_FILE, DEBT_FILE, DECISIONS_FILE];
-  const missing = requiredFiles.filter(f => !existsSync(join(brainPath, f)));
-  if (missing.length > 0) {
-    return { name: 'Brain Dir', passed: false, message: `Missing: ${missing.join(', ')}`, required: false };
-  }
-  return { name: 'Brain Dir', passed: true, message: 'All brain files present', required: false };
-}
-
-function checkDirectives(root: string): DoctorCheck {
-  const path = join(root, DIRECTIVES_FILE);
-  if (!existsSync(path)) {
-    const entry = ErrorRegistry.get('DECKENT_E003');
-    return { name: 'Directives', passed: false, message: `DIRECTIVES.md missing — ${entry?.suggestion ?? 'Create DIRECTIVES.md or run deckent init'}`, required: false };
-  }
-  try {
-    const content = readFileSync(path, 'utf-8').trim();
-    if (content.length === 0) {
-      return { name: 'Directives', passed: false, message: 'DIRECTIVES.md is empty — add sprint goals with ## Task sections', required: false };
-    }
-  } catch {
-    return { name: 'Directives', passed: false, message: 'Cannot read DIRECTIVES.md — check file permissions', required: false };
-  }
-  return { name: 'Directives', passed: true, message: 'DIRECTIVES.md found', required: false };
-}
-
-/** DB-first memory entry count — replaces legacy countBrainLines. */
-function getMemoryEntryCount(projectRoot: string): number {
-  const dbPath = join(projectRoot, BRAIN_DIR, MEMORY_DB_FILE);
-  if (!existsSync(dbPath)) return 0;
-  try {
-    const store = new MemoryStore(dbPath);
-    try { return store.totalCount(); }
-    finally { store.close(); }
-  } catch { return 0; }
-}
-
-function checkBrainBudget(root: string, memoryBudget = 900): DoctorCheck {
-  const lines = getMemoryEntryCount(root);
-  const passed = lines <= memoryBudget;
-  return {
-    name: 'Brain Budget',
-    passed,
-    message: `${lines}/${memoryBudget} lines${passed ? '' : ' — OVER BUDGET, run cleanup --decay'}`,
-    required: false,
-  };
-}
-
-function checkDebt(root: string): DoctorCheck {
-  const debtPath = join(root, BRAIN_DIR, DEBT_FILE);
-  if (!existsSync(debtPath)) {
-    return { name: 'Debt', passed: true, message: 'No debt file', required: false };
-  }
-  try {
-    const content = readFileSync(debtPath, 'utf-8');
-    const lines = content.split('\n').filter(l => l.startsWith('|') && !l.startsWith(DEBT_TABLE_HEADER.slice(0, 5)) && !l.startsWith('|-'));
-    const criticalCount = lines.filter(l => l.includes('CRITICAL')).length;
-    if (criticalCount > 0) {
-      return { name: 'Debt', passed: false, message: `${criticalCount} CRITICAL debt item(s)`, required: false };
-    }
-    return { name: 'Debt', passed: true, message: `${lines.length} debt items, no critical`, required: false };
-  } catch {
-    return { name: 'Debt', passed: false, message: 'Cannot parse DEBT.md', required: false };
-  }
-}
-
-function checkStaleLocks(root: string, lockStaleThresholdMs = 300_000): DoctorCheck {
-  const locksPath = join(root, LOCKS_DIR);
-  if (!existsSync(locksPath)) {
-    return { name: 'Locks', passed: true, message: 'No lock files', required: false };
-  }
-  try {
-    const lockFiles = readdirSync(locksPath).filter(f => f.endsWith('.lock'));
-    if (lockFiles.length === 0) {
-      return { name: 'Locks', passed: true, message: 'No lock files', required: false };
-    }
-    let staleCount = 0;
-    for (const file of lockFiles) {
-      try {
-        const lock = JSON.parse(readFileSync(join(locksPath, file), 'utf-8'));
-        if (lock.acquiredAt && (Date.now() - new Date(lock.acquiredAt).getTime()) > lockStaleThresholdMs) {
-          staleCount++;
-        }
-      } catch { /* skip malformed */ }
-    }
-    if (staleCount > 0) {
-      return { name: 'Locks', passed: false, message: `${staleCount} stale lock(s) — run \`deckent cleanup\` to remove stale locks`, required: false };
-    }
-    return { name: 'Locks', passed: true, message: `${lockFiles.length} active lock(s)`, required: false };
-  } catch {
-    return { name: 'Locks', passed: true, message: 'Cannot read locks', required: false };
-  }
-}
+// checkWorkspace/checkBrainDir/checkDirectives/getMemoryEntryCount/checkBrainBudget/
+// checkDebt/checkStaleLocks removed — duplicates of doctor-checks.ts canonical versions
+// (Sprint 154 dedup; consumed only by the deleted local runDoctorChecks copy)
 
 /**
  * Read the last sprint ID from .deckent/config.json.
@@ -870,19 +724,10 @@ export function checkDocker(spawnBackend?: string): DoctorCheck {
   };
 }
 
-export function runDoctorChecks(root: string, providerNames?: string[], spawnBackend?: string): DoctorResult {
-  const checks: DoctorCheck[] = [
-    checkPlatform(),
-    checkNode(), checkGit(), checkTmux(providerNames, spawnBackend), checkDocker(spawnBackend), checkClaude(),
-    checkWorkspace(root), checkBrainDir(root), checkDirectives(root),
-    checkBrainBudget(root), checkDebt(root), checkStaleLocks(root),
-    checkDeckSecurity(root), checkWritePermissions(root), checkGitignore(root),
-  ];
-  return {
-    ok: checks.filter(c => c.required).every(c => c.passed),
-    checks,
-  };
-}
+// runDoctorChecks: imported from doctor-checks.ts and re-exported (Sprint 154 deduplication —
+// the local copy fell behind on checkGemini/checkCodex/auth-consistency additions)
+import { runDoctorChecks } from './doctor-checks.js';
+export { runDoctorChecks };
 
 export interface PreFlightCheckResult {
   name: string;
@@ -945,16 +790,24 @@ export function registerDoctor(program: Command): void {
       const lang = getLangFromConfig(root);
       const providers = await detectAvailableProviders();
       const activeProviderNames = providers.filter(p => p.available).map(p => p.name);
-      // Read spawn_backend from config for Docker/tmux check context
+      // Read spawn_backend + provider_auth + providers from config for full doctor context
       let spawnBackend: string | undefined;
+      let providerAuth: import('./doctor-checks.js').ProviderAuthMap | undefined;
+      let providerConfig: import('./doctor-checks.js').ProviderConfigSummary | undefined;
       try {
         const cfgPath = join(root, PROJECT_CONFIG_PATH);
         if (existsSync(cfgPath)) {
           const raw = JSON.parse(readFileSync(cfgPath, 'utf-8')) as Record<string, unknown>;
           spawnBackend = (raw.spawn_backend ?? raw.claude_backend) as string | undefined;
+          providerAuth = raw.provider_auth as import('./doctor-checks.js').ProviderAuthMap | undefined;
+          const providers = raw.providers as { worker?: string; fallback?: string } | undefined;
+          providerConfig = {
+            worker: (providers?.worker ?? raw.worker_provider) as string | undefined,
+            fallback: (providers?.fallback ?? raw.fallback_provider) as string | undefined,
+          };
         }
       } catch { /* use default */ }
-      const result = runDoctorChecks(root, activeProviderNames, spawnBackend);
+      const result = runDoctorChecks(root, activeProviderNames, spawnBackend, providerAuth, providerConfig);
 
       // --pre-flight: run extended pre-flight check and exit with abort signal
       if (opts.preFlight) {
@@ -1017,7 +870,7 @@ export function registerDoctor(program: Command): void {
         print(formatDetectedProviders(providers));
       } else {
         // Human-friendly format — build Connector health results from detected providers
-        const brainLines = getMemoryEntryCount(root);
+        const brainLines = getMemoryEntryCountFromChecks(root);
         const lastSprintId = getLastSprintId(root);
         const debtItems = countDebtItems(root);
         const connectorHealthResults = buildConnectorHealthResults(providers);

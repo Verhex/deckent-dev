@@ -557,4 +557,25 @@ describe('createCodexAdapter', () => {
     const adapter = createCodexAdapter('/dir', { defaultTimeoutMs: 5000 });
     expect(adapter).toBeInstanceOf(CodexAdapter);
   });
+
+  // ─── translateEffort (Sprint 154 Faz C) ───────────────────────────
+
+  describe('translateEffort', () => {
+    const effortAdapter = createCodexAdapter('/tmp/codex-effort');
+
+    it('emits --reasoning-effort for reasoning models (gpt-5)', () => {
+      expect(effortAdapter.translateEffort('low', 'gpt-5')).toEqual(['--reasoning-effort', 'low']);
+      expect(effortAdapter.translateEffort('normal', 'gpt-5')).toEqual(['--reasoning-effort', 'medium']);
+      expect(effortAdapter.translateEffort('high', 'gpt-5')).toEqual(['--reasoning-effort', 'high']);
+    });
+
+    it('emits --reasoning-effort for o4-mini', () => {
+      expect(effortAdapter.translateEffort('normal', 'o4-mini')).toEqual(['--reasoning-effort', 'medium']);
+    });
+
+    it('returns [] for non-reasoning models (gpt-4.1)', () => {
+      expect(effortAdapter.translateEffort('high', 'gpt-4.1')).toEqual([]);
+      expect(effortAdapter.translateEffort('low', 'gpt-4.1-mini')).toEqual([]);
+    });
+  });
 });

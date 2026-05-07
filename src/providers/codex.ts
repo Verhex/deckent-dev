@@ -14,7 +14,7 @@ import {
 import { join } from 'node:path';
 import type { ModelType, OpenAIModel } from '../core/types.js';
 import { PROVIDER_MODEL_MAP, isOpenAIModel } from '../core/types.js';
-import type { ProviderAdapter, ProviderSpawnOptions } from '../core/provider.js';
+import type { ProviderAdapter, ProviderSpawnOptions, TaskEffort } from '../core/provider.js';
 import { ProviderError } from '../core/provider.js';
 import { TASKS_DIR } from '../core/constants.js';
 import type { ModelTier } from '../core/model-equivalence.js';
@@ -285,6 +285,21 @@ export class CodexAdapter implements ProviderAdapter {
    */
   getModelForTier(tier: ModelTier): OpenAIModel {
     return (getModelForProviderTier('codex', tier) ?? 'gpt-4.1') as OpenAIModel;
+  }
+
+  /**
+   * Translate effort to `--reasoning-effort` flag — only emitted for reasoning
+   * models (o3, o4-mini, gpt-5 family). Non-reasoning models like gpt-4.1 don't
+   * accept this flag, so we silently no-op for them rather than erroring.
+   *
+   * Sprint 154 Faz C: provider-aware effort mapping. Codex's CLI accepts
+   * `--reasoning-effort low|medium|high` — we map deckent's 'normal' → 'medium'.
+   */
+  translateEffort(effort: TaskEffort, model: ModelType): string[] {
+    const reasoningModels = new Set<string>(['o3', 'o4-mini', 'gpt-5', 'gpt-5-mini']);
+    if (!reasoningModels.has(model)) return [];
+    const map: Record<TaskEffort, string> = { low: 'low', normal: 'medium', high: 'high' };
+    return ['--reasoning-effort', map[effort]];
   }
 
   // ─── Internal helpers ───────────────────────────────────────────────
