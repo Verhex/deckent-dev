@@ -9,6 +9,7 @@
 
 | ID | Title | Priority | Sprint | Status |
 |----|-------|----------|--------|--------|
+| debt-155-004 | Tech debt from 155-004: BLOCKED on external dependency — Codex CLI access not ye | normal | sprint-155 | resolved |
 | debt-debt-138-002 | Tech debt from 138-002: ADR-035 Brain ↔ Worker ↔ Auditor Verification Protocol S | normal | - | resolved |
 | debt-debt-138-008 | Tech debt from 138-008: Worker Honest Assessment Calibration v2 tamamlandı. 3 al | normal | - | resolved |
 | debt-141-003 | Tech debt from 141-003: src/cli/ analizi tamamlandı. 75 rapor dosyası oluşturuld | normal | - | resolved |

@@ -21,11 +21,11 @@ Features: **Memory V2 DB-First (SQLite FTS5, dual-layer i18n normalize, 96% cont
 | Metric | Value |
 |--------|-------|
 | Version | 1.0.0-beta.1 |
-| Sprint | sprint-153 |
-| MCP Tools | 31 |
+| Sprint | sprint-155 |
+| MCP Tools | 27 |
 | MCP Resources | 8 |
-| CLI Commands | 46 |
-| Dashboard Pages | 6 |
+| CLI Commands | 55+ |
+| Dashboard Pages | 7 |
 | Agents | 15 built-in + 3 custom |
 | Skills | 21 built-in |
 | Providers | 3 (Claude, Codex, Gemini) |

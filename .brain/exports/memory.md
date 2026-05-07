@@ -1,5 +1,12 @@
 # Sprint Learnings (auto-generated)
 
+## Sprint sprint-155 Learnings
+- Sprint sprint-155 Learnings: ## Sprint sprint-155 Learnings
+- Model Registry Remote Refresh: NO_GO — Implemented stale-while-revalidate model registry refresh. All 23 new tests pass, 78 existing model-registry tests pass.
+- Codex Live Install + Dogfood (BLOCKED on external): GO_WITH_TECH_DEBT — BLOCKED on external dependency — Codex CLI access not yet obtained by Alperen.
+
+This task was explicitly flagged in DIRE
+
 ## Sprint sprint-153 Learnings
 - Sprint sprint-153 Learnings: ## Sprint sprint-153 Learnings
 - Doc drift — version + agent/CLI/MCP count senk: NO_GO — Worker timeout/killed (exitCode=0) — HIT WORKER_TIMEOUT (task exceeded its timeout budget; re-run with longer --timeout 

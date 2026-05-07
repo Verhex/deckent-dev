@@ -51,6 +51,8 @@
 | user-1778150182657 | ADR-045: Multi-Provider Docker Backend Parity | active |
 
 ## Recent Learnings
+- **Sprint sprint-155 Learnings** (sprint-155): ## Sprint sprint-155 Learnings
+- Model Registry Remote Refresh: NO_GO — Implemented stale-while-revalidate model regi...
 - **Sprint sprint-153 Learnings** (sprint-153): ## Sprint sprint-153 Learnings
 - Doc drift — version + agent/CLI/MCP count senk: NO_GO — Worker timeout/killed (exitC...
 - **Sprint sprint-152 Learnings** (sprint-152): ## Sprint sprint-152 Learnings
@@ -68,8 +70,6 @@
 - Agent Truncation Bug Fix: GO_WITH_TECH_DEBT — Root cause: task-builder.ts:761 had `a...
 - **Sprint sprint-145 Learnings** (sprint-145): ## Sprint sprint-145 Learnings
 - Brain Heuristic Timeout Estimator: NO_GO — Brain Heuristic Timeout Estimator impleme...
-- **Sprint sprint-144 Learnings** (sprint-144): ## Sprint sprint-144 Learnings
-- worker.ts Split (1669 → 4 dosya): NO_GO — Worker timeout — process exceeded time lim...
 
 ## Active Technical Debt
 _No active technical debt._
@@ -77,4 +77,4 @@ _No active technical debt._
 ## Active Patterns
 _No active patterns._
 
-_Total entries: 181 | Generated: 2026-05-07_
+_Total entries: 184 | Generated: 2026-05-07_

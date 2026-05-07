@@ -78,6 +78,8 @@ paths: ["src/**","tests/**"]
 - **ADR-037**: Brain-Auditor-Worker Authority Matrix — RBAC Protocol V1.0 — **Status:** accepted
 - **ADR-038**: Dead Code Disposition — Sprint 139 Audit Results — **Status:** accepted
 - **ADR-039**: Self-Modifying Task Detection — Deckent Dogfood vs User Project Discrimination — **Status:** accepted
+- **ADR-043**: Hot Fix with Claude Subagents — Pipeline-Bypass Repair Pattern — Deckent kendi pipeline'ı bozulduğunda (worker spawn, prompt delivery,
+- **ADR-044**: Sprint 154 Comprehensive Audit — 10-Agent Parallel Pass + Pipeline Wire Validation — Sprint 152 audit'in (verification-blind bug ile yanlış sayım, 8/36 DONE
 <!-- AUTO-END -->
 
 <!-- CUSTOM-START -->
