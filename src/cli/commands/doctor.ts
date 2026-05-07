@@ -279,6 +279,9 @@ export function buildConnectorHealthResults(providers: DetectedProvider[]): Heal
     provider: p.name,
     available: p.available,
     authStatus: (p.authMethod !== 'none' ? 'ok' : 'missing') as HealthCheckResult['authStatus'],
+    // Sprint 159: pass authMethod through so doctor-format.ts can render the right label
+    // (session/subscription/api_key) instead of hardcoding "API key configured".
+    authMethod: p.authMethod,
     cliVersion: p.version ?? null,
     error: null,
   }));
@@ -297,7 +300,13 @@ export function formatConnectorHealthLines(
   for (const r of results) {
     const versionStr = r.cliVersion ? ` ${r.cliVersion}` : '';
     if (r.available && r.authStatus === 'ok') {
-      const authLabel = r.provider === 'claude' ? 'session auth active' : 'API key configured';
+      // Sprint 159: same fix as doctor-format.ts — render auth label by method
+      const am = (r as { authMethod?: string }).authMethod;
+      const authLabel = r.provider === 'claude'
+        ? 'session auth active'
+        : am === 'subscription' ? 'subscription auth active'
+        : am === 'api_key' ? 'API key configured'
+        : 'auth configured';
       lines.push(`  [PASS] ${capitalize(r.provider)} CLI${versionStr} — ${authLabel}`);
     } else if (!r.available) {
       const hint = getProviderInstallHint(r.provider);

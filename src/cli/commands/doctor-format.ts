@@ -134,7 +134,14 @@ export function formatConnectorHealthLines(
   for (const r of results) {
     const versionStr = r.cliVersion ? ` ${r.cliVersion}` : '';
     if (r.available && r.authStatus === 'ok') {
-      const authLabel = r.provider === 'claude' ? 'session auth active' : 'API key configured';
+      // Sprint 159: Codex + Gemini also support subscription auth (not just API key).
+      // Use the authMethod field when present so display matches detected reality.
+      const am = (r as { authMethod?: string }).authMethod;
+      const authLabel = r.provider === 'claude'
+        ? 'session auth active'
+        : am === 'subscription' ? 'subscription auth active'
+        : am === 'api_key' ? 'API key configured'
+        : 'auth configured';
       lines.push(`  [PASS] ${capitalize(r.provider)} CLI${versionStr} — ${authLabel}`);
     } else if (!r.available) {
       const hint = getProviderInstallHint(r.provider);

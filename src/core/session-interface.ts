@@ -21,6 +21,10 @@ export interface HealthCheckResult {
   provider: ProviderName;
   available: boolean;
   authStatus: 'ok' | 'missing' | 'expired';
+  /** Sprint 159: actual auth method detected (session/subscription/api_key/none).
+   * Allows doctor display to differentiate Codex/Gemini subscription mode
+   * from API key mode instead of always saying "API key configured". */
+  authMethod?: 'session' | 'api_key' | 'subscription' | 'none';
   cliVersion: string | null;
   error: string | null;
 }

@@ -1,4 +1,7 @@
 import { spawnSync } from 'node:child_process';
+import { existsSync, readFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 import type { ModelType, ProviderName } from './types.js';
 import type { ResolvedConfig } from './config-types.js';
 import { PROVIDER_MODEL_MAP } from './task-types.js';
@@ -234,7 +237,7 @@ export interface DetectedProvider {
   name: ProviderName;
   available: boolean;
   version?: string;
-  authMethod: 'session' | 'api_key' | 'none';
+  authMethod: 'session' | 'api_key' | 'subscription' | 'none';
   models: ModelType[];
 }
 
@@ -279,15 +282,23 @@ function detectClaude(): DetectedProvider {
  */
 function detectCodex(): DetectedProvider {
   const version = detectCliVersion('codex');
-  const hasApiKey = typeof process.env['OPENAI_API_KEY'] === 'string' && process.env['OPENAI_API_KEY'].length > 0;
-  const available = version !== undefined && hasApiKey;
-  let authMethod: DetectedProvider['authMethod'] = 'none';
-  if (hasApiKey) {
-    authMethod = 'api_key';
-  } else if (version !== undefined) {
-    // CLI found but no API key
-    authMethod = 'none';
+  const hasApiKey =
+    (typeof process.env['OPENAI_API_KEY'] === 'string' && process.env['OPENAI_API_KEY'].length > 0) ||
+    (typeof process.env['DECKENT_OPENAI_API_KEY'] === 'string' && process.env['DECKENT_OPENAI_API_KEY'].length > 0);
+  // Sprint 159: detect ChatGPT subscription auth (Codex CLI auth login).
+  // Previously detectCodex was API-key-only, mirroring the Sprint 156 isAvailable bug —
+  // doctor displayed "Not configured" for users with subscription mode.
+  let hasSubscription = false;
+  if (!hasApiKey && version !== undefined) {
+    try {
+      const r = spawnSync('codex', ['auth', 'status'], { encoding: 'utf-8', timeout: 3_000 });
+      if (r.status === 0 && r.stdout?.includes('logged in')) hasSubscription = true;
+    } catch { /* fall through */ }
   }
+  const available = version !== undefined && (hasApiKey || hasSubscription);
+  let authMethod: DetectedProvider['authMethod'] = 'none';
+  if (hasApiKey) authMethod = 'api_key';
+  else if (hasSubscription) authMethod = 'subscription';
   return {
     name: 'codex',
     available,
@@ -306,12 +317,32 @@ function detectGemini(): DetectedProvider {
   const version = detectCliVersion('gemini');
   const hasApiKey =
     (typeof process.env['GOOGLE_API_KEY'] === 'string' && process.env['GOOGLE_API_KEY'].length > 0) ||
+    (typeof process.env['GEMINI_API_KEY'] === 'string' && process.env['GEMINI_API_KEY'].length > 0) ||
     (typeof process.env['DECKENT_GOOGLE_API_KEY'] === 'string' && process.env['DECKENT_GOOGLE_API_KEY'].length > 0);
-  const available = version !== undefined && hasApiKey;
+  // Sprint 159: detect OAuth subscription auth (Google login via gemini CLI).
+  // Mirrors the GeminiAdapter.detectAuthMode logic — checks ~/.gemini/settings.json
+  // selectedType=oauth-personal OR oauth_creds.json presence. Was the same Sprint 156
+  // isAvailable() bug pattern: detectGemini ignored OAuth so doctor mislabeled
+  // OAuth-only users as "Not configured".
+  let hasSubscription = false;
+  try {
+    const settingsPath = join(homedir(), '.gemini', 'settings.json');
+    if (existsSync(settingsPath)) {
+      const raw = readFileSync(settingsPath, 'utf-8');
+      const settings = JSON.parse(raw) as { security?: { auth?: { selectedType?: string } } };
+      const sel = settings.security?.auth?.selectedType;
+      if (sel === 'oauth-personal' || sel === 'cloud-shell' || sel === 'vertex-ai') {
+        hasSubscription = true;
+      }
+    }
+    if (!hasSubscription && existsSync(join(homedir(), '.gemini', 'oauth_creds.json'))) {
+      hasSubscription = true;
+    }
+  } catch { /* fall through */ }
+  const available = version !== undefined && (hasApiKey || hasSubscription);
   let authMethod: DetectedProvider['authMethod'] = 'none';
-  if (hasApiKey) {
-    authMethod = 'api_key';
-  }
+  if (hasApiKey) authMethod = 'api_key';
+  else if (hasSubscription) authMethod = 'subscription';
   return {
     name: 'gemini',
     available,

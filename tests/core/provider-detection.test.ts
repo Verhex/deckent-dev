@@ -5,6 +5,17 @@ vi.mock('node:child_process', () => ({
   spawnSync: vi.fn(),
 }));
 
+// Sprint 159: detectGemini now also probes ~/.gemini/{settings.json,oauth_creds.json}
+// for OAuth subscription detection. Mock node:fs so tests don't depend on host OAuth state.
+vi.mock('node:fs', async () => {
+  const actual = await vi.importActual<typeof import('node:fs')>('node:fs');
+  return {
+    ...actual,
+    existsSync: vi.fn(() => false),
+    readFileSync: vi.fn(),
+  };
+});
+
 import { spawnSync } from 'node:child_process';
 import {
   detectAvailableProviders,
