@@ -185,6 +185,76 @@ describe('resolveTaskModel — forceModel + provider', () => {
   });
 });
 
+// ─── Layer 1b min_tier clamp on forceModel (Sprint 154 T5 fix) ───────────────
+
+describe('resolveTaskModel — forceModel + haiku_allowed clamp (Sprint 154 T5)', () => {
+  const patterns: never[] = [];
+
+  it('forceModel=haiku + haiku_allowed=false → clamps to sonnet (standard tier)', () => {
+    const config = makeConfig({
+      activeModeConfig: {
+        max_workers: 4,
+        brain_model: 'opus',
+        default_model: 'sonnet',
+        haiku_allowed: false,
+      },
+    });
+    const scope = makeScope(['src/core/']);
+    const result = resolveTaskModel(
+      'Forced haiku', 'DIRECTIVES says haiku but config disallows', scope, config, patterns,
+      'haiku', undefined, 'claude',
+    );
+    // forceModel=haiku (economy) is below min_tier=standard → clamp to sonnet
+    expect(result).toBe('sonnet');
+  });
+
+  it('forceModel=opus + haiku_allowed=false → opus (already above min_tier, no change)', () => {
+    const config = makeConfig({
+      activeModeConfig: {
+        max_workers: 4,
+        brain_model: 'opus',
+        default_model: 'sonnet',
+        haiku_allowed: false,
+      },
+    });
+    const scope = makeScope(['src/core/']);
+    const result = resolveTaskModel(
+      'Forced opus', 'Premium task', scope, config, patterns,
+      'opus', undefined, 'claude',
+    );
+    // forceModel=opus (premium) is above min_tier=standard → no clamp
+    expect(result).toBe('opus');
+  });
+
+  it('forceModel=haiku + haiku_allowed=false + codex provider → clamps to gpt-4.1', () => {
+    const config = makeConfig({
+      activeModeConfig: {
+        max_workers: 4,
+        brain_model: 'opus',
+        default_model: 'sonnet',
+        haiku_allowed: false,
+      },
+    });
+    const scope = makeScope(['src/core/']);
+    const result = resolveTaskModel(
+      'Forced haiku codex', 'Cross-provider clamp check', scope, config, patterns,
+      'haiku', undefined, 'codex',
+    );
+    // haiku → clamp to sonnet → codex equivalent gpt-4.1
+    expect(result).toBe('gpt-4.1');
+  });
+
+  it('forceModel=haiku + haiku_allowed=true → haiku (no clamp, default behavior)', () => {
+    const config = makeConfig(); // haiku_allowed: true (default)
+    const scope = makeScope(['src/core/']);
+    const result = resolveTaskModel(
+      'Forced haiku allowed', 'Should remain haiku', scope, config, patterns,
+      'haiku', undefined, 'claude',
+    );
+    expect(result).toBe('haiku');
+  });
+});
+
 // ─── Layer interactions with provider ────────────────────────────────────────
 
 describe('resolveTaskModel — layer interactions with provider', () => {

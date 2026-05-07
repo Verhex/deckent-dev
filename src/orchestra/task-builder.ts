@@ -20,6 +20,7 @@ import { BRAIN_DIR, MEMORY_DB_FILE } from '../core/constants.js';
 import { selectRelevantAdrs, buildAdrPromptSection } from './adr-selector.js';
 import { buildTaskPrompt } from './prompt-god-template.js';
 import type { SprintContext } from './prompt-god-template.js';
+import { isSelfModifying } from './self-modifying-detector.js';
 
 // ─── Model enum values for Zod schemas ───────────────────────────────────
 // ALL_MODELS is readonly ModelType[] — extract as tuple for z.enum()
@@ -847,6 +848,28 @@ export function buildWorkerPrompt(
 
   const artifact = buildTaskPrompt(task, ctx);
 
+  // ADR-039 wire (Sprint 154 T9): self-modifying task warning injection.
+  // When this project IS the Deckent repo AND the task writes to Deckent source,
+  // prepend a runtime warning so the worker knows ADR-039 enforcement is active.
+  let finalPrompt = artifact.prompt;
+  try {
+    const projectRoot = process.cwd();
+    if (isSelfModifying(task, projectRoot)) {
+      const selfModWarning =
+        '=== SELF-MODIFYING TASK WARNING (ADR-039) ===\n' +
+        'This task modifies Deckent\'s own source code. Extra caution required:\n' +
+        '- ADR-039 enforcement is ACTIVE — Brain-Auditor-Worker authority matrix applies\n' +
+        '- Stay strictly within scope.filesWrite — boundary violations are escalated\n' +
+        '- Verify build (tsc --noEmit) AND tests (vitest run) before marking DONE\n' +
+        '- Self-modifying sprints require sequential execution awareness\n' +
+        '- If unsure about cross-module impact: write NO_GO + amendment proposal\n' +
+        '=== END SELF-MODIFYING WARNING ===\n\n';
+      finalPrompt = selfModWarning + artifact.prompt;
+    }
+  } catch (err) {
+    debugLog('buildWorkerPrompt:self-modifying-detect', err instanceof Error ? err : new Error(String(err)));
+  }
+
   // Estimate prompt token size and write to task (legacy behavior)
   try {
     const tokenCounter = new TokenCounter();
@@ -861,5 +884,5 @@ export function buildWorkerPrompt(
     debugLog('buildWorkerPrompt:token-estimate', err instanceof Error ? err : new Error(String(err)));
   }
 
-  return artifact.prompt;
+  return finalPrompt;
 }

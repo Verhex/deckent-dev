@@ -178,10 +178,12 @@ describe('resolveTaskModel — forceModel override', () => {
     expect(result).toBe('opus');
   });
 
-  it('returns forceModel=haiku even when haiku_allowed=false', () => {
+  it('clamps forceModel=haiku to sonnet when haiku_allowed=false (Sprint 154 T5)', () => {
+    // Sprint 154 T5 fix: forceModel no longer bypasses Layer 1b min_tier clamp.
+    // Previously this returned 'haiku' silently; now it clamps to standard tier.
     const scope = makeScope(['src/']);
     const result = resolveTaskModel('Simple fix', 'Fix typo', scope, config, undefined, 'haiku');
-    expect(result).toBe('haiku');
+    expect(result).toBe('sonnet');
   });
 
   it('returns forceModel=sonnet without score calculation', () => {

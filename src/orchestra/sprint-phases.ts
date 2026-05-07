@@ -80,9 +80,23 @@ import { calculateMetrics } from './sprint-reporter.js';
 
 // ─── Rubric-Based Evaluation ─────────────────────────────────────
 import { evaluateWithRubric } from './result-evaluator.js';
+import type { FailureContext } from './result-evaluator.js';
+
+// ─── Mid-Sprint Adapter — Spurious NO_GO Reconciliation (Sprint 145) ──
+import { reconcileSpuriousNoGo } from './mid-sprint-adapter.js';
 
 // ─── Result Map Helper ──────────────────────────────────────────
 import { buildResultsMap } from './result-collector.js';
+
+// ─── Dependency Pipeline Wire (Sprint 154 T7) ───────────────────────
+// applyCascadeToSprint: NO_GO → cascade-block PENDING dependents
+// applyUnblockToSprint: DONE → unblock PAUSED dependents
+// respawnEligibleTasks: DONE → spawn newly eligible PENDING (Wave 2+)
+import {
+  applyCascadeToSprint,
+  applyUnblockToSprint,
+  respawnEligibleTasks,
+} from './sprint-spawner.js';
 
 // ─── Sprint Controller (safe circular — all usages inside function bodies) ──
 import {
@@ -311,6 +325,14 @@ export async function runSpawnPhase(
  * Run the EVALUATE phase: evaluate each task result, run CI regression checks,
  * handle debt, and run afterTask hooks.
  * Mutates `sprint` (status, phase) and `evaluations` (Map entries) in place.
+ *
+ * Sprint 154 T7 wire:
+ *   - reconcileSpuriousNoGo: TIMEOUT_WITH_WORK / spurious NO_GO recovery before final eval
+ *   - applyCascadeToSprint: NO_GO → cascade-block transitive PENDING dependents
+ *   - applyUnblockToSprint + respawnEligibleTasks: DONE → unblock + spawn Wave 2+ tasks
+ *
+ * @param config Optional ResolvedConfig — required for cascade/unblock/respawn wire
+ * @param spawnOpts Optional spawn settings — passed to respawnEligibleTasks
  */
 export async function runEvaluatePhase(
   projectRoot: string,
@@ -318,6 +340,8 @@ export async function runEvaluatePhase(
   results: TaskResult[],
   evaluations: Map<string, TaskEvaluation>,
   _coverageThreshold = 90,
+  config?: ResolvedConfig,
+  spawnOpts?: { autoApprove?: boolean; spawnBackend?: SpawnBackend },
 ): Promise<void> {
   try {
     sprint.status = SprintStatus.EVALUATING;
@@ -335,6 +359,26 @@ export async function runEvaluatePhase(
         if (!result) continue; // narrowed: collectedIds contains task.id
         const rubricResult = evaluateWithRubric(result, task);
         let evaluation = toTaskEvaluation(rubricResult);
+
+        // ─── Sprint 154 T7 wire: reconcileSpuriousNoGo ───────────────
+        // If rubric returned NO_GO and the worker signaled TIMEOUT_WITH_WORK
+        // (Sprint 145 partial-result recovery) or wrote substantial work despite
+        // self-assessment NO_GO, attempt reconciliation. If reconciled to
+        // GO_WITH_TECH_DEBT, downgrade the evaluation to recover partial work.
+        if (evaluation === TaskEvaluation.NO_GO) {
+          try {
+            const reconciled = reconcileSpuriousNoGo(result, task, projectRoot);
+            if (reconciled.reconciled && reconciled.decision === 'GO_WITH_TECH_DEBT') {
+              evaluation = TaskEvaluation.GO_WITH_TECH_DEBT;
+              debugLog(
+                'runEvaluatePhase:reconcile',
+                `task=${task.id} spurious NO_GO reconciled → GO_WITH_TECH_DEBT (${reconciled.linesChanged} lines, tsc=${reconciled.tscPassed})`,
+              );
+              // Annotate result so downstream consumers see the reconciliation
+              (result as TaskResult & { reconcileNotes?: string }).reconcileNotes = reconciled.notes;
+            }
+          } catch (e) { debugLog('runEvaluatePhase:reconcileSpuriousNoGo', e); }
+        }
 
         // CI regression check: run after initial evaluation (non-fatal)
         let ciCheckResult: CiRegressionCheckResult | undefined;
@@ -372,6 +416,44 @@ export async function runEvaluatePhase(
         debugLog('runEvaluatePhase:task', `task=${task.id} selfAssessment=${result.selfAssessment} evaluation=${evaluation} testsPassed=${result.testsPassed}`);
         handleEvaluation(projectRoot, task, evaluation, result);
         evaluations.set(task.id, evaluation);
+
+        // ─── Sprint 154 T7 wire: cascade / unblock / respawn ─────────
+        // dependency_pipeline_enabled: failed task cascades to PENDING dependents,
+        // succeeded task unblocks PAUSED dependents and may spawn newly eligible
+        // tasks (Wave 2+). Each branch is fail-safe — wire never blocks evaluation.
+        if (config?.dependency_pipeline_enabled) {
+          if (evaluation === TaskEvaluation.NO_GO) {
+            try {
+              const failureCtx: FailureContext = {
+                notes: result.notes ?? '',
+                selfAssessment: result.selfAssessment as 'DONE' | 'GO_WITH_TECH_DEBT' | 'NO_GO',
+                resultFilePresent: true,
+              };
+              const cascadeResult = applyCascadeToSprint(projectRoot, sprint, task.id, failureCtx);
+              if (cascadeResult.blockedTaskIds.length > 0) {
+                debugLog(
+                  'runEvaluatePhase:cascade',
+                  `task=${task.id} ${cascadeResult.decision.category} → blocked ${cascadeResult.blockedTaskIds.length} dependents: ${cascadeResult.blockedTaskIds.join(',')}`,
+                );
+              }
+            } catch (e) { debugLog('runEvaluatePhase:applyCascadeToSprint', e); }
+          } else if (evaluation === TaskEvaluation.DONE || evaluation === TaskEvaluation.GO_WITH_TECH_DEBT) {
+            // Unblock PAUSED dependents whose deps are now all satisfied
+            try {
+              const unblocked = applyUnblockToSprint(projectRoot, sprint, task.id);
+              if (unblocked.length > 0) {
+                debugLog('runEvaluatePhase:unblock', `task=${task.id} unblocked ${unblocked.length} tasks: ${unblocked.join(',')}`);
+              }
+            } catch (e) { debugLog('runEvaluatePhase:applyUnblockToSprint', e); }
+            // Respawn newly eligible tasks (Wave 2+) — fire-and-forget
+            try {
+              const spawned = await respawnEligibleTasks(projectRoot, sprint, config, spawnOpts);
+              if (spawned.length > 0) {
+                debugLog('runEvaluatePhase:respawn', `task=${task.id} → spawned ${spawned.length} eligible tasks: ${spawned.join(',')}`);
+              }
+            } catch (e) { debugLog('runEvaluatePhase:respawnEligibleTasks', e); }
+          }
+        }
 
         // DECKENT→USER:NOTIFY (Hot Fix H6) — task-done / task-no-go, fail-safe
         try {

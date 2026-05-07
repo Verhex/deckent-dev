@@ -44,9 +44,13 @@ import type { Connector } from './connector.js';
 // ─── Core — sprint lock ───────────────────────────────────────────
 import { acquireSprintLock, releaseSprintLock } from '../core/multi-ide.js';
 
-// ─── Nervous System (Sprint 153 — observer wire) ─────────────────────
+// ─── Nervous System (Sprint 153 — observer wire; Sprint 154 T8 — subscriber wire) ─
 import { NervousObserver } from '../nervous/observer.js';
 import type { DetectorConfig } from '../nervous/detector-registry.js';
+import { NervousDispatcher } from '../nervous/dispatcher.js';
+import { NervousHistory } from '../nervous/history.js';
+import type { DetectorResult, ObserverEvent, ExecutionRecord, NervousNotification } from '../core/nervous-types.js';
+import { randomUUID } from 'node:crypto';
 
 // ─── Sprint Utilities ─────────────────────────────────────────────
 import {
@@ -348,7 +352,69 @@ export async function runSprint(
       const detectorConfig = config.nervous_system.detectors as unknown as DetectorConfig;
       nervousObserver = new NervousObserver(projectRoot, 15_000, detectorConfig);
       nervousObserver.start();
-      debugLog('runSprint:nervous', `Observer started for sprint=${sprint.id}`);
+
+      // Sprint 154 T8: detection subscriber wire (Dispatcher + History).
+      // Without this, observer fires but no downstream record is written —
+      // 11 sprint history showed 0 nervous-history.jsonl files.
+      // ADR-040 minimal pipeline: every detection → audit log + notification dispatch.
+      const dispatcher = new NervousDispatcher(config.nervous_system, projectRoot);
+      const history = new NervousHistory(projectRoot);
+      nervousObserver.on('detection', (result: DetectorResult, event: ObserverEvent) => {
+        // 1) Append detection evidence to nervous-history.jsonl (autonomous record)
+        const record: ExecutionRecord = {
+          id: randomUUID(),
+          notificationId: event.id,
+          actionId: result.suggestedActions[0]?.id ?? 'detection-only',
+          decision: 'autonomous',
+          decidedBy: 'system',
+          executedAt: new Date().toISOString(),
+          outcome: 'success',
+          reversible: false,
+          payload: {
+            detectorRisk: result.risk,
+            shouldNotify: result.shouldNotify,
+            severity: result.severity,
+            groupKey: result.groupKey,
+            eventSource: event.source,
+            eventType: event.type,
+            sprintId: event.sprintId ?? sprint.id,
+            taskId: event.taskId,
+          },
+        };
+        void history.append(record).catch(err => {
+          debugLog('runSprint:nervous:history', err instanceof Error ? err.message : String(err));
+        });
+
+        // 2) Dispatch notification only if detector requested it (shouldNotify=true).
+        //    Skip purely informational detections to avoid spamming channels.
+        if (!result.shouldNotify) return;
+        const notification: NervousNotification = {
+          id: randomUUID(),
+          type: (result.metadata?.type as string) ?? 'detection',
+          title: `Detection: ${event.type}`,
+          message: `Detector flagged event ${event.id} (risk=${result.risk}, source=${event.source})`,
+          severity: result.severity ?? 'info',
+          createdAt: new Date().toISOString(),
+          detectorId: (result.metadata?.detectorId as string) ?? 'unknown',
+          actions: result.suggestedActions.map(a => ({
+            id: a.id,
+            label: a.label,
+            policy: 'suggest-5m' as const,
+            risk: a.risk,
+            isSafetyFloor: false,
+            payload: a.payload,
+          })),
+          timeoutMs: null,
+          sprintId: event.sprintId ?? sprint.id,
+          taskId: event.taskId,
+          groupKey: result.groupKey,
+        };
+        void dispatcher.dispatch(notification).catch(err => {
+          debugLog('runSprint:nervous:dispatch', err instanceof Error ? err.message : String(err));
+        });
+      });
+
+      debugLog('runSprint:nervous', `Observer + Dispatcher + History wired for sprint=${sprint.id}`);
     } catch (err) {
       // Observer must never block sprint execution — log and continue.
       debugLog('runSprint:nervous', `Observer start failed: ${err instanceof Error ? err.message : String(err)}`);
@@ -555,8 +621,13 @@ export async function runSprint(
   emitPhaseChange(SprintPhase.EXECUTE, SprintPhase.EVALUATE, sprint.id);
 
   // Phase 4: EVALUATE
+  // Sprint 154 T7 wire: pass config + spawnOpts so runEvaluatePhase can drive
+  // dependency-pipeline cascade/unblock/respawn (was dormant in sprint-phases.ts).
   const evaluations = new Map<string, TaskEvaluation>();
-  await runEvaluatePhase(projectRoot, sprint, results, evaluations, config.coverage_threshold);
+  await runEvaluatePhase(
+    projectRoot, sprint, results, evaluations, config.coverage_threshold,
+    config, { autoApprove: opts?.autoApprove, spawnBackend },
+  );
 
   // Honesty Check Metrics
   {

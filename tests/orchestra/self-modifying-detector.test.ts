@@ -221,6 +221,43 @@ describe('self-modifying-detector', () => {
     });
   });
 
+  // ═══ Production Path Call (Sprint 154 T9 wire) ═══════════════════
+
+  describe('production path wire-up (Sprint 154 T9)', () => {
+    it('task-builder.ts imports and calls isSelfModifying in buildWorkerPrompt', async () => {
+      // Static import-graph evidence: ensure the wire is real, not just exported.
+      // We verify that task-builder.ts source contains the isSelfModifying import
+      // AND a runtime call site (not just a type reference).
+      const { readFileSync } = await import('node:fs');
+      const { resolve } = await import('node:path');
+      const taskBuilderPath = resolve(
+        process.cwd(),
+        'src/orchestra/task-builder.ts',
+      );
+      const source = readFileSync(taskBuilderPath, 'utf-8');
+
+      // Import statement present
+      expect(source).toMatch(
+        /import\s*\{\s*isSelfModifying\s*\}\s*from\s*['"]\.\/self-modifying-detector\.js['"]/,
+      );
+      // Runtime call site present (not just type usage)
+      expect(source).toMatch(/isSelfModifying\(task,\s*projectRoot\)/);
+      // Self-modifying warning block injected into the prompt
+      expect(source).toContain('SELF-MODIFYING TASK WARNING (ADR-039)');
+
+      // worker.ts production wire — claimTask startup authority check
+      const workerPath = resolve(process.cwd(), 'src/agents/worker.ts');
+      const workerSource = readFileSync(workerPath, 'utf-8');
+      expect(workerSource).toMatch(
+        /import\s*\{\s*isSelfModifying\s*\}\s*from\s*['"]\.\.\/orchestra\/self-modifying-detector\.js['"]/,
+      );
+      expect(workerSource).toMatch(/isSelfModifying\(task,\s*projectRoot\)/);
+      expect(workerSource).toMatch(
+        /checkWorkerAuthority\([^,]+,\s*task\.scope,\s*projectRoot,\s*taskId/,
+      );
+    });
+  });
+
   // ═══ DECKENT_SOURCE_PATTERNS constant ═══════════════════════════
 
   describe('DECKENT_SOURCE_PATTERNS', () => {

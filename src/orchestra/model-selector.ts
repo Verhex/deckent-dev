@@ -2,7 +2,7 @@
 // Extracted from brain.ts — score-based and layered model selection
 import type { TaskScope, ModelType, ResolvedConfig, PatternEntry, ProviderName } from '../core/types.js';
 import { getModelTier } from '../core/types.js';
-import { getEquivalentModel, isModelAvailable } from '../core/model-equivalence.js';
+import { getEquivalentModel, isModelAvailable, getModelTier as getModelTierName } from '../core/model-equivalence.js';
 import type { ModelTier } from '../core/model-equivalence.js';
 
 // ─── Tier Helpers ───────────────────────────────────────────────────
@@ -211,13 +211,25 @@ export function resolveTaskModel(
 ): ModelType {
   const targetProvider: ProviderName = provider ?? 'claude';
 
-  // Layer 0: user override from DIRECTIVES.md — bypasses all auto-selection
+  // Layer 0: user override from DIRECTIVES.md — bypasses score/skill/pattern auto-selection,
+  // BUT still respects Layer 1b min_tier clamp (haiku_allowed=false). Sprint 154 T5 fix:
+  // previously this branch returned early and silently bypassed haiku_allowed=false config.
   if (forceModel) {
-    // Validate forceModel against target provider; if mismatch, map to equivalent
-    if (!isModelAvailable(forceModel, targetProvider)) {
-      return getEquivalentModel(forceModel, targetProvider);
+    // Compute min_tier from config (Layer 1b semantics: haiku_allowed=false → standard)
+    const minTier: ModelTier = config.activeModeConfig.haiku_allowed === false ? 'standard' : 'economy';
+    const forcedTierName: ModelTier = getModelTierName(forceModel);
+    // Clamp: if forceModel tier is below min_tier, bump to min_tier's canonical model.
+    // This is an actionable bump (not silent failure) — DIRECTIVES override is honored
+    // up to the configured floor.
+    let resolvedForce: ModelType = forceModel;
+    if (TIER_RANK[forcedTierName] < TIER_RANK[minTier]) {
+      resolvedForce = TIER_CLAUDE_MODEL[minTier] ?? 'sonnet';
     }
-    return forceModel;
+    // Validate against target provider; if mismatch, map to equivalent
+    if (!isModelAvailable(resolvedForce, targetProvider)) {
+      return getEquivalentModel(resolvedForce, targetProvider);
+    }
+    return resolvedForce;
   }
 
   // Layer 4: base tier from score system (provider-agnostic)

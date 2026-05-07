@@ -26,6 +26,7 @@ import { ErrorRegistry } from '../core/errors.js';
 import { checkAuthority, emitAuthorityViolation } from '../orchestra/authority-enforcer.js';
 import { writeEvent, getCurrentSprintId, CHANNELS } from '../orchestra/event-stream.js';
 import { atomicWriteFileSync as _atomicWrite } from './worker-lifecycle.js';
+import { isSelfModifying } from '../orchestra/self-modifying-detector.js';
 
 // ─── Re-export: worker-verify.ts ───────────────────────────────────
 export {
@@ -237,6 +238,25 @@ export function claimTask(
 
   ensureDir(join(projectRoot, TASKS_DIR));
   writeFileSync(taskFilePath(projectRoot, taskId), JSON.stringify(task, null, 2), 'utf-8');
+
+  // ADR-039 wire (Sprint 154 T9): startup authority check for self-modifying tasks.
+  // When this project IS the Deckent repo AND the task writes to Deckent source,
+  // run a checkWorkerAuthority breadcrumb with isSelfModifyingSprint=true so
+  // ADR-037 RBAC enforcement is recorded in the event stream from the very start.
+  try {
+    if (isSelfModifying(task, projectRoot)) {
+      const firstTarget =
+        task.scope.filesWrite[0] ??
+        task.scope.directories[0] ??
+        '';
+      if (firstTarget) {
+        const sid = getCurrentSprintId(projectRoot) ?? task.sprintId;
+        checkWorkerAuthority(firstTarget, task.scope, projectRoot, taskId, sid, true);
+      }
+    }
+  } catch {
+    // Best-effort breadcrumb — never block task claim on detection failure
+  }
 
   return task;
 }
