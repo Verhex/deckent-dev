@@ -6,6 +6,7 @@
 // Sprint 146 — Task 146-005
 
 import type { Task, TaskScope } from '../core/task-types.js';
+import { getProviderForModel } from '../core/task-types.js';
 import type { MemoryEntryV2 } from '../core/memory-types.js';
 import { selectRelevantAdrs, buildAdrPromptSection } from './adr-selector.js';
 import { sanitizeScope } from './scope-sanitizer.js';
@@ -288,7 +289,18 @@ Create .tasks/task-${task.id}.hb BEFORE starting work with workerId "w-${task.id
 Update periodically: increment sequence, refresh timestamp via new Date().toISOString() (UTC ISO 8601).`);
 
   // Result file + token usage
-  const provider = task.provider ?? 'claude';
+  // Sprint 158 fix: prefer provider inferred from model over the metadata field.
+  // task.provider is intent-only — the runtime CLI is selected by spawn-backend
+  // based on getProviderForModel(model). Worker prompt should reflect that runtime
+  // truth so tokenUsage labels match the actual binary that ran.
+  let provider: string = task.provider ?? 'claude';
+  const effectiveModel = task.forceModel ?? task.model;
+  if (effectiveModel) {
+    try {
+      const inferred = getProviderForModel(effectiveModel);
+      if (inferred) provider = inferred;
+    } catch { /* unknown model — keep task.provider fallback */ }
+  }
   sections.push(`## Result File
 Write to: .tasks/task-${task.id}.result with taskId, filesChanged, testsPassed, selfAssessment ("DONE"|"GO_WITH_TECH_DEBT"|"NO_GO"), notes.
 MUST include tokenUsage with ALL four fields: { "inputTokens": <number>, "outputTokens": <number>, "cacheReadTokens": <number>, "provider": "${provider}", "model": "${task.model}" }.

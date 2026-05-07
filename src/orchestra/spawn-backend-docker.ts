@@ -696,21 +696,13 @@ export class DockerSpawnBackend implements SpawnBackend {
 
       this.containers.delete(taskId);
 
-      // NOTE: .prompt-* files are intentionally NOT deleted here.
-      // Sprint 137 Alperen request: persist prompt files for analysis until sprint end.
-      // Prompt files are archived by archivePromptFiles() during sprint cleanup/finalize.
-      // Worker script (.worker-*.sh) files ARE cleaned up — they contain no useful debug info.
-      try {
-        const tmpFiles = readdirSync(tasksDir) as string[];
-        for (const f of tmpFiles) {
-          if (f.startsWith('.worker-') && f.endsWith('.sh')) {
-            // Only cleanup worker scripts if no other container is running
-            if (this.containers.size === 0) {
-              try { unlinkSync(join(tasksDir, f)); } catch { /* ok */ }
-            }
-          }
-        }
-      } catch { /* ok */ }
+      // NOTE: .prompt-* files are intentionally NOT deleted here (Sprint 137 request:
+      // persist for analysis until sprint end; archivePromptFiles() handles them at sprint
+      // finalize). Worker script .worker-${taskId}.sh is also kept until sprint cleanup —
+      // Sprint 158 audit found that the previous "size === 0 + delete ALL .worker-*.sh"
+      // logic over-aggressively wiped sibling tasks' scripts (and orphan files like
+      // .worker-TEST-MANUAL.sh) at sprint end. Now we leave both file types alone here;
+      // sprint-lifecycle.ts cleanup() at sprint CLEANUP phase remains the single owner.
     });
 
     child.on('error', (err) => {

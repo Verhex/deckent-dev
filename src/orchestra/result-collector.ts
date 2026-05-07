@@ -30,6 +30,7 @@ import {
   checkWorkerQuestions,
 } from './ipc-registry.js';
 import type { BrainAnswer, WorkerQuestion, TokenUsage } from '../core/task-types.js';
+import { getProviderForModel } from '../core/task-types.js';
 
 // ─── Spawn backend abstraction ───────────────────────────────────
 import type { SpawnBackend } from './spawn-backend.js';
@@ -70,8 +71,18 @@ export function estimateTokenUsage(task: Task, result: TaskResult): TokenUsage {
   const inputTokens = task.estimatedTokens ?? Math.max((result.linesAdded + result.linesRemoved) * 10, 1000);
   const outputTokens = Math.max(result.linesAdded * 15, 500);
   const cacheReadTokens = Math.round(inputTokens * 4);
-  const provider = task.provider as TokenUsage['provider'];
+  // Sprint 158 fix: prefer model-inferred provider over the metadata field, mirroring
+  // prompt-god-template. result-collector ran before this fix and labeled tokenUsage
+  // with task.provider (often "claude" by default) even when the actual runtime CLI
+  // was gemini/codex per spawn-backend's getProviderForModel(model) routing.
   const model = (task.forceModel ?? task.model) as TokenUsage['model'];
+  let provider: TokenUsage['provider'] | undefined = task.provider as TokenUsage['provider'] | undefined;
+  if (model) {
+    try {
+      const inferred = getProviderForModel(model);
+      if (inferred) provider = inferred as TokenUsage['provider'];
+    } catch { /* unknown model — keep task.provider fallback */ }
+  }
 
   return {
     inputTokens,
