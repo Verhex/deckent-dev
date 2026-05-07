@@ -264,8 +264,22 @@ export function registerStart(program: Command): void {
 
         // Pre-flight doctor check (unless --force)
         if (!opts.force) {
-          const spawnBackend = (config as unknown as Record<string, unknown>).spawn_backend as string | undefined;
-          const doctorResult = runDoctorChecks(root, undefined, spawnBackend);
+          const cfg = config as unknown as Record<string, unknown>;
+          const spawnBackend = cfg.spawn_backend as string | undefined;
+          // Sprint 154 fix: scope provider checks to providers actually configured
+          // for this sprint — otherwise checkCodex/checkGemini fail pre-flight when
+          // those CLIs aren't installed even if the sprint won't use them.
+          const providers = cfg.providers as { brain?: string; worker?: string; fallback?: string } | undefined;
+          const configuredProviders = new Set<string>();
+          if (providers?.brain) configuredProviders.add(providers.brain);
+          if (providers?.worker) configuredProviders.add(providers.worker);
+          if (providers?.fallback) configuredProviders.add(providers.fallback);
+          if (cfg.brain_provider) configuredProviders.add(cfg.brain_provider as string);
+          if (cfg.worker_provider) configuredProviders.add(cfg.worker_provider as string);
+          if (cfg.fallback_provider) configuredProviders.add(cfg.fallback_provider as string);
+          if (configuredProviders.size === 0) configuredProviders.add('claude'); // safe default
+          const providerNames = Array.from(configuredProviders);
+          const doctorResult = runDoctorChecks(root, providerNames, spawnBackend);
           const requiredFailed = doctorResult.checks.filter(c => c.required && !c.passed);
           if (requiredFailed.length > 0) {
             if (sandboxState) restoreSandbox(root, sandboxState);

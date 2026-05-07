@@ -7,11 +7,13 @@
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import type { Task, TaskResult, EvaluationRubric, RubricScore, EvaluationResult } from '../core/types.js';
+import type { ProviderName } from '../core/task-types.js';
 import { TaskEvaluation } from '../core/types.js';
 import { BRAIN_DIR, SPRINTS_DIR } from '../core/constants.js';
 import { debugLog } from '../core/utils.js';
 import { validateWorkerCoverage } from './coverage-validator.js';
 import { reconcileSpuriousNoGo } from './mid-sprint-adapter.js';
+import { decideFallbackRetry } from '../core/provider-fallback.js';
 
 // ─── Source code directory detection ──────────────────────────────────
 
@@ -1283,6 +1285,89 @@ export function buildEnrichedFixReason(
   }
 
   return parts.join('; ');
+}
+
+// ─── Fallback Retry Evaluation (Sprint 155 Task 1) ──────────────────
+//
+// Sits alongside the rubric evaluator. When a worker self-assessed NO_GO
+// AND the worker output contains a 429/capacity/quota signal, this function
+// returns a `RetryWithFallbackAction` describing the provider swap that
+// sprint-controller should perform during the FIX phase.
+//
+// Pure function — no side effects. The actual respawn happens in
+// sprint-controller.runFallbackRetry().
+
+/**
+ * Action emitted when a NO_GO result is caused by a transient capacity
+ * error and the configured fallback provider can be tried instead.
+ */
+export interface RetryWithFallbackAction {
+  /** Type discriminator — discriminated union over future action kinds */
+  kind: 'RetryWithFallback';
+  /** Provider to swap the task to */
+  targetProvider: ProviderName;
+  /** Provider attributed by the detection (null for generic 429s) */
+  detectedProvider: ProviderName | null;
+  /** Human-readable reason from the detector */
+  reason: string;
+}
+
+/**
+ * No-action outcome — the result either was not NO_GO, did not contain
+ * a capacity error, or no fallback is configured.
+ */
+export interface NoFallbackAction {
+  kind: 'NoFallback';
+  /** Why no fallback was emitted, for logging/observability */
+  reason: string;
+}
+
+/** Union of evaluator fallback outcomes */
+export type FallbackEvaluation = RetryWithFallbackAction | NoFallbackAction;
+
+/**
+ * Decide whether a failed task result should trigger a fallback-provider retry.
+ *
+ * Rules (all must be true to emit RetryWithFallback):
+ *   1. `result.selfAssessment === 'NO_GO'` — only failures qualify.
+ *   2. Worker output (notes + raw error) matches a known capacity signal.
+ *   3. A `fallbackProvider` is configured AND differs from `currentProvider`.
+ *
+ * Note: max-retry enforcement (only 1 fallback per task) is the caller's
+ * responsibility — this function is stateless and can be invoked
+ * repeatedly. sprint-controller tracks already-retried task IDs in a Set.
+ *
+ * @param result          TaskResult written by the worker.
+ * @param currentProvider The provider used for the failed attempt.
+ * @param fallbackProvider The configured fallback (config.fallback_provider).
+ */
+export function evaluateForFallback(
+  result: Pick<TaskResult, 'selfAssessment' | 'notes'> & { errorOutput?: string },
+  currentProvider: ProviderName | undefined,
+  fallbackProvider: ProviderName | undefined,
+): FallbackEvaluation {
+  if (result.selfAssessment !== 'NO_GO') {
+    return { kind: 'NoFallback', reason: `selfAssessment=${result.selfAssessment} (only NO_GO triggers fallback)` };
+  }
+
+  const haystack = [result.notes ?? '', result.errorOutput ?? ''].join('\n');
+  const decision = decideFallbackRetry(haystack, currentProvider, fallbackProvider);
+  if (!decision) {
+    if (!fallbackProvider) {
+      return { kind: 'NoFallback', reason: 'no fallback_provider configured' };
+    }
+    if (fallbackProvider === currentProvider) {
+      return { kind: 'NoFallback', reason: `fallback_provider equals current provider (${currentProvider}) — would self-loop` };
+    }
+    return { kind: 'NoFallback', reason: 'no capacity error pattern matched in worker output' };
+  }
+
+  return {
+    kind: 'RetryWithFallback',
+    targetProvider: decision.targetProvider,
+    detectedProvider: decision.detectedProvider,
+    reason: decision.reason,
+  };
 }
 
 /** Parse NO_GO rate and coverage from a sprint log markdown table */

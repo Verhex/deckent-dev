@@ -21,6 +21,9 @@ import { TASKS_DIR } from '../core/constants.js';
 import type { ModelTier } from '../core/model-equivalence.js';
 import { getModelForProviderTier } from '../core/model-equivalence.js';
 import { modelRegistry } from '../core/model-registry.js';
+import type { ConfigProviderAuth } from '../core/config-migration.js';
+import { resolveAuthMode } from '../core/provider-auth-resolver.js';
+import type { NormalizedAuthMode } from '../core/provider-auth-resolver.js';
 
 // ─── Constants ───────────────────────────────────────────────────────
 
@@ -180,13 +183,15 @@ export class GeminiAdapter implements ProviderAdapter {
 
   private readonly projectDir: string;
   private readonly workers = new Map<string, GeminiWorkerEntry>();
+  private readonly authConfig?: ConfigProviderAuth;
 
   /** Default timeout in ms before a worker is killed automatically (0 = no timeout) */
   protected defaultTimeoutMs: number;
 
-  constructor(projectDir: string, opts?: { defaultTimeoutMs?: number }) {
+  constructor(projectDir: string, opts?: { defaultTimeoutMs?: number; authConfig?: ConfigProviderAuth }) {
     this.projectDir = projectDir;
     this.defaultTimeoutMs = opts?.defaultTimeoutMs ?? 0;
+    this.authConfig = opts?.authConfig;
   }
 
   // ─── spawn() ───────────────────────────────────────────────────────
@@ -211,12 +216,42 @@ export class GeminiAdapter implements ProviderAdapter {
       );
     }
 
-    const auth = this.getAuthDetails();
-    if (!auth.ready) {
-      throw new ProviderError(
-        `Gemini auth not configured: ${auth.hint ?? 'no credentials found'}`,
-        this.name,
-      );
+    // Auth check must come before any file system operations (ensureDir consumes existsSync mocks)
+    const spawnEnv: NodeJS.ProcessEnv = { ...process.env };
+
+    if (this.authConfig !== undefined) {
+      // Explicit enforcement: resolveAuthMode throws if configured mode can't be satisfied
+      const detectedMode = this.detectNormalizedAuthMode();
+      const resolvedMode = resolveAuthMode(this.authConfig.mode, detectedMode, this.name);
+
+      if (resolvedMode === 'api_key') {
+        const apiKey = this.getApiKey();
+        if (apiKey) {
+          if (!spawnEnv.GEMINI_API_KEY) spawnEnv.GEMINI_API_KEY = apiKey;
+          if (!spawnEnv.GOOGLE_API_KEY) spawnEnv.GOOGLE_API_KEY = apiKey;
+        }
+      } else {
+        // subscription enforced: strip API key vars so CLI uses OAuth/session creds
+        delete spawnEnv.GEMINI_API_KEY;
+        delete spawnEnv.GOOGLE_API_KEY;
+        delete spawnEnv.DECKENT_GOOGLE_API_KEY;
+      }
+    } else {
+      // Legacy path: check auth readiness, then inject env vars for api_key mode
+      const auth = this.getAuthDetails();
+      if (!auth.ready) {
+        throw new ProviderError(
+          `Gemini auth not configured: ${auth.hint ?? 'no credentials found'}`,
+          this.name,
+        );
+      }
+      if (auth.mode === 'api_key') {
+        const apiKey = this.getApiKey();
+        if (apiKey) {
+          if (!spawnEnv.GEMINI_API_KEY) spawnEnv.GEMINI_API_KEY = apiKey;
+          if (!spawnEnv.GOOGLE_API_KEY) spawnEnv.GOOGLE_API_KEY = apiKey;
+        }
+      }
     }
 
     const dir = opts?.projectDir ?? this.projectDir;
@@ -228,18 +263,6 @@ export class GeminiAdapter implements ProviderAdapter {
 
     // Build args for the Gemini CLI
     const args = this.buildArgs(model, prompt);
-
-    // Build env per auth mode:
-    //   api_key → inject GEMINI_API_KEY + GOOGLE_API_KEY (CLI accepts both)
-    //   oauth/vertex/cloud_shell → leave env clean, CLI reads cached creds
-    const spawnEnv: NodeJS.ProcessEnv = { ...process.env };
-    if (auth.mode === 'api_key') {
-      const apiKey = this.getApiKey();
-      if (apiKey) {
-        if (!spawnEnv.GEMINI_API_KEY) spawnEnv.GEMINI_API_KEY = apiKey;
-        if (!spawnEnv.GOOGLE_API_KEY) spawnEnv.GOOGLE_API_KEY = apiKey;
-      }
-    }
 
     const spawnOpts: NodeSpawnOptions = {
       cwd: dir,
@@ -552,6 +575,17 @@ export class GeminiAdapter implements ProviderAdapter {
   }
 
   /**
+   * Normalize Gemini-specific auth modes to the two-value NormalizedAuthMode used by resolveAuthMode.
+   * oauth / vertex / cloud_shell all count as 'subscription' (session-based, no API key needed).
+   */
+  detectNormalizedAuthMode(): NormalizedAuthMode {
+    const raw = this.detectAuthMode();
+    if (raw === 'api_key') return 'api_key';
+    if (raw === 'none') return 'none';
+    return 'subscription';
+  }
+
+  /**
    * Translate effort — Gemini CLI has no equivalent flag (model handles internally).
    * Sprint 154 Faz C: returns [] so callers can concat without conditional branching.
    * Effort hints get encoded into the prompt by upstream code if the user wants
@@ -667,7 +701,7 @@ function ensureDir(dir: string): void {
  */
 export function createGeminiAdapter(
   projectDir: string,
-  opts?: { defaultTimeoutMs?: number },
+  opts?: { defaultTimeoutMs?: number; authConfig?: ConfigProviderAuth },
 ): GeminiAdapter {
   return new GeminiAdapter(projectDir, opts);
 }

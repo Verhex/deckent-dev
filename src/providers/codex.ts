@@ -19,6 +19,8 @@ import { ProviderError } from '../core/provider.js';
 import { TASKS_DIR } from '../core/constants.js';
 import type { ModelTier } from '../core/model-equivalence.js';
 import { getModelForProviderTier } from '../core/model-equivalence.js';
+import type { ConfigProviderAuth } from '../core/config-migration.js';
+import { resolveAuthMode } from '../core/provider-auth-resolver.js';
 
 // ─── Constants ───────────────────────────────────────────────────────
 
@@ -68,13 +70,15 @@ export class CodexAdapter implements ProviderAdapter {
 
   private readonly projectDir: string;
   private readonly workers = new Map<string, CodexWorkerEntry>();
+  private readonly authConfig?: ConfigProviderAuth;
 
   /** Default timeout in ms before a worker is killed automatically (0 = no timeout) */
   protected defaultTimeoutMs: number;
 
-  constructor(projectDir: string, opts?: { defaultTimeoutMs?: number }) {
+  constructor(projectDir: string, opts?: { defaultTimeoutMs?: number; authConfig?: ConfigProviderAuth }) {
     this.projectDir = projectDir;
     this.defaultTimeoutMs = opts?.defaultTimeoutMs ?? 0;
+    this.authConfig = opts?.authConfig;
   }
 
   // ─── spawn() ────────────────────────────────────────────────────────
@@ -108,11 +112,29 @@ export class CodexAdapter implements ProviderAdapter {
 
     const args = this.buildArgs(model, prompt, opts);
 
-    // Build env — inject API key from DECKENT_OPENAI_API_KEY if available
     const spawnEnv = { ...process.env };
-    const deckentKey = process.env['DECKENT_OPENAI_API_KEY'];
-    if (deckentKey && !spawnEnv['OPENAI_API_KEY']) {
-      spawnEnv['OPENAI_API_KEY'] = deckentKey;
+
+    if (this.authConfig !== undefined) {
+      // Explicit enforcement: resolveAuthMode throws if configured mode can't be satisfied
+      const detectedMode = this.detectAuthMode();
+      const resolvedMode = resolveAuthMode(this.authConfig.mode, detectedMode, this.name);
+
+      if (resolvedMode === 'api_key') {
+        const deckentKey = process.env['DECKENT_OPENAI_API_KEY'];
+        if (deckentKey && !spawnEnv['OPENAI_API_KEY']) {
+          spawnEnv['OPENAI_API_KEY'] = deckentKey;
+        }
+      } else {
+        // subscription enforced: strip API key vars so codex uses subscription auth
+        delete spawnEnv['OPENAI_API_KEY'];
+        delete spawnEnv['DECKENT_OPENAI_API_KEY'];
+      }
+    } else {
+      // Legacy path: inject DECKENT_OPENAI_API_KEY if OPENAI_API_KEY not already set
+      const deckentKey = process.env['DECKENT_OPENAI_API_KEY'];
+      if (deckentKey && !spawnEnv['OPENAI_API_KEY']) {
+        spawnEnv['OPENAI_API_KEY'] = deckentKey;
+      }
     }
 
     const spawnOpts: NodeSpawnOptions = {
@@ -380,7 +402,7 @@ function ensureDir(dir: string): void {
  */
 export function createCodexAdapter(
   projectDir: string,
-  opts?: { defaultTimeoutMs?: number },
+  opts?: { defaultTimeoutMs?: number; authConfig?: ConfigProviderAuth },
 ): CodexAdapter {
   return new CodexAdapter(projectDir, opts);
 }

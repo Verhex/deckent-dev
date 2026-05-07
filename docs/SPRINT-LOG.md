@@ -4276,3 +4276,92 @@ the move stays local.
 - 153-011: Vitest 9 residual fail triage (PENDING)
 
 ---
+## Sprint 154 — Multi-Provider Docker Backend Parity
+
+**Status:** DONE (Faz A+A.5+B+C complete, Faz D deferred Sprint 155)
+**Date:** 2026-05-07
+**Commits:** `da7c93f` (Faz A+A.5), `fe5c3a4` (Faz B+C), `b388d7d` (Audit+ADR), `a285961` (Docs)
+
+### Goal
+
+Close the multi-provider infrastructure gap: Docker spawn-backend was hardcoded to
+`claude -p -` regardless of the task's `provider` field. Sprint 154 delivered
+provider-aware invocation, Gemini OAuth auth detection, per-provider effort translation,
+and auth schema with doctor enforcement.
+
+### Results
+
+| Metric | Value |
+|--------|-------|
+| Total Faz | 4 (A, A.5, B, C) |
+| Completed | 4/4 |
+| Hot-fix Waves | 4 (Wave A–D, Sprint 154 comprehensive audit) |
+| New files | `provider-auth-resolver` (interface), effort translator interface |
+| ADRs | ADR-043, ADR-044, ADR-045 |
+| Live providers | 2/3 (claude + gemini; codex pending external access) |
+| Beta gates | 18/20 PASS (gate #8 reclassified from PASS → PARTIAL) |
+
+### Major Deliverables
+
+| Item | Commit | Impact |
+|------|--------|--------|
+| `buildProviderInvocation()` exhaustive switch | da7c93f | Provider-specific CLI grammar per adapter |
+| Gemini `detectAuthMode()` 5-mode | da7c93f | oauth/api_key/vertex/cloud_shell/none detection |
+| `--skip-trust` flag + RW `.gemini/` mount | da7c93f | Fix silent stdin hang + OAuth token refresh |
+| `provider_auth.mode` config schema | fe5c3a4 | Per-provider auth preference config |
+| `checkProviderAuthConsistency()` doctor | fe5c3a4 | Config vs detected mode mismatch warning |
+| `checkFallbackProviderGap()` doctor | fe5c3a4 | Missing fallback_provider advisory |
+| `translateEffort()` interface + 3 adapters | fe5c3a4 | Provider-native effort flags |
+| ADR-043 Hot Fix Pipeline-Bypass Pattern | b388d7d | Governance: bypass protocol |
+| ADR-044 10-Agent Parallel Audit Protocol | b388d7d | Governance: audit methodology |
+| ADR-045 Multi-Provider Docker Backend Parity | a285961 | DB-only ADR, id user-1778150182657 |
+
+### Key Learnings
+
+1. **"PASS" claim ≠ live evidence** — gate #8 Sprint 148 PASS was unit-test based (mocked
+   Docker path). Sprint 154 live run found hardcoded `claude` string in
+   `spawn-backend-docker.ts:102-111`. Gate claims with Docker/live scope need a live
+   artifact (container log, result file), not just passing tests.
+
+2. **Mount UID pollution playbook** — root-mode debug writes root-owned files into
+   host-mounted volumes. Recovery: `docker run --rm -v <host-dir>:/mnt alpine rm -rf /mnt/<paths>`
+   (no sudo needed; Docker itself runs as root).
+
+3. **Bisect playbook** — Sprint 154 fix required 4 sequential layers, each revealing the
+   next (`--skip-trust` → RW mount → provider cmd builder → UID cleanup). Always run
+   full E2E after each fix layer; don't assume one fix closes the chain.
+
+### Deferred to Sprint 155
+
+- **Task 1**: Runtime fallback chain — 429/capacity-aware auto-recovery
+- **Task 2**: `provider_auth.mode` runtime enforcement (Faz B left advisory-only gap)
+- **Task 3**: Model registry remote refresh (stale-while-revalidate)
+- **Task 4**: Codex live dogfood (BLOCKED — external CLI access pending)
+
+---
+## Sprint 155 — sprint-155
+
+**Status:** RETROSPECTIVE
+**Date:** 2026-05-07
+**Duration:** 1393s
+
+### Results
+
+| Metric | Value |
+|--------|-------|
+| Total Tasks | 5 |
+| Completed | 4 |
+| Tech Debt | 1 |
+| No-Go | 1 |
+| Coverage | 40.0% |
+| Duration | 1392615ms |
+
+### Tasks
+
+- 155-001: Runtime Fallback Chain — 429/Capacity Auto-Recovery (DONE)
+- 155-002: Adapter-Side provider_auth.mode Runtime Enforcement (DONE)
+- 155-003: Model Registry Remote Refresh (NO_GO)
+- 155-004: Codex Live Install + Dogfood (BLOCKED on external) (GO_WITH_TECH_DEBT)
+- 155-005: Sprint 154 Retro + Memory Sync (DONE)
+
+---

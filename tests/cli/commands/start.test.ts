@@ -203,7 +203,10 @@ describe('start command (isolated)', () => {
   describe('pre-flight doctor checks', () => {
     it('runs doctor checks before starting sprint', async () => {
       await runCommand(['start']);
-      expect(runDoctorChecks).toHaveBeenCalledWith('/mock/root', undefined, undefined);
+      // Sprint 154: pre-flight now passes configured providerNames (default = ['claude'])
+      // and spawnBackend so checkGemini/checkCodex don't gate the sprint when
+      // those CLIs aren't installed but aren't configured for use either.
+      expect(runDoctorChecks).toHaveBeenCalledWith('/mock/root', ['claude'], undefined);
     });
 
     it('aborts and sets exit code 1 when required doctor check fails', async () => {

@@ -189,6 +189,8 @@ const TIER_ORDER: Record<ModelTier, number> = {
 
 export class ModelRegistry {
   private models = new Map<string, ModelDefinition>();
+  private _lastRefresh: Partial<Record<RegistryProviderName, number>> = {};
+  readonly staleAfterMs: number = 7 * 24 * 60 * 60 * 1000;
 
   constructor(builtins: readonly ModelDefinition[] = BUILTIN_MODELS) {
     for (const model of builtins) {
@@ -264,6 +266,24 @@ export class ModelRegistry {
   isAtLeastTier(modelId: string, minTier: ModelTier): boolean {
     const modelTier = this.getTier(modelId);
     return TIER_ORDER[modelTier] >= TIER_ORDER[minTier];
+  }
+
+  setLastRefresh(provider: RegistryProviderName, timestamp?: number): void {
+    this._lastRefresh[provider] = timestamp ?? Date.now();
+  }
+
+  getLastRefresh(provider: RegistryProviderName): number | undefined {
+    return this._lastRefresh[provider];
+  }
+
+  getLastRefreshAll(): Partial<Record<RegistryProviderName, number>> {
+    return { ...this._lastRefresh };
+  }
+
+  isStale(provider: RegistryProviderName, staleAfterMs?: number): boolean {
+    const last = this._lastRefresh[provider];
+    if (last === undefined) return true;
+    return Date.now() - last > (staleAfterMs ?? this.staleAfterMs);
   }
 
   register(definition: ModelDefinition): void {

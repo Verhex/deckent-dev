@@ -4,6 +4,8 @@ import { join } from 'node:path';
 import { platform, homedir } from 'node:os';
 import { spawnSync } from 'node:child_process';
 import type { DoctorResult } from '../../core/types.js';
+import { loadRefreshState, formatRefreshAge, refreshAllProviders, type RefreshOptions } from '../../core/model-registry-refresh.js';
+import { modelRegistry } from '../../core/model-registry.js';
 import {
   DECKENT_DIR, BRAIN_DIR, MEMORY_FILE, DEBT_FILE, DECISIONS_FILE,
   DIRECTIVES_FILE, LOCKS_DIR, DEBT_TABLE_HEADER, MEMORY_DB_FILE,
@@ -634,6 +636,51 @@ export interface ProviderConfigSummary {
   fallback?: string;
 }
 
+/**
+ * Warn when any provider's model registry has not been refreshed in >7 days.
+ * Reads from .deckent/model-registry-refresh.json (written by refreshAllProviders).
+ */
+export function checkModelRegistryStale(root: string, staleAfterMs = 7 * 24 * 60 * 60 * 1000): DoctorCheck {
+  const state = loadRefreshState(root);
+  const staleProviders: string[] = [];
+  for (const provider of ['claude', 'codex', 'gemini'] as const) {
+    const last = state.lastRefresh[provider] ?? 0;
+    if (Date.now() - last > staleAfterMs) {
+      const age = formatRefreshAge(last);
+      staleProviders.push(`${provider} (${age})`);
+    }
+  }
+  if (staleProviders.length === 0) {
+    const ages = (['claude', 'codex', 'gemini'] as const)
+      .map(p => `${p}: ${formatRefreshAge(state.lastRefresh[p] ?? 0)}`)
+      .join(', ');
+    return { name: 'Model Registry', passed: true, message: `last refreshed — ${ages}`, required: false };
+  }
+  return {
+    name: 'Model Registry',
+    passed: false,
+    required: false,
+    message: `stale (>7d): ${staleProviders.join(', ')} — run \`deckent doctor --refresh-models\` to update`,
+  };
+}
+
+/**
+ * Trigger a remote refresh of all provider model lists and persist timestamps.
+ * Exported for use by `deckent doctor --refresh-models` CLI option.
+ */
+export async function runModelRegistryRefresh(root: string, options?: RefreshOptions): Promise<void> {
+  const results = await refreshAllProviders(modelRegistry, { root, ...options });
+  const state = loadRefreshState(root);
+  for (const [provider, result] of Object.entries(results) as [import('../../core/model-registry.js').RegistryProviderName, import('../../core/model-registry-refresh.js').RefreshResult][]) {
+    if (result.success) {
+      state.lastRefresh[provider] = result.timestamp;
+    }
+  }
+  state.updatedAt = new Date().toISOString();
+  const { saveRefreshState } = await import('../../core/model-registry-refresh.js');
+  saveRefreshState(state, root);
+}
+
 export function runDoctorChecks(
   root: string,
   providerNames?: string[],
@@ -651,6 +698,7 @@ export function runDoctorChecks(
     checkWorkspace(root), checkBrainDir(root), checkDirectives(root),
     checkBrainBudget(root), checkDebt(root), checkStaleLocks(root),
     checkDeckSecurity(root), checkWritePermissions(root), checkGitignore(root),
+    checkModelRegistryStale(root),
   ];
   return {
     ok: checks.filter(c => c.required).every(c => c.passed),

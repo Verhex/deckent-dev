@@ -638,8 +638,8 @@ describe('i18n integration', () => {
     const calls = vi.mocked(print).mock.calls.map(c => c[0]);
     const passedMsg = calls.find(c => String(c).includes('checks passed'));
     expect(passedMsg).toBeDefined();
-    // runDoctorChecks returns 17 checks total (Sprint 154 added Gemini + Codex CLI checks)
-    expect(String(passedMsg)).toMatch(/\/17/);
+    // runDoctorChecks returns 18 checks total (Sprint 155 added checkModelRegistryStale)
+    expect(String(passedMsg)).toMatch(/\/18/);
   });
 
   it('uses tr language when config has language=tr in legacy mode', async () => {

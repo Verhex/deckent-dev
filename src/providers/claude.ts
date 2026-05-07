@@ -5,6 +5,9 @@ import type { ModelType } from '../core/types.js';
 import { CLAUDE_MODELS } from '../core/types.js';
 import type { ProviderAdapter, ProviderSpawnOptions, TaskEffort } from '../core/provider.js';
 import { ProviderError } from '../core/provider.js';
+import type { ConfigProviderAuth } from '../core/config-migration.js';
+import { resolveAuthMode } from '../core/provider-auth-resolver.js';
+import type { NormalizedAuthMode } from '../core/provider-auth-resolver.js';
 import {
   spawnWorker,
   killWorker,
@@ -26,6 +29,8 @@ export type ClaudeBackend = 'tmux' | 'subprocess' | 'mcp';
 export interface ClaudeAdapterOptions {
   /** Execution backend: 'tmux' (default), 'subprocess' (headless), 'mcp' (future) */
   claude_backend?: ClaudeBackend;
+  /** Per-provider auth config for enforcement (Sprint 155). When set, spawn() enforces the mode. */
+  authConfig?: ConfigProviderAuth;
 }
 
 // ─── Constants ───────────────────────────────────────────────────────
@@ -60,17 +65,26 @@ export class ClaudeAdapter implements ProviderAdapter {
 
   private readonly projectDir: string;
   private readonly backend: ClaudeBackend;
+  private readonly authConfig?: ConfigProviderAuth;
   private subprocessBackend: SubprocessSpawnBackend | null = null;
 
   constructor(projectDir: string, opts?: ClaudeAdapterOptions) {
     this.projectDir = projectDir;
     this.backend = opts?.claude_backend ?? 'tmux';
+    this.authConfig = opts?.authConfig;
 
     if (this.backend === 'subprocess') {
       this.subprocessBackend = new SubprocessSpawnBackend(projectDir, {
         providerConfig: CLAUDE_SUBPROCESS_CONFIG,
       });
     }
+  }
+
+  /**
+   * Detect Claude auth mode: ANTHROPIC_API_KEY present → api_key, else → subscription (session auth).
+   */
+  detectAuthMode(): NormalizedAuthMode {
+    return process.env['ANTHROPIC_API_KEY'] ? 'api_key' : 'subscription';
   }
 
   /**
@@ -92,6 +106,12 @@ export class ClaudeAdapter implements ProviderAdapter {
   ): void {
     if (this.backend === 'mcp') {
       throw new ProviderError(MCP_NOT_IMPLEMENTED_MESSAGE, 'claude');
+    }
+
+    // Enforce configured auth mode when explicitly set (fail-fast before spawning)
+    if (this.authConfig !== undefined) {
+      const detectedMode = this.detectAuthMode();
+      resolveAuthMode(this.authConfig.mode, detectedMode, 'claude');
     }
 
     if (this.backend === 'subprocess' && this.subprocessBackend) {
