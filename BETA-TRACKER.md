@@ -1,7 +1,7 @@
 <!-- Language: EN | Technical terms remain as-is -->
 # Deckent Beta Tracker
 
-**Last updated:** 2026-05-06 (Sprint 153 post) | **Sprint:** 153 DONE | **Tests:** 15,671 (99.94% pass) | **Version:** v1.0.0-beta.1 (target tag pending #13)
+**Last updated:** 2026-05-07 (Sprint 154 multi-provider) | **Sprint:** 154 multi-provider Faz A→C DONE | **Tests:** 15,671 + Sprint 154 Δ (1,217 in modified areas, 99.94%) | **Version:** v1.0.0-beta.1 (target tag pending #13)
 
 **Related:** [ROADMAP-GOD-LEVEL.md](docs/ROADMAP-GOD-LEVEL.md) — Sprint 149-200 master plan
 **Gate schema canonical source:** `docs/ROADMAP-GOD-LEVEL.md` Section 5 (Sprint 149-200 anchor). This file mirrors that schema verbatim — any change must update ROADMAP first, then propagate here (EN) and to `BETA-TRACKER-TR.md` (TR).
@@ -10,7 +10,7 @@
 
 ## Sprint 151+ — Beta GA Exit Criteria — 20 Gate (BETA-TRACKER + Sprint 150 Consolidation)
 
-**Status (post-Sprint 153, 2026-05-06): 19/20 PASS** ✅ — only remaining gate is #13 messaging trio smoke (token expected Sun ~10 May).
+**Status (post-Sprint 154 multi-provider, 2026-05-07): 18/20 PASS** — gate #8 reopened from PASS→PARTIAL after Sprint 154 surfaced that the previous "Multi-provider 3/3" claim was based on adapter-level unit tests, not Docker-backend live E2E. `spawn-backend-docker.ts:102-111` was hardcoded to `claude -p - --model X` regardless of model, so any non-claude `deckent run` in Docker mode silently routed to Claude CLI which then errored on the unknown model name. Sprint 154 closed this gap for Claude + Gemini (live `Result: DONE` with `gemini-2.5-flash` via OAuth subscription); Codex live E2E pending external CLI access. Gate #13 messaging trio smoke remains pending tokens.
 
 Before tagging `v1.0.0-beta.1` and running `npm publish`, **all 20 gates must PASS** (excluding long-term #3 coverage which targets Sprint 160+):
 
@@ -23,7 +23,7 @@ Before tagging `v1.0.0-beta.1` and running `npm publish`, **all 20 gates must PA
 | 5 | 45+ CLI commands functional | 45+ | 49 (post-H1) | ✅ PASS |
 | 6 | `npm pack --dry-run` clean | 0 warning | 1.08MB, 0 warning | ✅ T-150-026 |
 | 7 | Cross-platform 3/3 | 3/3 | 3/3 | ✅ Sprint 148 |
-| 8 | Multi-provider 3/3 | 3/3 | 3/3 | ✅ Sprint 148 |
+| 8 | Multi-provider 3/3 | 3/3 | 2/3 live (claude+gemini Docker E2E DONE; codex install pending external CLI access) — Sprint 154 closed real architectural gap (`spawn-backend-docker.ts` was hardcoded to claude pre-Sprint 154 despite Sprint 148's claim) | 🟡 Sprint 155 (codex E2E) |
 | 9 | `deckent_style` toggle live | sprint/task switch | live | ✅ T-150-001..003 |
 | 10 | Memory V2 stress test | Pass | Pass | ✅ Sprint 145 |
 | 11 | Documentation sync | Current | Sprint 153 end — ROADMAP+CHANGELOG+SPRINT-LOG+IDENTITY+CLAUDE.md current | ✅ Sprint 153 |

@@ -6,6 +6,49 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenmektedir.
 Format [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) standardına dayanır
 ve proje [Semantic Versioning](https://semver.org/spec/v2.0.0.html) kurallarına uyar.
 
+## [1.0.0-beta.1-sprint154-multi-provider] - 2026-05-07
+
+### Added
+
+- **Multi-Provider Docker Backend** (`src/orchestra/spawn-backend-docker.ts`) — Docker spawn-backend was Claude-only despite deckent claiming "3 providers supported"; `spawn-backend-docker.ts:102-111` hardcoded `claude -p - --model X` regardless of model name. New `buildProviderInvocation()` exhaustively branches over `claude`/`gemini`/`codex` with provider-specific cmd grammar (Claude: stdin via `-p -` + `--allowedTools` + `--dangerously-skip-permissions`; Gemini: inline prompt via `-p "$(cat ...)"` + `-m <model>` + `--approval-mode plan` + `--skip-trust`; Codex: `exec --full-auto "<prompt>" --model X`). Result/heartbeat templates' hardcoded `"provider":"claude"` replaced with `${provider}` interpolation. Live verified: `deckent run --model gemini-2.5-flash` → `Result: DONE` via OAuth Code Assist (commit `da7c93f`).
+- **Gemini OAuth Subscription Mode** (`src/providers/gemini.ts`) — `detectAuthMode()` reads `~/.gemini/settings.json` for `selectedType` (`oauth-personal` | `gemini-api-key` | `vertex-ai` | `cloud-shell`) + `oauth_creds.json` existence + env vars in priority order. `spawn()` skips env injection in OAuth/Vertex modes (CLI uses cached creds), only injects `GEMINI_API_KEY`/`GOOGLE_API_KEY` in `api_key` mode. Adds `--skip-trust` flag to `buildArgs()` to bypass containerized-cwd trust check that silently overrides `--approval-mode plan` and hangs on stdin. `getApiKey()` now also accepts `GEMINI_API_KEY` (official CLI env name) alongside `GOOGLE_API_KEY` and `DECKENT_GOOGLE_API_KEY`.
+- **Container Credential Mounts + Env Passthrough** (`src/orchestra/spawn-backend-docker.ts`) — `~/.gemini/` and `~/.codex/` mounted **rw** into `${containerHome}/.gemini` / `.codex` (rw needed because Gemini CLI refreshes `oauth_creds.json` on token expiry — ro mount triggers `EROFS` hang). `GEMINI_API_KEY` + `DECKENT_OPENAI_API_KEY` + `DECKENT_GOOGLE_API_KEY` added to env passthrough whitelist (Sprint 154 audit F4 closure for Docker tier).
+- **Doctor Provider Parity** (`src/cli/commands/doctor-checks.ts`) — `checkGemini()` and `checkCodex()` mirror `checkClaude()`'s shape, surfacing `auth: oauth (Google login (oauth-personal))` / `auth: subscription (codex auth status)` / `not authenticated. Run \`gemini\` to login` and similar messages. `checkProviderAuthConsistency()` compares configured `provider_auth.{name}.mode` vs detected mode and emits explicit `configured=X but detected=Y` failure when they diverge. `checkFallbackProviderGap()` warns when `worker_provider != 'claude'` and `fallback_provider` is unset (Sprint 154 audit A6.F3 advisory).
+- **Per-Provider Auth Config Schema** (`src/core/config-types.ts`, `src/core/config-migration.ts`) — `provider_auth.{claude|codex|gemini}.mode: 'auto' | 'api_key' | 'subscription'` per-provider override of adapter auto-detection. `api_key_env` allows custom env-var name. Doctor surfaces mismatches; spawn behavior still uses `detectAuthMode()` (advisory mode, runtime enforcement deferred to Sprint 155).
+- **Effort Translator on All Adapters** (`src/core/provider.ts`, `src/providers/{claude,codex,gemini}.ts`) — New `TaskEffort` type + optional `translateEffort(effort, model): string[]` interface method. Claude: `--max-tokens 4096|16384|64000` for low/normal/high. Codex: `--reasoning-effort low|medium|high` only emitted for reasoning models (`gpt-5`/`gpt-5-mini`/`o3`/`o4-mini`); no-op for `gpt-4.1` family. Gemini: returns `[]` (CLI has no effort flag — model handles depth internally). 10 new test cases.
+- **Dockerfile.worker Multi-Provider CLI Install** — Uncommented `RUN npm i -g @openai/codex` + `RUN npm i -g @google/gemini-cli` (image size: 940MB → 1.69GB). All three provider CLIs now resolvable inside `deckent-worker:latest` (commit `da7c93f`).
+- **Doctor.ts Canonical Dedup** — `runDoctorChecks` and 8 helpers (`checkNode`/`checkGit`/`checkWorkspace`/`checkBrainDir`/`checkDirectives`/`getMemoryEntryCount`/`checkBrainBudget`/`checkDebt`/`checkStaleLocks`) had divergent duplicates in `doctor.ts:873` and `doctor-checks.ts:612` from a stalled refactor — `doctor.ts` copy lacked the new `checkGemini`/`checkCodex`/auth-consistency additions. Removed ~110 LoC dead code, re-exported canonical version from `doctor-checks.ts`. `api/server.ts` import unaffected (transparent re-export delegation).
+
+### Fixed
+
+- **Sprint 154 Audit F8** (gemini-integration test drift) — `tests/providers/gemini-integration.test.ts` `buildArgs`/`buildCommand` assertions were stale: expected `--model` (long flag) when code used `-m`; missing `--approval-mode plan` and now-required `--skip-trust`. Aligned tests with current adapter output (commit `da7c93f`).
+- **Container UID Pollution Recovery** — Earlier debug runs without `--user` flag created root-owned `~/.gemini/tmp/<cwd-name>/` directories, blocking subsequent user-mode workers with `EACCES`. Cleanup pattern documented: `docker run --rm -v "$HOME/.gemini:/m" alpine rm -rf /m/tmp/<cwd-name>` (Docker runs as root, bypasses host sudo password prompt).
+
+### Tests
+
+- 1209/1217 passing (8 skipped) across providers, doctor, config, api after both commits
+- 10 new effort translator tests (Claude × 3, Codex × 4, Gemini × 3)
+- 4 new provider-auth consistency tests
+- Pre-existing gemini-integration drift fixed (2 tests)
+
+### Live Verification
+
+- `deckent doctor` surfaces 17 checks including Gemini OAuth (`v0.41.2 — auth: oauth (Google login (oauth-personal))`), Codex install hint, fallback-gap warning when `worker_provider=gemini` without fallback set
+- `deckent run "Output exactly: KRAKEN_OK" --model gemini-2.5-flash --timeout 60000` → `Result: DONE` via OAuth subscription, no API key required
+- `Provider Auth (gemini)` doctor check: `configured=subscription, detected=subscription ✓`
+
+### Backlog (deferred to Sprint 155)
+
+- Runtime fallback chain on 429/capacity errors (worker output parser + sprint-controller hook)
+- Adapter-side enforcement of `provider_auth.{name}.mode` (currently advisory via doctor only)
+- Codex live install + dogfood (user awaiting CLI access)
+- Model registry remote refresh (lazy fetch from provider /v1/models with stale-while-revalidate cache)
+
+### Commits
+
+- `da7c93f` feat(sprint-154): Gemini OAuth subscription + multi-provider Docker backend
+- `fe5c3a4` feat(sprint-154): Faz B + Faz C — provider auth schema, effort translator, doctor consolidation
+
 ## [1.0.0-beta.1-sprint153] - 2026-05-07
 
 ### Added

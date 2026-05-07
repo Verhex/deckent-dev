@@ -2013,3 +2013,11 @@ ile comprehensive audit pass yapıldı: 273 file explicit claim, 87 finding
 - docs/audits/sprint-154/audit-coverage.json (registry, 273 file, 10/10 complete)
 - ADR-043 (Hot Fix with Subagents — execution pattern)
 - /home/alperen/.claude/plans/rippling-noodling-pie.md (audit plan dokümanı)
+
+---
+
+## user-1778150182657: ADR-045: Multi-Provider Docker Backend Parity
+
+**Status:** active
+
+Sprint 154 closed a real architectural gap: Docker spawn-backend was hardcoded to claude despite deckent claiming '3 providers supported'. The original src/orchestra/spawn-backend-docker.ts:102-111 built 'claude -p - --model X' regardless of model name, so any non-claude deckent run in Docker mode silently routed to Claude CLI which then errored on the unknown model name (e.g. 'gemini-2.5-flash'). The fix introduced buildProviderInvocation() — an exhaustive switch over claude|gemini|codex with provider-specific cmd grammar (Claude: stdin via -p -, Gemini: inline -p '$(cat ...)' + --skip-trust + --approval-mode plan, Codex: exec --full-auto positional). Cred mounts (~/.gemini, ~/.codex) added rw (NOT ro: gemini CLI refreshes oauth_creds.json on token expiry; ro mount triggers EROFS hang). GEMINI_API_KEY env passthrough added (parity with deckent's GOOGLE_API_KEY alias). Also added: provider_auth schema (per-provider mode: auto|api_key|subscription), checkProviderAuthConsistency doctor check, checkFallbackProviderGap doctor warning (audit A6.F3), translateEffort on all 3 adapters (Claude max-tokens, Codex reasoning-effort for o3/o4-mini/gpt-5 family only, Gemini no-op). Live verified: deckent run --model gemini-2.5-flash via OAuth Code Assist license → Result: DONE. Status: ACCEPTED. Deferred to Sprint 155: runtime fallback chain (429/capacity), adapter-side mode enforcement (currently advisory via doctor only), model registry remote refresh, codex live install (external CLI access pending). Sprint 154 commits: da7c93f (Faz A+A.5), fe5c3a4 (Faz B+C).

@@ -48,6 +48,7 @@
 | adr-042 | Hybrid Mode Architecture — Sprint + Task Dual Modes | proposed |
 | adr-043 | Hot Fix with Claude Subagents — Pipeline-Bypass Repair Pattern | accepted |
 | adr-044 | Sprint 154 Comprehensive Audit — 10-Agent Parallel Pass + Pipeline Wire Validation | accepted |
+| user-1778150182657 | ADR-045: Multi-Provider Docker Backend Parity | active |
 
 ## Recent Learnings
 - **Sprint sprint-153 Learnings** (sprint-153): ## Sprint sprint-153 Learnings
@@ -76,4 +77,4 @@ _No active technical debt._
 ## Active Patterns
 _No active patterns._
 
-_Total entries: 180 | Generated: 2026-05-07_
+_Total entries: 181 | Generated: 2026-05-07_
