@@ -6,6 +6,29 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenmektedir.
 Format [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) standardına dayanır
 ve proje [Semantic Versioning](https://semver.org/spec/v2.0.0.html) kurallarına uyar.
 
+## [1.0.0-beta.1-sprint158-provider-label-hotfix] - 2026-05-07
+
+### Fixed
+
+- **Provider labeling at metadata layer** (`src/orchestra/prompt-god-template.ts`, `src/orchestra/result-collector.ts`) — Sprint 158 Gemini dogfood validated that the routing chain (Sprint 154-157) actually invokes the correct CLI: log evidence shows 126/98/70 hits to `cloudcode-pa.googleapis.com` (Gemini Code Assist OAuth endpoint) for the 3 sprint workers. But result files labeled `tokenUsage.provider: "claude"` because the worker prompt template injected `provider: MUST be "claude"` directive (read from `task.provider ?? 'claude'`), so workers dutifully wrote that label. `task.provider` is intent-only metadata; the runtime CLI is selected by `getProviderForModel(model)` in spawn-backend. Both `prompt-god-template.ts:291` and `result-collector.ts:73` now infer provider from `task.forceModel ?? task.model` first, fall back to `task.provider` only if model lookup fails. Live verified: with `task.provider='claude'` + `model='gemini-2.5-flash'`, prompt now emits `provider: MUST be "gemini"`.
+- **Worker script over-aggressive cleanup** (`src/orchestra/spawn-backend-docker.ts`) — On-exit hook had `for f in .worker-*.sh; if (containers.size === 0) unlink(f)` — the loop deleted **all** sibling tasks' scripts when the last container exited, plus orphan files like manual debug `.worker-TEST-MANUAL.sh` artifacts. Empirical observation during Sprint 158: 158-001 + 158-002 worker.sh files vanished mid-sprint while 158-003 still ran, and TEST-MANUAL files I planted survived — proving the cleanup actually fired per-container exit, not at sprint end. Fix: remove the on('exit') cleanup entirely; `sprint-lifecycle.ts cleanup()` at CLEANUP phase remains the single owner — predictable timing, no per-container side effects.
+
+### Sprint 158 Result Provenance
+
+- task-158-001: DONE (gemini CLI ran, log: 126 OAuth endpoint hits, but result mislabeled `provider: claude` due to prompt directive — pre-fix observation)
+- task-158-002: NO_GO (JSON-corrupted result, gemini CLI ran 98 endpoint hits before failure)
+- task-158-003: DONE (`tokenUsage.provider: "gemini"` ✓ — first-ever sprint-orchestrated task with correctly-labeled gemini provider; result was written via on_exit heredoc which already used `getProviderForModel(model)`)
+
+### Notes
+
+Sprint 158 in-flight `.result` files are NOT retroactively patched — those reflect pre-fix labeling. Future sprints will produce correct labels at all three exit paths (worker self-write, on_exit heredoc, partial-result fallback).
+
+Investigation continues on two remaining file-lifecycle questions: (a) which code path actually deleted `.prompt-158-*.txt` files mid-sprint despite Sprint 137's "persist until sprint end" intent — direct deletion paths in the codebase don't account for the empirical loss; (b) why Docker-mode workers don't write `.plan` files (worker.ts:325 logs missing-plan warning but Docker spawn flow may not invoke that path). Both are observability/debugging quality issues, not user-facing bugs — deferred to a future sprint.
+
+### Commits
+
+- `e1a47a1` fix(sprint-158): provider labeling + worker file lifecycle 3-bug fix
+
 ## [1.0.0-beta.1-sprint157-routing-hotfix] - 2026-05-07
 
 ### Fixed
