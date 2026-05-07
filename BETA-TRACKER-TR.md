@@ -8,13 +8,13 @@
 ## Mevcut Durum
 | Metric | Value |
 |--------|-------|
-| Version | 0.4.0-beta.4 |
-| Sprint | sprint-148 |
-| MCP Tools | 24 |
+| Version | 1.0.0-beta.1 |
+| Sprint | sprint-155 |
+| MCP Tools | 27 |
 | MCP Resources | 8 |
-| CLI Commands | 51+ |
-| Dashboard Pages | 6 |
-| Agents | 15 built-in + 2 custom |
+| CLI Commands | 55+ |
+| Dashboard Pages | 7 |
+| Agents | 15 built-in + 3 custom |
 | Skills | 21 built-in |
 | Providers | 3 (Claude, Codex, Gemini) |
 
@@ -1591,13 +1591,13 @@ Cache sadece maliyet azaltir — tokenlar yine context window'da yer kaplar:
 ## Sprint Metrics
 | Metric | Value |
 |--------|-------|
-| Sprint | sprint-148 |
-| Total Tasks | 28 |
-| Completed | 27 |
+| Sprint | sprint-155 |
+| Total Tasks | 5 |
+| Completed | 4 |
 | Tech Debt | 1 |
 | No-Go | 1 |
-| Duration | 60dk 47sn |
-| Coverage | 0.0% |
+| Duration | 23dk 12sn |
+| Coverage | 40.0% |
 
 ## Sprint 146 — Detaylı Özet
 

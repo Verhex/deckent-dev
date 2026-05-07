@@ -47,6 +47,7 @@ import { registerMode } from './commands/mode.js';
 import { registerFeatures } from './commands/features.js';
 import { registerAudit } from './commands/audit.js';
 import { registerRecover } from './commands/recover.js';
+import { registerMetrics } from './commands/metrics.js';
 import { showSplash } from './helpers/splash.js';
 
 /**
@@ -114,6 +115,7 @@ export function buildProgram(): Command {
   registerFeatures(program);
   registerAudit(program);
   registerRecover(program);
+  registerMetrics(program);
   registerHelp(program);
 
   return program;

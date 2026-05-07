@@ -7,9 +7,9 @@
 
 ---
 
-## The 7 surfaces
+## The 9 surfaces
 
-Adding an auth path to a provider (e.g., OAuth, subscription, API key, Vertex, Cloud Shell) means **all seven** of the following must be updated together. Each was a Sprint 154-era miss that took 3 sprints to discover and fix.
+Adding an auth path to a provider (e.g., OAuth, subscription, API key, Vertex, Cloud Shell) means **all nine** of the following must be updated together. Each was a Sprint 154-era miss that took 3 sprints to discover and fix. Surfaces 8 and 9 were added in Sprint 159 after hotfix `7bec80b` revealed matching legacy paths in `src/core/provider.ts`.
 
 ### 1. Adapter `detectAuthMode()`
 
@@ -81,6 +81,67 @@ When `forceModel` is set but `provider` is not, the function previously defaulte
 
 ✅ Fix: `directiveSources` type extended with `provider?`, and both calls now pass `src.provider` through.
 
+### 8. `src/core/provider.ts` — `detectCodex()` legacy path — **Sprint 159 fix `7bec80b`**
+
+**File:** `src/core/provider.ts`
+
+**Code intent:** Standalone module-level function (not the adapter class method) that probes Codex availability. Called by `detectAvailableProviders()` and surfaced by `deckent doctor`. Because it lives in `core/` rather than `providers/`, it was missed by the Surface 1 taxonomy which only catalogued `providers/codex.ts`.
+
+**Pre-fix bug:** `detectCodex()` treated availability as `hasApiKey && cliPresent` — identical to the Surface 2 `isAvailable()` bug. Users authenticated via ChatGPT subscription (`codex auth login`) with no `OPENAI_API_KEY` set were displayed as "Not configured" in `deckent doctor` output.
+
+**Sprint 159 fix (`7bec80b`):** Added subscription-mode detection: when `OPENAI_API_KEY` is absent and the Codex CLI is present, runs `codex auth status` and checks for `"logged in"` in stdout. Sets `authMethod: 'subscription'` and `available: true` on success.
+
+```typescript
+// Before fix — API-key only
+const available = version !== undefined && hasApiKey;
+
+// After fix — subscription auth path added
+let hasSubscription = false;
+if (!hasApiKey && version !== undefined) {
+  const r = spawnSync('codex', ['auth', 'status'], { encoding: 'utf-8', timeout: 3_000 });
+  if (r.status === 0 && r.stdout?.includes('logged in')) hasSubscription = true;
+}
+const available = version !== undefined && (hasApiKey || hasSubscription);
+```
+
+**Doctor label after fix:** `codex: subscription auth active` (subscription) or `codex: API key configured` (api_key) or `codex: Not configured` (none).
+
+---
+
+### 9. `src/core/provider.ts` — `detectGemini()` legacy path — **Sprint 159 fix `7bec80b`**
+
+**File:** `src/core/provider.ts`
+
+**Code intent:** Standalone module-level function parallel to `detectCodex()`. Probes Gemini CLI availability for `deckent doctor`. Same taxonomy miss as Surface 8 — core-layer detection path not covered by the `providers/gemini.ts`-focused surfaces.
+
+**Pre-fix bug:** `detectGemini()` only checked `GOOGLE_API_KEY` / `GEMINI_API_KEY` env vars. Users authenticated via `gemini auth login` (OAuth personal, Cloud Shell, or Vertex AI) were shown as "Not configured" even though `GeminiAdapter.detectAuthMode()` (Surface 1) correctly identified them.
+
+**Sprint 159 fix (`7bec80b`):** Mirrors the OAuth detection logic in `GeminiAdapter.detectAuthMode()`. Reads `~/.gemini/settings.json → security.auth.selectedType` for `oauth-personal`, `cloud-shell`, or `vertex-ai`. Falls back to checking `~/.gemini/oauth_creds.json` presence. Sets `authMethod: 'subscription'` on match.
+
+```typescript
+// Before fix — API-key only
+const available = version !== undefined && hasApiKey;
+
+// After fix — OAuth/subscription detection via settings.json + creds file
+let hasSubscription = false;
+try {
+  const settingsPath = join(homedir(), '.gemini', 'settings.json');
+  if (existsSync(settingsPath)) {
+    const settings = JSON.parse(readFileSync(settingsPath, 'utf-8'));
+    const sel = settings.security?.auth?.selectedType;
+    if (sel === 'oauth-personal' || sel === 'cloud-shell' || sel === 'vertex-ai') {
+      hasSubscription = true;
+    }
+  }
+  if (!hasSubscription && existsSync(join(homedir(), '.gemini', 'oauth_creds.json'))) {
+    hasSubscription = true;
+  }
+} catch { /* fall through */ }
+const available = version !== undefined && (hasApiKey || hasSubscription);
+```
+
+**Doctor label after fix:** `gemini: subscription auth active` (OAuth/subscription) or `gemini: API key configured` (api_key) or `gemini: Not configured` (none).
+
 ---
 
 ## Bonus surface: spawn-backend-docker.ts cred mounts
@@ -125,6 +186,16 @@ cp /tmp/dr.bak DIRECTIVES.md
 # 5. End-to-end smoke
 npx deckent run "smoke" --model <new-provider-model> --timeout 60000 --verbose 2>&1 | grep -i "provider\|endpoint"
 # Verify: tokenUsage.provider in .result matches expected provider
+
+# 6. Doctor auth label verification (Sprint 159 — covers core/provider.ts Surfaces 8+9)
+npx deckent doctor 2>&1 | grep -E "claude|codex|gemini"
+# Expected labels per auth mode:
+#   subscription auth active  → user logged in via CLI OAuth (e.g. gemini auth login, codex auth login)
+#   API key configured        → OPENAI_API_KEY / GOOGLE_API_KEY / ANTHROPIC_API_KEY present
+#   session auth active       → Claude session/subscription token present
+#   Not configured            → no auth detected — provider will be skipped at routing time
+# If a provider shows "Not configured" but you expect auth to be present,
+# check detectCodex() / detectGemini() in src/core/provider.ts (Surfaces 8+9) first.
 ```
 
 ---

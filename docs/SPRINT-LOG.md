@@ -4365,3 +4365,77 @@ and auth schema with doctor enforcement.
 - 155-005: Sprint 154 Retro + Memory Sync (DONE)
 
 ---
+## Sprint 156 — sprint-156
+
+**Status:** RETROSPECTIVE
+**Date:** 2026-05-07
+**Duration:** 360s
+
+### Results
+
+| Metric | Value |
+|--------|-------|
+| Total Tasks | 3 |
+| Completed | 3 |
+| Tech Debt | 1 |
+| No-Go | 0 |
+| Coverage | 0.0% |
+| Duration | 360337ms |
+
+### Tasks
+
+- 156-001: README + BETA-TRACKER TR/EN Senk Audit (GO_WITH_TECH_DEBT)
+- 156-002: docs/development/ Staleness Audit (DONE)
+- 156-003: src/core/provider-fallback.ts JSDoc Genişletme (DONE)
+
+---
+## Sprint 158 — sprint-158
+
+**Status:** RETROSPECTIVE
+**Date:** 2026-05-07
+**Duration:** 2350s
+
+### Results
+
+| Metric | Value |
+|--------|-------|
+| Total Tasks | 3 |
+| Completed | 2 |
+| Tech Debt | 2 |
+| No-Go | 1 |
+| Coverage | NaN% |
+| Duration | 2350330ms |
+
+### Tasks
+
+- 158-001: README.md vs README-TR.md Drift Fix Proposal (GO_WITH_TECH_DEBT)
+- 158-002: Auth Surface Checklist Validation Run (NO_GO)
+- 158-003: CHANGELOG Language Consistency Audit (GO_WITH_TECH_DEBT)
+
+---
+## Sprint 159 — sprint-159
+
+**Status:** RETROSPECTIVE
+**Date:** 2026-05-07
+**Duration:** 1906s
+
+### Results
+
+| Metric | Value |
+|--------|-------|
+| Total Tasks | 5 |
+| Completed | 4 |
+| Tech Debt | 2 |
+| No-Go | 1 |
+| Coverage | NaN% |
+| Duration | 1905717ms |
+
+### Tasks
+
+- 159-001: Auth Surface Checklist 7→9 surface güncelle [CLAUDE] (GO_WITH_TECH_DEBT)
+- 159-002: Wire `deckent doctor --refresh-models` flag [CLAUDE] (NO_GO)
+- 159-003: Sprint metrics CLI — `deckent metrics summary <sprintId>` [CLAUDE] (DONE)
+- 159-004: README.md ve README-TR.md drift fix uygulaması [GEMINI] (DONE)
+- 159-005: docs/CHANGELOG.md TR/EN normalize [GEMINI] (GO_WITH_TECH_DEBT)
+
+---

@@ -6,12 +6,41 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenmektedir.
 Format [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) standardına dayanır
 ve proje [Semantic Versioning](https://semver.org/spec/v2.0.0.html) kurallarına uyar.
 
+## [1.0.0-beta.1-sprint159] - 2026-05-07
+
+### Added
+
+- Sprint metrics CLI — `deckent metrics summary <sprintId>` [CLAUDE]
+
+### Changed
+
+- Auth Surface Checklist 7→9 surface güncelle [CLAUDE] (completed with tech debt)
+- docs/CHANGELOG.md TR/EN normalize [GEMINI] (completed with tech debt)
+
+### Fixed
+
+- README.md ve README-TR.md drift fix uygulaması [GEMINI]
+
+
+_Tasks: 5 total, 4 done, 2 tech debt, 1 no-go_
+
+## [1.0.0-beta.1-sprint158] - 2026-05-07
+
+
+### Changed
+
+- README.md vs README-TR.md Drift Fix Proposal (completed with tech debt)
+- CHANGELOG Language Consistency Audit (completed with tech debt)
+
+
+_Tasks: 3 total, 2 done, 2 tech debt, 1 no-go_
+
 ## [1.0.0-beta.1-sprint158-provider-label-hotfix] - 2026-05-07
 
 ### Fixed
 
-- **Provider labeling at metadata layer** (`src/orchestra/prompt-god-template.ts`, `src/orchestra/result-collector.ts`) — Sprint 158 Gemini dogfood validated that the routing chain (Sprint 154-157) actually invokes the correct CLI: log evidence shows 126/98/70 hits to `cloudcode-pa.googleapis.com` (Gemini Code Assist OAuth endpoint) for the 3 sprint workers. But result files labeled `tokenUsage.provider: "claude"` because the worker prompt template injected `provider: MUST be "claude"` directive (read from `task.provider ?? 'claude'`), so workers dutifully wrote that label. `task.provider` is intent-only metadata; the runtime CLI is selected by `getProviderForModel(model)` in spawn-backend. Both `prompt-god-template.ts:291` and `result-collector.ts:73` now infer provider from `task.forceModel ?? task.model` first, fall back to `task.provider` only if model lookup fails. Live verified: with `task.provider='claude'` + `model='gemini-2.5-flash'`, prompt now emits `provider: MUST be "gemini"`.
-- **Worker script over-aggressive cleanup** (`src/orchestra/spawn-backend-docker.ts`) — On-exit hook had `for f in .worker-*.sh; if (containers.size === 0) unlink(f)` — the loop deleted **all** sibling tasks' scripts when the last container exited, plus orphan files like manual debug `.worker-TEST-MANUAL.sh` artifacts. Empirical observation during Sprint 158: 158-001 + 158-002 worker.sh files vanished mid-sprint while 158-003 still ran, and TEST-MANUAL files I planted survived — proving the cleanup actually fired per-container exit, not at sprint end. Fix: remove the on('exit') cleanup entirely; `sprint-lifecycle.ts cleanup()` at CLEANUP phase remains the single owner — predictable timing, no per-container side effects.
+- **Metadata katmanında sağlayıcı etiketleme** (`src/orchestra/prompt-god-template.ts`, `src/orchestra/result-collector.ts`) — Sprint 158 Gemini dogfood testleri, yönlendirme zincirinin (Sprint 154-157) doğru CLI'ı çağırdığını doğruladı: log kanıtları, 3 sprint worker'ı için `cloudcode-pa.googleapis.com` (Gemini Code Assist OAuth endpoint) adresine 126/98/70 isabet gösteriyor. Ancak sonuç dosyaları `tokenUsage.provider: "claude"` olarak etiketlenmişti çünkü worker prompt şablonu `provider: MUST be "claude"` direktifini enjekte ediyordu (`task.provider ?? 'claude'` ifadesinden okunarak), bu yüzden worker'lar bu etiketi dikkatlice yazmışlardı. `task.provider` yalnızca amaç meta verisidir; çalışma zamanı CLI'ı `spawn-backend` içindeki `getProviderForModel(model)` tarafından seçilir. Hem `prompt-god-template.ts:291` hem de `result-collector.ts:73` artık sağlayıcıyı önce `task.forceModel ?? task.model` üzerinden çıkarıyor, model araması başarısız olursa `task.provider`'a geri dönüyor. Canlı doğrulandı: `task.provider='claude'` + `model='gemini-2.5-flash'` ile prompt artık `provider: MUST be "gemini"` ifadesini yayıyor.
+- **Worker betiği aşırı agresif temizleme** (`src/orchestra/spawn-backend-docker.ts`) — Çıkış kancası `for f in .worker-*.sh; if (containers.size === 0) unlink(f)` içeriyordu — döngü, son konteyner çıktığında **tüm** kardeş görevlerin betiklerini siliyordu, ayrıca manuel hata ayıklama `.worker-TEST-MANUAL.sh` artefaktları gibi yetim dosyaları da siliyordu. Sprint 158 sırasında ampirik gözlem: 158-001 + 158-002 `worker.sh` dosyaları sprint ortasında kaybolurken 158-003 hala çalışıyordu ve benim yerleştirdiğim `TEST-MANUAL` dosyaları sağlam kalmıştı — bu, temizlemenin aslında konteyner başına çıkışta tetiklendiğini, sprint sonunda değil. Düzeltme: `on('exit')` temizlemesini tamamen kaldırın; `sprint-lifecycle.ts cleanup()` CLEANUP aşamasında tek sahip olmaya devam ediyor — öngörülebilir zamanlama, konteyner başına yan etki yok.
 
 ### Sprint 158 Result Provenance
 

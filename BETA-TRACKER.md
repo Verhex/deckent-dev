@@ -85,7 +85,7 @@ Before tagging `v1.0.0-beta.1` and running `npm publish`, **all 20 gates must PA
 | Metric | Value |
 |--------|-------|
 | Version | 1.0.0-beta.1 |
-| Sprint | sprint-155 |
+| Sprint | sprint-158 |
 | MCP Tools | 27 |
 | MCP Resources | 8 |
 | CLI Commands | 55+ |
@@ -942,13 +942,13 @@ Every blocker was directly verified in the codebase. False claims have been corr
 ## Sprint Metrics
 | Metric | Value |
 |--------|-------|
-| Sprint | sprint-155 |
-| Total Tasks | 5 |
-| Completed | 4 |
-| Tech Debt | 1 |
+| Sprint | sprint-158 |
+| Total Tasks | 3 |
+| Completed | 2 |
+| Tech Debt | 2 |
 | No-Go | 1 |
-| Duration | 23dk 12sn |
-| Coverage | 40.0% |
+| Duration | 39dk 10sn |
+| Coverage | NaN% |
 
 ## Sprint History (Sprint 136-145)
 | Sprint | Tasks | Done | NO_GO | Duration | Avg Rubric | Theme |

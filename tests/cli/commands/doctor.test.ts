@@ -95,6 +95,28 @@ vi.mock('../../../src/core/memory-store.js', () => ({
   MemoryStore: vi.fn().mockImplementation(() => mockMemoryStore),
 }));
 
+vi.mock('../../../src/core/model-registry-refresh.js', () => ({
+  refreshAllProviders: vi.fn().mockResolvedValue({
+    claude: { provider: 'claude', success: true, modelsFound: 3, modelsAdded: 0, timestamp: 1_000_000 },
+    codex: { provider: 'codex', success: false, modelsFound: 0, modelsAdded: 0, timestamp: 1_000_000, skippedReason: 'No OPENAI_API_KEY — set API key for remote model refresh' },
+    gemini: { provider: 'gemini', success: false, modelsFound: 0, modelsAdded: 0, timestamp: 1_000_000, skippedReason: 'No GEMINI_API_KEY/GOOGLE_API_KEY — set API key for remote model refresh' },
+  }),
+  loadRefreshState: vi.fn().mockReturnValue({ lastRefresh: {}, updatedAt: new Date(0).toISOString() }),
+  saveRefreshState: vi.fn(),
+  formatRefreshAge: vi.fn().mockReturnValue('never'),
+}));
+
+vi.mock('../../../src/core/model-registry.js', () => ({
+  modelRegistry: {},
+  ModelRegistry: vi.fn().mockImplementation(() => ({
+    has: vi.fn().mockReturnValue(false),
+    getAllModels: vi.fn().mockReturnValue([]),
+    register: vi.fn(),
+    getByProvider: vi.fn().mockReturnValue([]),
+    setLastRefresh: vi.fn(),
+  })),
+}));
+
 import { readFileSync, existsSync, readdirSync, accessSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { platform } from 'node:os';
@@ -116,6 +138,7 @@ import type { HealthCheckResult } from '../../../src/orchestra/connector.js';
 import type { DetectedProvider } from '../../../src/core/provider.js';
 import { detectEnvironment } from '../../../src/core/environment.js';
 import { loadDeckSecrets, validateDeckFile, isDeckFileCommitted } from '../../../src/core/deck-file.js';
+import { refreshAllProviders, saveRefreshState } from '../../../src/core/model-registry-refresh.js';
 
 // ─── Helper ──────────────────────────────────────────────────────────
 
@@ -2204,5 +2227,47 @@ describe('checkGitignore', () => {
   it('is not a required check', () => {
     const check = checkGitignore('/mock/root');
     expect(check.required).toBe(false);
+  });
+});
+
+// ─── --refresh-models flag ────────────────────────────────────────────
+
+describe('registerDoctor --refresh-models', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    process.exitCode = undefined;
+    vi.mocked(platform).mockReturnValue('linux' as NodeJS.Platform);
+    vi.mocked(existsSync).mockReturnValue(true);
+    vi.mocked(readFileSync).mockReturnValue('# Content' as unknown as ReturnType<typeof readFileSync>);
+  });
+
+  afterEach(() => {
+    process.exitCode = undefined;
+  });
+
+  it('registers --refresh-models flag on the doctor command', () => {
+    const program = new Command();
+    registerDoctor(program);
+    const cmd = program.commands.find(c => c.name() === 'doctor');
+    expect(cmd).toBeDefined();
+    const refreshOption = cmd!.options.find(o => o.long === '--refresh-models');
+    expect(refreshOption).toBeDefined();
+  });
+
+  it('calls refreshAllProviders and prints refresh summary when --refresh-models is used', async () => {
+    await runCommand(['doctor', '--refresh-models']);
+    expect(vi.mocked(refreshAllProviders)).toHaveBeenCalled();
+    const calls = vi.mocked(print).mock.calls.map(c => String(c[0]));
+    expect(calls.some(c => c.includes('Model Registry Refresh'))).toBe(true);
+    expect(calls.some(c => c.includes('Refreshed claude'))).toBe(true);
+    expect(calls.some(c => c.includes('Refresh complete'))).toBe(true);
+    expect(vi.mocked(saveRefreshState)).toHaveBeenCalled();
+  });
+
+  it('shows skipped message for providers with no auth when --refresh-models is used', async () => {
+    await runCommand(['doctor', '--refresh-models']);
+    const calls = vi.mocked(print).mock.calls.map(c => String(c[0]));
+    expect(calls.some(c => c.includes('skipped'))).toBe(true);
+    expect(calls.some(c => c.includes('No OPENAI_API_KEY') || c.includes('No GEMINI_API_KEY'))).toBe(true);
   });
 });

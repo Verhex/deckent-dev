@@ -188,7 +188,7 @@ Tek görev yürütme. PLAN/SPAWN fazları yok. Hızlı komutlar, hatırlatmalar 
 
 | Gereksinim | Sürüm | Kontrol |
 |------------|-------|---------|
-| Node.js | >= 18 | `node --version` |
+| Node.js | >= 20 | `node --version` |
 | git | herhangi | `git --version` |
 | Claude Code CLI | herhangi | `claude --version` |
 | tmux | herhangi (isteğe bağlı, Linux/macOS) | `tmux -V` |
@@ -302,7 +302,7 @@ deckent doctor
 ```
 
 ```
-  node_version   v20.11.0 (>=18 required)     [pass]
+  node_version   v20.11.0 (>=20 required)     [pass]
   git            git 2.43.0                    [pass]
   tmux           tmux 3.3a                     [pass]
   claude_cli     claude 1.2.3                  [pass]

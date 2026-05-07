@@ -8,6 +8,10 @@ import type { DetectedProvider } from '../../core/provider.js';
 import type { HealthCheckResult } from '../../orchestra/connector.js';
 import { PROJECT_CONFIG_PATH, BRAIN_DIR } from '../../core/constants.js';
 import { getMemoryEntryCount as getMemoryEntryCountFromChecks } from './doctor-checks.js';
+import { refreshAllProviders, loadRefreshState, saveRefreshState } from '../../core/model-registry-refresh.js';
+import type { RefreshResult } from '../../core/model-registry-refresh.js';
+import { modelRegistry } from '../../core/model-registry.js';
+import type { RegistryProviderName } from '../../core/model-registry.js';
 import { getSystemProfile } from '../../core/system-profile.js';
 import { detectSubscription } from '../../core/subscription.js';
 import { print, formatDoctorResult, formatCIHealthSection } from '../helpers/output.js';
@@ -305,7 +309,7 @@ export function formatConnectorHealthLines(
       const authLabel = r.provider === 'claude'
         ? 'session auth active'
         : am === 'subscription' ? 'subscription auth active'
-        : am === 'api_key' ? 'API key configured'
+        : (am === 'api_key' || am === undefined) ? 'API key configured'
         : 'auth configured';
       lines.push(`  [PASS] ${capitalize(r.provider)} CLI${versionStr} — ${authLabel}`);
     } else if (!r.available) {
@@ -789,13 +793,40 @@ export function registerDoctor(program: Command): void {
     .option('--legacy', 'Use legacy output format')
     .option('--json', 'Output results as JSON')
     .option('--pre-flight', 'Run pre-flight health check before sprint spawn (stricter gates)')
-    .action(async (opts: { profile?: boolean; legacy?: boolean; json?: boolean; preFlight?: boolean }) => {
+    .option('--refresh-models', 'Refresh provider model registries from remote APIs and update .deckent/model-registry-refresh.json')
+    .action(async (opts: { profile?: boolean; legacy?: boolean; json?: boolean; preFlight?: boolean; refreshModels?: boolean }) => {
       let root: string;
       try {
         root = resolveProjectRoot();
       } catch {
         root = process.cwd();
       }
+      // --refresh-models: fetch current model lists from provider APIs and save timestamps
+      if (opts.refreshModels) {
+        print('Model Registry Refresh');
+        print('─'.repeat(50));
+        const results = await refreshAllProviders(modelRegistry, { root });
+        const state = loadRefreshState(root);
+        for (const [prov, res] of Object.entries(results) as [RegistryProviderName, RefreshResult][]) {
+          if (res.success) state.lastRefresh[prov] = res.timestamp;
+        }
+        state.updatedAt = new Date().toISOString();
+        saveRefreshState(state, root);
+        for (const [prov, res] of Object.entries(results) as [RegistryProviderName, RefreshResult][]) {
+          if (res.success) {
+            const newNote = res.modelsAdded > 0 ? `, ${res.modelsAdded} new` : '';
+            print(`  Refreshed ${prov} (${res.modelsFound} models found${newNote})`);
+          } else if (res.skippedReason) {
+            print(`  ${capitalize(prov)} — skipped (${res.skippedReason})`);
+          } else {
+            print(`  ${capitalize(prov)} — failed: ${res.error ?? 'unknown error'}`);
+          }
+        }
+        print('─'.repeat(50));
+        print('Refresh complete. Saved to .deckent/model-registry-refresh.json');
+        return;
+      }
+
       const lang = getLangFromConfig(root);
       const providers = await detectAvailableProviders();
       const activeProviderNames = providers.filter(p => p.available).map(p => p.name);
