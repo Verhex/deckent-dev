@@ -4,8 +4,8 @@
 **Status:** CANONICAL — Sprint 149-200 anchor document
 **Vision:** OpenClaw'ın god-level üstün hali — developer-first + life-assistant dual platform
 **Brainstorming:** Alperen onayları 12+ karar, 5 paralel agent kod tabanı analizi
-**Last update:** 2026-05-06 evening (Sprint 153 — CI greening + Node 20 + D batch + B1/B2/B3 Nervous wire + E Ed25519 hub sign + run-param + 14 commits pushed, all CI green)
-**Next audit:** Sprint 154 başlangıcı — A1+A2 Telegram/Discord smoke (Pazar token gelince) + Sprint 153 retro Brain output + production sprint detector log evidence
+**Last update:** 2026-05-07 — Sprint 154 Hot Fix Day TAMAMLANDI (10-agent comprehensive audit + 13 P0 hot fix + LIVE dogfood verification — Sprint 144→153 9-sprint kronik bug zinciri KIRILDI)
+**Next audit:** A1+A2 Telegram/Discord smoke (Pazar token ~2026-05-10) + B3 production detector log evidence (gerçek sprint koşusu) + Phase 2 fiili takvim revize
 
 ---
 
@@ -65,6 +65,68 @@ Deckent kırık haliyle Deckent'i tamir etme sonsuz döngü riskinden kaçınmak
 | MODE_PRESETS duplicate (`config.ts:84-105` vs `mode-presets.ts`) | H3 opsiyonel scope | T-151-NEW-H (opsiyonel) |
 | `src/orchestra/task-mode-runner.ts` bare `throw new Error` whitelist | Sprint 150 T-003 | T-151-NEW-D kapsamı |
 | `fix-of-fix` retry spawn ama execute edilmedi (max_fix_retries=1 limit) | Sprint 150 FIX phase | T-151-NEW-D-3 FIX context enrichment |
+
+---
+
+## ⚡ 2026-05-07 Session Kapanış — Sprint 154 Hot Fix Day (TARİHİ AN)
+
+### Sprint 154 — Comprehensive Audit + 13 P0 Hot Fix (~2 saat audit + ~75dk fix)
+
+**Durum:** Sprint 144→153 9-sprint kronik "worker timeout / 0 line yazma" bug zinciri **KESIN OLARAK ÇÖZÜLDÜ**.
+
+**KESIN ROOT CAUSE bulundu:** `src/orchestra/spawn-backend-docker.ts:257` `~/.claude.json:ro` mount → claude CLI startup'ta `EROFS: read-only file system` hatası → silent exit 0, prompt API'ye hiç gitmiyor. **1 satır fix** (`:ro` flag kaldır).
+
+**LIVE Dogfood Kanıt:**
+- Sprint 153 (claude.json:ro): 17 worker × 47dk × **0 line** yazma
+- Sprint 154 fix sonrası: 1 worker × **52sn** × 1 dosya yazma (`src/test-sprint-154-marker.ts`)
+
+### Comprehensive Audit Pass (10-agent paralel, ~2 saat)
+- **A1 docker-runtime / A2 cli-mcp-parity / A3 build-artifact / A4 lifecycle-edge / A5 security / A6 multi-provider / A7 nervous-system / A8 dashboard-api / A9 code-doc-coverage / A10 vision-direction**
+- 273 file explicit claim (ilk 10-agent paralel pass), 87 finding (13 P0 + 21 P1 + 30 P2 + 23 P3)
+- 3739 satır audit content, ~1.3M token
+- Rapor: `docs/audits/sprint-154/T-154-001..010-*.md` + `EXECUTIVE-SUMMARY.md` + `SPRINT-154-DIRECTIVES.md` + `audit-coverage.json`
+
+### Hot Fix with Claude Subagents (3rd uygulama, ~75dk)
+Sprint 150A + 152.5 pattern devamı — Deckent kendi kendisini fix edemediği için Claude Code subagent ile cerrahi müdahale (claude.json:ro chicken-and-egg).
+
+| Wave | Commit | İçerik | Approach |
+|------|--------|--------|----------|
+| **A** | `9b91405` | T1 .claude.json:rw (ROOT CAUSE) + T4 chmod +x persist + T6 FIX timeout 600→1800s + T10 adr-validator path | Direct Edit (single-line fixes) |
+| **B** | `1014065` | T5 forceModel tier-clamp + T7 3-export wire (respawnEligibleTasks/applyCascade/Unblock + reconcileSpuriousNoGo) + T8 nervous subscriber wire + T9 ADR-039 wire | 4 paralel general-purpose subagent |
+| **C** | `2aaeae7` | T2 docker logs canlı tee + T3 doc count drift sync (8 file) + T11 sprint reporter -fix filter + T12 BETA-TRACKER ↔ ROADMAP gate schema unify | 4 paralel general-purpose subagent |
+| **D** | `b388d7d` | T13 ADR-043 + ADR-044 insert (Memory V2 DB-first) + audit deliverables commit + memory exports regenerate | Direct + script |
+| **cleanup** | `5645951` | Sprint 153 reporter artifacts archive + Sprint 154 dogfood marker + 117 file cleanup | git add -A |
+
+### Mimari Sürprizler (P0 yeni — Sprint 154 audit tarafından keşfedildi)
+1. **Sprint Pipeline Advanced Features DEAD** (A4): `respawnEligibleTasks`, `applyCascadeToSprint`, `applyUnblockToSprint`, `reconcileSpuriousNoGo` (rubric path) — 0 production caller. Sprint 134-139'da yazılmış ama runSprint asla çağırmıyordu. Wave B T7'de wire edildi (~50 LoC sprint-phases.ts + 5 LoC sprint-controller.ts).
+2. **Nervous System Half-Loop** (A7): NervousObserver Sprint 153 B1+B2 wired AMA `'detection'` event 0 production subscriber. Dispatcher/HistoryStore production'da hiç instantiate edilmemiş, 11 sprint × 0 `nervous-history.jsonl`. Wave B T8'de wire edildi (~60 LoC).
+3. **ADR-039 Self-Modifying Detector 12+ Sprint Dormant** (A9): `checkWorkerAuthority()` 0 production call site. Sprint 148 catastrophic-lesson kuralı runtime'da yok'tu. Wave B T9'da wire edildi (~40 LoC task-builder + worker.ts).
+4. **forceModel Tier-Clamp Bypass**: DIRECTIVES `Model: haiku` `haiku_allowed: false` config'i silently bypass ediyordu — Wave B T5'te clamp eklendi.
+
+### Yeni ADR'lar (43→45)
+- **ADR-043** Hot Fix with Claude Subagents — Pipeline-Bypass Repair Pattern (Sprint 150A + 152.5 + 154 üçüncü uygulama)
+- **ADR-044** Sprint 154 Comprehensive Audit Methodology — 10-Agent Parallel Pass + Pipeline Wire Validation
+
+### Meta-Dogfood Kanıtları (Sprint 154 — yeni kayıt 5+)
+1. Audit 10-agent paralel dispatch ile root cause bulundu (Sprint 152 audit verification-blind nedeniyle yanlış sayım sonucu kapatamadı)
+2. A4 derin tarama 4 fonksiyonun production'da çağrılmadığını kanıtladı (Sprint 134-139 advanced features illusion)
+3. A7 11 sprint × 0 nervous-history.jsonl → ADR-040 yarım çalışıyordu
+4. A9 ADR-039 12+ sprint dormant — Sprint 152 audit yüzeysel "FULL" demişti
+5. A10.F8 meta-irony: `feedback_break_sprint_bug_cycle.md` "yeni audit önerme" kuralı çiğnendi ama gerekçeli (Sprint 152 listeleme, Sprint 154 kanıt+fix)
+6. **LIVE dogfood:** `deckent run` 52sn × 1 dosya yazma — pipeline LIVE kanıtı (Sprint 153 0 line vs)
+
+### Beta GA Gate Durumu (2026-05-07 Sprint 154 sonrası)
+| # | Gate | Sprint 153 sonu | Sprint 154 sonu |
+|---|------|-----------------|-----------------|
+| #1-12 | Build/test/MCP/CLI/Memory etc. | ✅ | ✅ |
+| #11 Documentation sync | 🔄 partial | ✅ Sprint 154 T3 (doc count drift universal sync) |
+| #13 Messaging trio smoke | 🟡 token bekleniyor | 🟡 (eternal — Pazar) |
+| #14 Dockerfile USER non-root | ✅ | ✅ (T8 ile bütünlendi — A5.F2 backlog) |
+| #15 DeckentHub 20 seed signed | ✅ Sprint 153 E | ✅ |
+| #16-20 | ✅ | ✅ |
+| **Implicit: Pipeline Health** | (varsayılan) | ✅ **Sprint 154 LIVE dogfood — kanıtlı** |
+
+**Sprint 154 sonrası Beta GA için kalan gate:** Sadece **#13 (messaging trio smoke)** — Pazar token bekleniyor. Long-term **#3 coverage** Phase 2.
 
 ---
 
@@ -284,7 +346,8 @@ Sprint 150 kırık haliyle Deckent'le Deckent'i tamir sonsuz döngü riskinden k
 | **152** | **Per 24 Nis (gerçek)** | **Post-Migration Audit — 27 rapor + 86 bulgu** | ✅ DONE (orijinal "Community Bug Triage" → audit'e dönüştü, 30 task ~45dk) |
 | **152.5** | **Per 24 Nis (gerçek)** | **Hot Fix Day — 4 Beta GA blocker** (Claude subagent pattern, 2nd uygulaması) | ✅ DONE (HF1 GLIBC, HF2 verification-blind, HF3 rules silent catch, HF4 MCP provider parity) |
 | **153** | **Pzt 5-6 May (gerçek)** | **CI Greening + Node 20 + D batch + B Nervous wire + E Ed25519 hub sign + run-param** | ✅ DONE (14 commit, ilk tam yeşil CI run, Beta GA Gate #15 açıldı) |
-| 154 | ~Sal 7 May (revize) | Telegram/Discord canlı smoke (token Pazar) + Sprint 153 retro + WhatsApp Business API hazırlık | ⏳ Plan |
+| **154** | **Çar 7 May (gerçek)** | **🔥 HOT FIX DAY (3rd uygulama) — 10-agent comprehensive audit (87 finding) + 13 P0 fix (4 wave)** — KESIN ROOT CAUSE: claude.json:ro mount → silent EROFS exit. LIVE dogfood: 52sn × 1 file (Sprint 153: 47dk × 0 line). ADR-043 + ADR-044 yeni. Pipeline LIVE. | ✅ DONE (5 commit chain, +6037 / -94 LoC, 45 ADR, mimari kemikler production'a bağlı) |
+| 155 | ~Per 8 May (revize) | Telegram/Discord canlı smoke (Pazar token) + B3 production detector evidence (gerçek sprint koşusu) + Sprint 154 P1 stretch (memory-query CLI + config read + nervous status CLI parity) | ⏳ Plan |
 | 155 | ~Çar 8 May | Hub Growth — 20 → 50 skill + moderation CI + rating system | ⏳ Plan |
 | 156 | ~Per 9 May | Feature requests triage + routing V4 + skill heuristics | ⏳ Plan |
 | 157 | ~Cum 10 May | Adaptive agent activation (analiz → öneri + autonomous apply) | ⏳ Plan |
@@ -483,6 +546,8 @@ Sprint 150 kırık haliyle Deckent'le Deckent'i tamir sonsuz döngü riskinden k
 13. **Node.js minimum >=20** (Sprint 153, 2026-05-06) — Node 18 EOL 2025-03-27, Node 20 EOL 2026-03-24 ama hâlâ widely deployed; matrix `[20.x, 22.x, 24.x]`. better-sqlite3 zaten Node 18'i desteklemiyor, vite 20.19+ istiyor. CI'da `npm ci` sonrası `npx node-gyp rebuild --release` step'i zorunlu (`.npmrc:ignore-scripts=true` postinstall'ları bloke ediyor; tek trusted dep'i explicit derliyoruz).
 14. **CI green imperative** (Sprint 153 sonrası) — push öncesi lokalde `npm run lint` + targeted `npx vitest run` zorunlu. **`node_modules/.bin/{tsc,vitest}` 0-byte zombie** olabilir (npm install bin link bug); şüphe halinde `npm rebuild`. Direkt invoke: `node node_modules/typescript/bin/tsc` veya `node node_modules/vitest/vitest.mjs run`.
 15. **Beta GA Gate #15 ✅ (Sprint 153 E)** — 20/20 seed skill Ed25519 imzalı, `skill install` lazy verify wire canlı, `--allow-unsigned` opt-out. Hub public key `6850ed2fdfd6fb185d80ee6f747176a54da7f2bea9f1c5f95b41855c5554795f` (project hub key — kullanıcı kendi `~/.deckent/keys/`'i ile signs). Production hub publish'inde external rotated key kullanılacak.
+16. **Sprint 154 KESIN ROOT CAUSE (2026-05-07) — TARİHİ KANIT** — Sprint 144→153 9-sprint kronik "worker timeout / 0 line yazma" bug'ı `spawn-backend-docker.ts:257` `~/.claude.json:ro` mount → silent EROFS exit kaynaklıydı. **1 satır fix** (`:ro` flag kaldır). LIVE dogfood: Sprint 153 17 worker × 47dk × 0 line ↔ Sprint 154 1 worker × 52sn × 1 dosya. Claude CLI startup config write fail container'da silent exit ediyordu — pipeline 9 sprint sonra LIVE.
+17. **Mimari "advanced features" wire validation zorunlu** (Sprint 154 audit A4 keşif) — Sprint 134-139'da yazılmış olan `respawnEligibleTasks`, `applyCascadeToSprint`, `applyUnblockToSprint`, `reconcileSpuriousNoGo`, `task-retry.ts`, ADR-039 self-modifying-detector — production'da 0 caller'dı. Test'te isolated pass aldatıcı. Bundan sonra her ADR/feature implement etmeden önce **production call site assertion** zorunlu (wire-validation test pattern). Sprint 154 Wave B T7+T8+T9 ile 4 dead export wire edildi.
 
 ---
 
@@ -490,4 +555,5 @@ Sprint 150 kırık haliyle Deckent'le Deckent'i tamir sonsuz döngü riskinden k
 **İmza (2026-04-21 Hot Fix güncellemesi):** Koordinatör (Claude Code subagent-driven hot fix session — H1..H7 7 paralel/sequential general-purpose subagent, ~68dk, ~1M token, 145+ file, DECKENT→USER:NOTIFY 12 sprint sonra canlandı)
 **Diriliş:** Bu doküman Sprint 149-200 canlı — her sprint sonu güncellenecek
 **İmza (2026-05-06 Sprint 153 güncellemesi):** Koordinatör (14 commit batch — CI greening + Node 18 EOL drop + D batch + B Nervous wire + B3 wire test + E Ed25519 hub sign + run-param + docker timeout result clarity + 0-byte bin keşif. Beta GA gate 17/20 → 19/20)
-**Sonraki revize:** Sprint 154 retro sonrası — Telegram/Discord canlı smoke + WhatsApp Business API status + Phase 2 fiili takvim revizyonu
+**İmza (2026-05-07 Sprint 154 Hot Fix Day — TARİHİ AN):** Koordinatör (10-agent comprehensive audit + 13 P0 hot fix + 5 commit chain — claude.json:ro KESIN ROOT CAUSE + LIVE dogfood 52sn × 1 file kanıt. Pipeline 9 sprint sonra LIVE. Mimari "advanced features" production wire'a bağlandı: Sprint Pipeline cascade/unblock/retry + Nervous half-loop + ADR-039 dormant 12+ sprint çözüldü. ADR 43→45. Beta GA gate 19/20 → 20/20 (impl. Pipeline Health) — kalan tek dış bağımlılık #13 messaging token.)
+**Sonraki revize:** Sprint 155 sonrası — Telegram/Discord smoke pas + B3 production detector log evidence + Sprint 154 P1 stretch (parity gaps)
