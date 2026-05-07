@@ -46,8 +46,12 @@
 | adr-040 | Nervous System Architecture — Proactive Meta-Orchestrator | accepted |
 | adr-041 | Agent Taxonomy — Horizontal Skills vs Vertical Agents | accepted |
 | adr-042 | Hybrid Mode Architecture — Sprint + Task Dual Modes | proposed |
+| adr-043 | Hot Fix with Claude Subagents — Pipeline-Bypass Repair Pattern | accepted |
+| adr-044 | Sprint 154 Comprehensive Audit — 10-Agent Parallel Pass + Pipeline Wire Validation | accepted |
 
 ## Recent Learnings
+- **Sprint sprint-153 Learnings** (sprint-153): ## Sprint sprint-153 Learnings
+- Doc drift — version + agent/CLI/MCP count senk: NO_GO — Worker timeout/killed (exitC...
 - **Sprint sprint-152 Learnings** (sprint-152): ## Sprint sprint-152 Learnings
 - `deckent doctor` Derin Audit: NO_GO — READ-ONLY audit task per Sprint 152 DIRECTIVES...
 - **Sprint sprint-151 Learnings** (sprint-151): ## Sprint sprint-151 Learnings
@@ -65,8 +69,6 @@
 - Brain Heuristic Timeout Estimator: NO_GO — Brain Heuristic Timeout Estimator impleme...
 - **Sprint sprint-144 Learnings** (sprint-144): ## Sprint sprint-144 Learnings
 - worker.ts Split (1669 → 4 dosya): NO_GO — Worker timeout — process exceeded time lim...
-- **Sprint sprint-143 Learnings** (sprint-143): ## Sprint sprint-143 Learnings
-- Memory V2 Tam Migrasyon (ci-reporter + managed-docs): NO_GO — Docker worker exited w...
 
 ## Active Technical Debt
 _No active technical debt._
@@ -74,4 +76,4 @@ _No active technical debt._
 ## Active Patterns
 _No active patterns._
 
-_Total entries: 176 | Generated: 2026-04-24_
+_Total entries: 180 | Generated: 2026-05-07_

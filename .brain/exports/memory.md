@@ -1,5 +1,14 @@
 # Sprint Learnings (auto-generated)
 
+## Sprint sprint-153 Learnings
+- Sprint sprint-153 Learnings: ## Sprint sprint-153 Learnings
+- Doc drift — version + agent/CLI/MCP count senk: NO_GO — Worker timeout/killed (exitCode=0) — HIT WORKER_TIMEOUT (task exceeded its timeout budget; re-run with longer --timeout 
+- `deckent config read` subcommand implement: NO_GO — Worker timeout/killed (exitCode=0) — HIT WORKER_TIMEOUT (task exceeded its timeout budget; re-run with longer --timeout 
+- `deckent memory-query` CLI wrapper: NO_GO — Worker timeout/killed (exitCode=0) — HIT WORKER_TIMEOUT (task exceeded its timeout budget; re-run with longer --timeout 
+- `opus.apiId` model ID güncelle (4-6 → 4-7): NO_GO — Worker timeout/killed (exitCode=0) — HIT WORKER_TIMEOUT (task exceeded its timeout budget; re-run with longer --timeout 
+- FIX phase timeout 600s → 1800s: NO_GO — Worker timeout/killed (exitCode=0) — HIT WORKER_TIMEOUT (task exceeded its timeout budget; re-run with longer --timeout 
+- SSE keepalive heartbeat: NO_GO — Worker timeout/killed (exitCode=0) — HIT WORKER_TIMEOUT (task exceeded its timeout budget; re-run with longer --timeout 
+
 ## Sprint sprint-152 Learnings
 - Sprint sprint-152 Learnings: ## Sprint sprint-152 Learnings
 - `deckent doctor` Derin Audit: NO_GO — READ-ONLY audit task per Sprint 152 DIRECTIVES. Report written to docs/audits/sprint-152/T-152-002-doctor-deep-audit.md 

@@ -1,20 +1,43 @@
 # Known Issues — Deckent v1.0.0-beta.1
 
-**Last updated:** 2026-04-24 (Sprint 152 post-migration audit)
+**Last updated:** 2026-05-07 (Sprint 154 comprehensive audit — 10-agent parallel pass)
 **Scope:** Tracked bugs, drifts, and deferred work. Updated every sprint.
 
 This document is the source of truth for "things we know are imperfect but are not blockers for Beta GA". If you hit an issue not listed here, please open an issue on GitHub.
 
 ---
 
-## 🟢 Fixed in Hot Fix Day (Sprint 152.5)
+## 🔴 CRITICAL — Sprint 154 audit pass yeni P0 (ROOT CAUSES)
 
+| ID | Issue | Fix |
+|----|-------|-----|
+| **C1** | **`spawn-backend-docker.ts:257` `~/.claude.json:ro` mount → silent EROFS exit** — Sprint 144→153 boyunca yaşanan tüm worker timeout/0 line yazma pattern'inin TEK kök sebebi. Claude CLI startup'ta config write fail → silent exit 0, prompt API'ye hiç gitmiyor. Sprint 153 17 worker × 0 line kanıt. | mount flag `:ro` → `:rw` (1 satır), DIRECTIVES Task 1 |
+| **C2** | **Sprint Pipeline Advanced Features DEAD** (A4 audit) — `respawnEligibleTasks`, `applyCascadeToSprint`, `applyUnblockToSprint`, `evaluateWithRubric → reconcileSpuriousNoGo`, `task-retry.ts` — hepsi 0 production caller. Test'lerde isolated pass ama runSprint asla çağırmıyor. | Wire integration ~50 LoC, DIRECTIVES Task 7 |
+| **C3** | **NervousObserver wired ama `'detection'` event 0 subscriber** (A7) — Dispatcher/Proposer/Executor/HistoryStore production'da hiç instantiate edilmemiş. 11 sprint'te 0 nervous-history.jsonl. ADR-040 yarım çalışıyor. | observer.on('detection') wire ~10 LoC, DIRECTIVES Task 8 |
+| **C4** | **ADR-039 Self-Modifying Detector 12+ sprint dormant** (A9) — `checkWorkerAuthority()`, `isSelfModifyingSprint()`, `detectDeckentRepo()` 0 production call site. Sprint 148 catastrophic-lesson kuralı runtime'da yok. | task-builder + worker.ts wire ~30 LoC, DIRECTIVES Task 9 |
+| **C5** | **`scripts/adr-validator.mjs` deleted file referansı** (A9) — `.brain/DECISIONS.md` (Memory V2 migration ile silindi) arıyor → `npm run lint:adr` silently failing | path → memory.db `getByType('adr')`, DIRECTIVES Task 10 |
+
+---
+
+## 🟢 Fixed (Sprint 152.5 + 153 + 154 confirmed)
+
+### Sprint 152.5 Hot Fix Day
 | ID | Issue | Fix |
 |----|-------|-----|
 | HF1 | Docker worker `better-sqlite3` GLIBC 2.38 mismatch | `Dockerfile.worker` → `node:24-trixie-slim` (Debian 13, glibc 2.41) |
 | HF2 | Brain NO_GO → FIX cycle never re-evaluated post-FIX | `isVerificationTask` accepts doc-only file changes; audit tasks now DONE |
 | HF3 | `.claude/rules/*.md` silently stripped when memory.db load fails | `rule-generator.ts` no-longer-silent catch; loud failure preserves rules |
 | HF4 | MCP `deckent_start --dry-run` "No providers registered" | `start.ts` calls `bootstrapProviders(config)` before planSprint |
+
+### Sprint 153 (CI greening + Node 20 + D batch + B Nervous wire + E Ed25519)
+| ID | Issue | Fix verified |
+|----|-------|-------------|
+| S153-A | ADR-008 violation `src/core/notify.ts` orchestra import | ✅ D1 — moved to orchestra/ (5 caller updated) |
+| S153-B | ADR-038 violation `batch-stats.ts` 0 consumer | ✅ D2 — deleted (334 LoC) |
+| S153-C | 20 seed Ed25519 placeholder signatures (Beta GA Gate #15 partial) | ✅ E — `scripts/sign-seed-skills.mjs` real 128-hex (A5.F3 verified Sprint 154) |
+| S153-D | NervousObserver never instantiated in sprint-controller | 🟡 B1+B2 — instantiation wired BUT subscriber missing (yeni P0 C3) |
+| S153-E | CI workflows red 14+ days | ✅ `npx node-gyp rebuild --release` step added 9 jobs |
+| S153-F | Node 18 EOL drop | ✅ matrix `[20.x, 22.x, 24.x]`, 36 file purge |
 
 ---
 
