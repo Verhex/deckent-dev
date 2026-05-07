@@ -3,7 +3,7 @@
 // Each worker gets its own filesystem namespace — no cross-worker interference.
 // Results collected via shared .tasks/ volume mount.
 
-import { spawnSync, spawn as nodeSpawn } from 'node:child_process';
+import { spawnSync, spawn as nodeSpawn, type ChildProcess } from 'node:child_process';
 import { writeFileSync, readFileSync, mkdirSync, existsSync, unlinkSync, openSync, fsyncSync, closeSync, readdirSync, renameSync, rmdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { randomBytes } from 'node:crypto';
@@ -33,6 +33,11 @@ export class DockerSpawnBackend implements SpawnBackend {
   private readonly timeoutSeconds: number;
   private readonly gracefulTimeoutSeconds: number;
   private readonly containers = new Map<string, { containerId: string; model: string }>(); // taskId → container info
+  // Sprint 154 audit A1.F2 — canlı log tee process'leri (docker logs -f)
+  // Container exit sonrası `docker logs` çağırırsak race var (container silinebilir).
+  // Bu yüzden spawn esnasında detached `docker logs -f` başlatıyoruz, çıkışta SIGTERM ile öldürüyoruz.
+  private readonly logProcesses = new Map<string, ChildProcess>(); // taskId → log tee proc
+  private readonly logFds = new Map<string, number[]>(); // taskId → file descriptors to close
 
   constructor(projectDir: string, opts?: { image?: string; timeoutSeconds?: number; gracefulTimeoutSeconds?: number }) {
     this.projectDir = resolve(projectDir);
@@ -296,6 +301,29 @@ export class DockerSpawnBackend implements SpawnBackend {
     this.containers.set(taskId, { containerId, model });
     debugLog('docker-backend:spawn-ok', `taskId=${taskId} containerId=${containerId.slice(0, 12)}`);
 
+    // Sprint 154 audit A1.F2 — canlı log tee.
+    // Geçmişte `monitorContainer` exit sonrası `docker logs <container>` çağırıyordu;
+    // container `docker rm` ile silindiyse "No such container" hatası `.log` dosyasına yazılıyordu
+    // (Sprint 153 archive evidence: task-153-001.log = "Error response from daemon: No such container").
+    // Çözüm: detached `docker logs -f` ile log akışını canlı yakala, container exit edince process'i kill et.
+    try {
+      const logPath = join(tasksDir, `task-${taskId}.log`);
+      const logOutFd = openSync(logPath, 'a');
+      const logErrFd = openSync(logPath, 'a');
+      const logProc = nodeSpawn('docker', ['logs', '-f', containerName], {
+        stdio: ['ignore', logOutFd, logErrFd],
+        detached: true,
+      });
+      logProc.unref();
+      logProc.on('error', (err) => {
+        debugLog('docker-backend:log-tee-error', `taskId=${taskId} ${err.message}`);
+      });
+      this.logProcesses.set(taskId, logProc);
+      this.logFds.set(taskId, [logOutFd, logErrFd]);
+    } catch (e) {
+      debugLog('docker-backend:log-tee-spawn-error', `taskId=${taskId} ${e}`);
+    }
+
     // Write initial heartbeat
     const hbPath = join(tasksDir, `task-${taskId}.hb`);
     writeFileSync(hbPath, JSON.stringify({
@@ -361,7 +389,29 @@ export class DockerSpawnBackend implements SpawnBackend {
       spawnSync('docker', ['rm', '-f', containerName], { encoding: 'utf-8', timeout: 10_000 });
     } catch (e) { debugLog('docker-backend:rm-error', e); }
 
+    // Sprint 154 audit A1.F2 — log tee'yi de kill path'inde sonlandır
+    this.stopLogTee(taskId);
+
     this.containers.delete(taskId);
+  }
+
+  /**
+   * Sprint 154 audit A1.F2 — canlı log tee process'ini sonlandır + fd'leri kapat.
+   * Container exit veya kill sonrası çağrılır; idempotent.
+   */
+  private stopLogTee(taskId: string): void {
+    const proc = this.logProcesses.get(taskId);
+    if (proc) {
+      try { proc.kill('SIGTERM'); } catch { /* already exited */ }
+      this.logProcesses.delete(taskId);
+    }
+    const fds = this.logFds.get(taskId);
+    if (fds) {
+      for (const fd of fds) {
+        try { closeSync(fd); } catch { /* already closed */ }
+      }
+      this.logFds.delete(taskId);
+    }
   }
 
   /**
@@ -552,17 +602,10 @@ export class DockerSpawnBackend implements SpawnBackend {
         }
       }
 
-      // Extract container logs BEFORE removal (docker logs requires container to exist)
-      try {
-        const logResult = spawnSync('docker', ['logs', containerName], {
-          encoding: 'utf-8', timeout: 10_000, stdio: ['pipe', 'pipe', 'pipe'],
-        });
-        const logContent = (logResult.stdout ?? '') + (logResult.stderr ?? '');
-        if (logContent.trim()) {
-          const logPath = join(tasksDir, `task-${taskId}.log`);
-          writeFileSync(logPath, logContent, 'utf-8');
-        }
-      } catch (e) { debugLog('docker-backend:log-extract', e); }
+      // Sprint 154 audit A1.F2 — canlı tee zaten log dosyasını dolduruyor.
+      // Container exit ettiğine göre `docker logs -f` doğal olarak EOF görüp çıkacak,
+      // ama container `docker rm` öncesi process hâlâ alive olabilir → SIGTERM ile kapatıp fd'leri serbest bırak.
+      this.stopLogTee(taskId);
 
       // Cleanup container
       try {

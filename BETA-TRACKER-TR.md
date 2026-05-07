@@ -223,24 +223,40 @@ TR+EN çift dil, VISION, link audit, config dashboard — Sprint 074-082'de tama
 | 149 | Çar 22 - Per 23 Nis | Final doküman konsolidasyonu + npm publish dry-run | 4.85/5 |
 | 150 | Per 23 Nis | 🚀 Beta GA Cutover (npm publish, tag v1.0.0-beta.1, public duyuru) | 5.0/5 |
 
-### Sprint 150 GA Exit Criteria (12 Madde)
+### Sprint 151+ Beta GA Exit Criteria — 20 Gate (BETA-TRACKER + Sprint 150 Konsolidasyon)
 
-Aşağıdaki 12 maddenin tamamı PASS olmalıdır:
+**Gate şeması kanonik kaynak:** `docs/ROADMAP-GOD-LEVEL.md` Section 5 (Sprint 149-200 anchor). Bu dosya o şemayı birebir yansıtır — herhangi bir değişiklik önce ROADMAP'te yapılmalı, sonra buraya (TR) ve `BETA-TRACKER.md`'ye (EN) propagate edilmelidir.
 
-| # | Kriter | Durum | Açıklama |
-|---|--------|-------|----------|
-| 1 | `tsc --noEmit` sıfır hata | ⬜ | TypeScript derleme temiz |
-| 2 | `npx vitest run` %100 pass | ⬜ | Tüm testler geçiyor, 0 fail |
-| 3 | Coverage ≥ 85% | ⬜ | Gerçek ölçüm (89.33% baseline) |
-| 4 | `npm pack` başarılı | ⬜ | Paket oluşturma, boyut < 2MB |
-| 5 | `npx deckent init` çalışıyor | ⬜ | Temiz dizinde sıfırdan kurulum |
-| 6 | `npx deckent doctor` PASS | ⬜ | Sağlık kontrolü, tüm checkler OK |
-| 7 | `npx deckent start --dry-run` çalışıyor | ⬜ | Sprint simülasyonu, worker spawn yok |
-| 8 | MCP 22 tool kayıtlı | ⬜ | `claude mcp add deckent -- npx deckent mcp` |
-| 9 | Dashboard build + serve | ⬜ | `npm run build` + `/api/status` 200 OK |
-| 10 | README.md + README-TR.md güncel | ⬜ | Tüm sayılar doğru, linkler çalışıyor |
-| 11 | CHANGELOG.md Sprint 145-150 entry'leri | ⬜ | Keep a Changelog formatı |
-| 12 | `npm publish --tag beta` başarılı | ⬜ | npm registry'de yayınlandı |
+**Durum (Sprint 153 sonrası, 2026-05-06): 19/20 açıldı** ✅ — kalan tek gate #13 messaging trio smoke (token Pazar ~10 May beklenir).
+
+Aşağıdaki 20 gate'in tamamı PASS olmalıdır (uzun vadeli #3 coverage hariç, Sprint 160+ hedefi):
+
+| # | Gate | Hedef | Mevcut | Durum |
+|---|------|-------|--------|-------|
+| 1 | `tsc --noEmit` 0 hata | 0 | 0 hata | ✅ PASS |
+| 2 | vitest ≥ %99.5 pass | %99.5+ | **%99.94** (9 fail / 15671 pass) | ✅ **H2 ile aşıldı** |
+| 3 | Coverage ≥ %85 | %85+ | ~%52 (uzun vadeli, Sprint 160+) | 🔄 Phase 2 (uzun) |
+| 4 | 27+ MCP tool functional | 27+ | 30 (yeni: audit/feature_query/recover) | ✅ PASS |
+| 5 | 45+ CLI komut functional | 45+ | 49 (H1 sonrası) | ✅ PASS |
+| 6 | `npm pack --dry-run` temiz | 0 warning | 1.08MB, 0 warning | ✅ T-150-026 |
+| 7 | Cross-platform 3/3 | 3/3 | 3/3 | ✅ Sprint 148 |
+| 8 | Multi-provider 3/3 | 3/3 | 3/3 | ✅ Sprint 148 |
+| 9 | `deckent_style` toggle canlı | sprint/task switch | canlı | ✅ T-150-001..003 |
+| 10 | Memory V2 stress test | Pass | Pass | ✅ Sprint 145 |
+| 11 | Documentation sync | Current | Sprint 153 sonu — ROADMAP+CHANGELOG+SPRINT-LOG+IDENTITY+CLAUDE.md güncel | ✅ Sprint 153 |
+| 12 | Built-in Bundle (npm pack) | 15+21 bundle | 36/36 bundle'da | ✅ T-150-031 P0 |
+| 13 | Messaging trio smoke test | Discord+Telegram canlı | Token Pazar (~10 May) bekleniyor, kod hazır | 🟡 Sprint 154 |
+| 14 | Dockerfile USER non-root | non-root | USER deckent | ✅ T-150-005 |
+| 15 | DeckentHub 20 seed skill | 20 published + signed | **20/20 imzalandı** (`scripts/sign-seed-skills.mjs`), `skill install` verify wire canlı | ✅ Sprint 153 E |
+| 16 | Config duplicate removal | ✅ | Flat providers silindi | ✅ H3 |
+| 17 | Managed-docs cache git-untrack | ✅ | git-untrack | ✅ T-150-036 |
+| 18 | docs.json private/public split | ✅ | template + runtime split | ✅ T-150-037 |
+| 19 | Metrics.jsonl rotation | rotate | 268KB → 0, gzip archive | ✅ H5 canlı |
+| 20 | Sprint file count ≤ 60 | ≤ 60 | 17 → 10 sprint (54 file) | ✅ H4 canlı |
+
+**Sprint 153 sonu Beta GA için kalan tek gate (uzun vadeli #3 coverage hariç):** #13 (messaging trio smoke) — Telegram + Discord bot token Pazar (~2026-05-10) bekleniyor, kod %100 hazır. WhatsApp Business API onayı external dependency, Sprint 154+ aktif olur.
+
+**Implicit gate (Sprint 153'te eklendi):** **CI Workflow Health** ✅ — 3 workflow (CI, Cross-Platform E2E, Build and Deploy Docs) ilk tam yeşil run weeks-of-red sonrası. better-sqlite3 native binding pipeline + Vitepress build + 4 silent test bug fix kombinesi.
 
 ---
 

@@ -14,18 +14,24 @@ vi.mock('node:fs', () => ({
   mkdirSync: vi.fn(),
   unlinkSync: vi.fn(),
   readdirSync: vi.fn(),
+  openSync: vi.fn(() => 7),
+  closeSync: vi.fn(),
+  fsyncSync: vi.fn(),
+  renameSync: vi.fn(),
+  rmdirSync: vi.fn(),
 }));
 
 vi.mock('../../src/core/utils.js', () => ({
   debugLog: vi.fn(),
 }));
 
-import { spawnSync } from 'node:child_process';
+import { spawnSync, spawn as nodeSpawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { DockerSpawnBackend, isDockerAvailable } from '../../src/orchestra/spawn-backend-docker.js';
 import { SpawnBackendError } from '../../src/orchestra/spawn-backend.js';
 
 const mockSpawnSync = vi.mocked(spawnSync);
+const mockSpawn = vi.mocked(nodeSpawn);
 const mockExistsSync = vi.mocked(existsSync);
 
 // ─── Tests ──────────────────────────────────────────────────────────
@@ -78,6 +84,57 @@ describe('DockerSpawnBackend', () => {
 
       expect(error).toBeInstanceOf(SpawnBackendError);
       expect(error!.backendName).toBe('docker');
+    });
+
+    // Sprint 154 audit A1.F2 — canlı log tee
+    it('should spawn a live `docker logs -f` tee process after container starts', () => {
+      // 1) docker images -q → image exists, 2) docker run -d → container started
+      mockSpawnSync
+        .mockReturnValueOnce({
+          stdout: 'sha256:abc123', stderr: '', status: 0,
+          signal: null, pid: 1, output: [],
+        } as any)
+        .mockReturnValueOnce({
+          stdout: 'container-id-abc123', stderr: '', status: 0,
+          signal: null, pid: 1, output: [],
+        } as any);
+
+      // Stub nodeSpawn to capture log tee invocation
+      const fakeChild = {
+        on: vi.fn().mockReturnThis(),
+        stdout: { on: vi.fn() },
+        unref: vi.fn(),
+        kill: vi.fn(),
+      } as any;
+      mockSpawn.mockReturnValue(fakeChild);
+
+      backend.spawn('001-001', 'sonnet', 'test prompt');
+
+      // Verify a `docker logs -f <containerName>` call was made via nodeSpawn
+      const logTeeCall = mockSpawn.mock.calls.find(
+        (call) => call[0] === 'docker'
+          && Array.isArray(call[1])
+          && call[1][0] === 'logs'
+          && call[1][1] === '-f'
+          && call[1][2] === 'deckent-w-001-001',
+      );
+      expect(logTeeCall).toBeDefined();
+      // Verify detached + unref'd so it survives parent
+      expect(fakeChild.unref).toHaveBeenCalled();
+    });
+
+    it('should NOT call `docker logs` synchronously after container exit (post-mortem race avoided)', async () => {
+      // After the live-tee fix, monitorContainer must NOT use spawnSync('docker', ['logs', ...])
+      // because the container may already have been removed → "No such container" error.
+      // We verify this by reading the source and asserting no synchronous docker-logs spawn.
+      const realFs = await vi.importActual<typeof import('node:fs')>('node:fs');
+      const src = realFs.readFileSync(
+        new URL('../../src/orchestra/spawn-backend-docker.ts', import.meta.url),
+        'utf-8',
+      );
+      // The only allowed `docker`+`logs` invocation is the detached `nodeSpawn(... 'logs', '-f' ...)`.
+      // A spawnSync(...['logs', containerName]) without `-f` is the legacy post-mortem call.
+      expect(src).not.toMatch(/spawnSync\(\s*'docker'\s*,\s*\[\s*'logs'\s*,\s*containerName/);
     });
   });
 

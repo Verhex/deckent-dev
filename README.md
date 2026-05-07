@@ -144,7 +144,7 @@ Single-task execution. No PLAN/SPAWN phases. Ideal for quick commands, reminders
 - **Tier-Based Routing** — `brain_tier: 'premium'` instead of model names; ModelRegistry resolves best model per provider
 - **Configurable Timeouts** — Per-task and per-sprint timeout, `sprint_timeout_minutes: 0` for unlimited
 - **Human Checkpoints** — Configurable approval gates at plan, evaluate, fix phases
-- **MCP Integration** — 22 tools + 8 resources for Claude Code IDE integration
+- **MCP Integration** — 31 tools + 8 resources for Claude Code IDE integration
 - **Web Dashboard** — React + Vite + Tailwind, 6 pages, SSE real-time updates, TR/EN language switcher
 
 ### Cross-Platform
@@ -172,7 +172,7 @@ Single-task execution. No PLAN/SPAWN phases. Ideal for quick commands, reminders
 | `.deck` secret interpolation | **Yes** | No | No | No | No |
 | GO/NO-GO evaluation per task | **Yes** | No | No | No | No |
 | Open source | **Yes** (MIT) | No | No | Yes (OSS) | No |
-| MCP integration | **Yes** (22 tools, 8 resources) | Partial | No | Limited | Native |
+| MCP integration | **Yes** (31 tools, 8 resources) | Partial | No | Limited | Native |
 | Web dashboard | **Yes** (6 pages) | Built-in | Built-in | No | No |
 | Multi-provider (Claude, Codex, Gemini) | **Yes** | No | No | Limited | No |
 | Built-in agents | **15** | — | — | 100+ | — |

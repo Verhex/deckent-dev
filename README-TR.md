@@ -146,7 +146,7 @@ Tek görev yürütme. PLAN/SPAWN fazları yok. Hızlı komutlar, hatırlatmalar 
 - **Katman Tabanlı Routing** — Model adları yerine `brain_tier: 'premium'`; ModelRegistry, provider'a göre en uygun modeli seçer
 - **Yapılandırılabilir Timeout'lar** — Görev ve sprint bazlı timeout, `sprint_timeout_minutes: 0` sınırsız için
 - **Human Checkpoint'ler** — Plan, evaluate, fix fazlarında yapılandırılabilir onay noktaları
-- **MCP Entegrasyonu** — Claude Code IDE entegrasyonu için 22 tool + 8 resource
+- **MCP Entegrasyonu** — Claude Code IDE entegrasyonu için 31 tool + 8 resource
 - **Web Dashboard** — React + Vite + Tailwind, 6 sayfa, SSE gerçek zamanlı güncellemeler, TR/EN dil değiştirici
 
 ### Cross-Platform
@@ -174,7 +174,7 @@ Tek görev yürütme. PLAN/SPAWN fazları yok. Hızlı komutlar, hatırlatmalar 
 | `.deck` gizli bilgi interpolasyonu | **Evet** | Hayır | Hayır | Hayır | Hayır |
 | Görev bazlı GO/NO-GO değerlendirme | **Evet** | Hayır | Hayır | Hayır | Hayır |
 | Açık kaynak | **Evet** (MIT) | Hayır | Hayır | Evet (OSS) | Hayır |
-| MCP entegrasyonu | **Evet** (22 tool, 8 resource) | Kısmi | Hayır | Sınırlı | Native |
+| MCP entegrasyonu | **Evet** (31 tool, 8 resource) | Kısmi | Hayır | Sınırlı | Native |
 | Web dashboard | **Evet** (6 sayfa) | Yerleşik | Yerleşik | Hayır | Hayır |
 | Çoklu provider (Claude, Codex, Gemini) | **Evet** | Hayır | Hayır | Sınırlı | Hayır |
 | Yerleşik agent sayısı | **15** | — | — | 100+ | — |

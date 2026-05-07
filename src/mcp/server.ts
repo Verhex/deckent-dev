@@ -21,7 +21,7 @@ init → set_directives → plan → start → status → review → retro → c
 ## Sprint Lifecycle
 PLAN → SPAWN → EXECUTE → EVALUATE → FIX → RETRO → DECAY → CLEANUP
 
-## Tools (27)
+## Tools (31)
 - deckent_init: Initialize Deckent in the current project directory
 - deckent_set_directives: Write sprint goals and task definitions to DIRECTIVES.md
 - deckent_plan: Generate task plan from DIRECTIVES (mode: ai/structured/auto)
@@ -44,6 +44,10 @@ PLAN → SPAWN → EXECUTE → EVALUATE → FIX → RETRO → DECAY → CLEANUP
 - deckent_docs: Sprint lifecycle document management (add/remove/list)
 - deckent_explain: Explain sprint history and results
 - deckent_memory_query: Search project memory across all sources (ADR, sprint, debt, pattern)
+- deckent_watch: Watch dashboard live — real-time sprint state stream
+- deckent_audit: Run on-demand audit pass (scope drift, lock health, heartbeat staleness)
+- deckent_feature_query: Query .deckent/features-manifest.json for capability lookups
+- deckent_recover: Resume a paused/checkpointed sprint from .deckent/sprint.lock
 - deckent_nervous_subscribe: Subscribe to Nervous System notifications
 - deckent_nervous_accept: Accept a pending nervous notification
 - deckent_nervous_reject: Reject a pending nervous notification

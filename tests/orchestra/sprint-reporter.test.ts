@@ -609,6 +609,54 @@ describe('calculateMetrics', () => {
     const metrics = calculateMetrics(makeSprint(), new Map(), [makeResult({ coverage: 75 })]);
     expect(metrics.coveragePercent).toBe(75);
   });
+
+  // ─── Sprint 154 T11: fix-retry totalTasks drift fix ─────────────────
+  // Bug evidence: Sprint 153 reported "Total Tasks: 6" — actual Wave 1+2=11 tasks +
+  // 6 fix retries inflated the count via evaluations.size. Fix retries (IDs ending
+  // in `-fix`/`-xfix`) must be excluded; their outcomes already propagate to the
+  // original task's evaluation entry (sprint-phases.ts:652-654).
+
+  it('Wave-only baseline: counts only original tasks, no fix retries present', () => {
+    // 6 original Wave tasks, no FIX phase ran → totalTasks must be 6
+    const tasks = ['1', '2', '3', '4', '5', '6'].map(id => makeTask({ id }));
+    const sprint = makeSprint({ tasks });
+    const evals = new Map<string, TaskEvaluation>([
+      ['1', TaskEvaluation.DONE],
+      ['2', TaskEvaluation.DONE],
+      ['3', TaskEvaluation.DONE],
+      ['4', TaskEvaluation.GO_WITH_TECH_DEBT],
+      ['5', TaskEvaluation.NO_GO],
+      ['6', TaskEvaluation.DONE],
+    ]);
+    const metrics = calculateMetrics(sprint, evals, []);
+    expect(metrics.totalTasks).toBe(6);
+    expect(metrics.completedTasks).toBe(5); // 4 DONE + 1 GO_WITH_TECH_DEBT
+    expect(metrics.techDebtTasks).toBe(1);
+    expect(metrics.noGoTasks).toBe(1);
+  });
+
+  it('Wave+FIX retry: fix tasks (-fix/-xfix suffix) excluded from totalTasks', () => {
+    // Sprint 153 actual scenario: 11 originals + several fix retries.
+    // After FIX phase, evaluations map contains BOTH original task entries
+    // (updated by sprint-phases.ts:652-654 if fix succeeded) AND fix retry entries.
+    // totalTasks must reflect originals only (11), not 11+retries.
+    const originalIds = ['001', '002', '003', '004', '005', '006', '007', '008', '009', '010', '011'];
+    const tasks = originalIds.map(id => makeTask({ id }));
+    const sprint = makeSprint({ tasks });
+    const evals = new Map<string, TaskEvaluation>();
+    // 9 originals DONE, 2 originals updated to DONE via fix propagation
+    for (const id of originalIds) evals.set(id, TaskEvaluation.DONE);
+    // FIX phase added 2 fix retry entries (-fix) and 1 cross-dep fix (-xfix)
+    evals.set('005-fix', TaskEvaluation.DONE);
+    evals.set('011-fix', TaskEvaluation.DONE);
+    evals.set('003-xfix', TaskEvaluation.DONE);
+
+    const metrics = calculateMetrics(sprint, evals, []);
+    expect(metrics.totalTasks).toBe(11); // NOT 14 — fix retries excluded
+    expect(metrics.completedTasks).toBe(11); // all originals DONE (some via fix propagation)
+    expect(metrics.noGoTasks).toBe(0);
+    expect(metrics.noGoRate).toBe(0);
+  });
 });
 
 // ─── updateProjectDocs ───────────────────────────────────────────────

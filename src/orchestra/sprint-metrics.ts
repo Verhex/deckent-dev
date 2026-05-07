@@ -76,9 +76,27 @@ export function buildTokenUsageSection(
 // ═══ Core Metrics ═════════════════════════════════════════════════
 
 /**
+ * Detect whether a task ID is a FIX-phase retry artifact (suffix `-fix` / `-xfix`).
+ * Sprint 154 T11: fix retry tasks are added to the evaluations map alongside
+ * the original task. They must be excluded from totalTasks count to prevent
+ * drift (Sprint 153 dogfood evidence: Wave 1+2=11 tasks reported as 6 due to
+ * fix-retry inflation overwriting real Wave count).
+ */
+function isFixRetryTaskId(taskId: string): boolean {
+  return /-x?fix$/.test(taskId);
+}
+
+/**
  * Calculate sprint metrics from evaluation results and task outputs.
  * Counts completed, tech-debt, and no-go tasks; computes coverage average,
  * no-go rate, duration, and debt statistics.
+ *
+ * Sprint 154 T11 fix: fix-retry task entries (IDs ending in `-fix`/`-xfix`)
+ * are excluded from totalTasks/completedTasks/noGoTasks counts. The fix
+ * outcome is already propagated to the original task's evaluation entry
+ * (sprint-phases.ts:652-654), so filtering retries prevents double-counting
+ * without losing any evaluation signal.
+ *
  * @param sprint - The sprint being measured
  * @param evaluations - Map of task ID to evaluation result
  * @param results - Array of worker task results
@@ -94,14 +112,18 @@ export function calculateMetrics(
   let completedTasks = 0;
   let techDebtTasks = 0;
   let noGoTasks = 0;
+  let totalTasks = 0;
 
-  for (const ev of evaluations.values()) {
+  for (const [taskId, ev] of evaluations.entries()) {
+    // Sprint 154 T11: skip fix-retry artifacts to prevent total-task drift.
+    // The fix outcome already updated the original task's evaluation slot.
+    if (isFixRetryTaskId(taskId)) continue;
+    totalTasks++;
     if (ev === TaskEvaluation.DONE) completedTasks++;
     else if (ev === TaskEvaluation.GO_WITH_TECH_DEBT) { completedTasks++; techDebtTasks++; }
     else if (ev === TaskEvaluation.NO_GO) noGoTasks++;
   }
 
-  const totalTasks = evaluations.size;
   const coveragePercent = results.length > 0
     ? results.reduce((sum, r) => sum + r.coverage, 0) / results.length
     : 0;

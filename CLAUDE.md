@@ -30,7 +30,7 @@
 - **core/** — Types, config, utilities, agent/skill pools (94 modules)
   - types.ts + *-types.ts: all type definitions (task, config, sprint, monitoring, routing)
   - config.ts: 3-layer config merge (defaults → global → project)
-  - agent-pool.ts: AgentPoolManager, 16 built-in agents, LRU eviction
+  - agent-pool.ts: AgentPoolManager, 15 built-in agents (Sprint 148 reform — test-writer removed), LRU eviction
   - skill-pool.ts + skill-registry.ts: 21 built-in skills, sandbox AST validation
   - provider.ts: ProviderAdapter interface, multi-provider registry
   - routing-types.ts: TaskDNA, ActivationConfig, RoutingDecision, SkillBudget types
@@ -55,8 +55,8 @@
 - **connectors/** — External messaging adapters: Discord, Telegram, WhatsApp, incoming-router
 - **providers/** — Claude, Codex, Gemini adapters (5 modules)
 - **api/** — HTTP API server, SSE, rate limiting (3 modules)
-- **mcp/** — MCP server: 27 tools + 8 resources, stdio transport
-- **cli/** — 55+ commands, helpers, entry point
+- **mcp/** — MCP server: 31 tools + 8 resources, stdio transport
+- **cli/** — 46 top-level commands, helpers, entry point
 - **dashboard/** — React + Vite + Tailwind web dashboard
 - **extensions/vscode/** — VS Code extension host integration
 
@@ -93,3 +93,25 @@ When acting as Worker: @.claude/rules/worker-default.md
 ## Live Status
 Canlı sprint, debt, agent performance ve ADR durumu için: `@.brain/exports/summary.md` (auto-generated her sprint sonu).
 Komutlar: `deckent status`, `deckent history`, `deckent retro`, `deckent recall "<sorgu>"`.
+
+## Sprint Metrics
+| Metric | Value |
+|--------|-------|
+| Sprint | sprint-153 |
+| Total Tasks | 6 |
+| Completed | 0 |
+| Tech Debt | 0 |
+| No-Go | 6 |
+| Duration | 47dk 50sn |
+| Coverage | NaN% |
+
+## Active Debt
+_No tech debt record._
+
+## Agent Performance
+| Agent | Tasks | Done | Success |
+|-------|-------|------|--------|
+| architect | 2 | 0 | 0% |
+| temp-react-ts-specialist | 7 | 0 | 0% |
+| api-builder | 1 | 0 | 0% |
+| devops-engineer | 1 | 0 | 0% |

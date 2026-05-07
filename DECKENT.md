@@ -20,14 +20,14 @@
 - Planning mode: brain_planning = 'ai' | 'structured' | 'auto'
 
 ## Agents & Skills
-- 16 built-in agents: security-auditor, test-writer, doc-writer, bug-fixer, code-reviewer, refactorer, api-builder, performance-analyzer, ci-guardian, architect, architecture-planner, accessibility-auditor, data-engineer, devops-engineer, frontend-designer, migration-specialist
+- 15 built-in agents (Sprint 148 reform — test-writer kaldırıldı): security-auditor, doc-writer, bug-fixer, code-reviewer, refactorer, api-builder, performance-analyzer, ci-guardian, architect, architecture-planner, accessibility-auditor, data-engineer, devops-engineer, frontend-designer, migration-specialist
 - 21 built-in skills: typescript-expert, testing-expert, documentation-writer, security-specialist, performance-optimizer, api-builder, devops-engineer, database-migration, react-specialist, python-expert, ci-testing, accessibility-expert, anthropic-sdk, code-simplifier, docker-expert, frontend-design, git-expert, graphql-expert, migration-expert, monorepo-expert, system-architect
 - Agent pool: .deckent/agents/*/agent.json — LRU eviction (max 50 temp, 5 sprint age)
 - Skill registry: .deckent/skills/*/skill.json — AST sandbox validation
 - Task routing: task-router.ts assigns agent + skills + provider per task
 
 ## MCP Integration
-- 22 tools: init, set_directives, plan, start, status, doctor, retro, history, analyze_project, sync, config, review, run, kill, cleanup, help, agent_list, skill_list, checkpoint, docs, explain, **memory_query**
+- 31 tools: init, set_directives, plan, start, status, doctor, retro, history, analyze_project, sync, config, review, run, kill, cleanup, help, agent_list, skill_list, checkpoint, docs, explain, **memory_query**, watch, audit, feature_query, recover, nervous_subscribe, nervous_accept, nervous_reject, nervous_status, nervous_config
 - 8 resources: dashboard, directives, memory, debt, config, retro, tasks, agents
 - Registration: `claude mcp add deckent -- npx deckent mcp`
 

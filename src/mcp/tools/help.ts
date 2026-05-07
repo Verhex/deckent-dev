@@ -45,6 +45,7 @@ interface HelpResponse {
   resources: HelpResourceInfo[];
 }
 
+// Source of truth: src/mcp/tools/index.ts registerTools() — 31 tools live (Sprint 154 T3)
 const TOOLS: HelpToolInfo[] = [
   { name: 'deckent_init', description: 'Initialize a Deckent project in the current directory', readOnly: false },
   { name: 'deckent_set_directives', description: 'Write or update DIRECTIVES.md with sprint goals and task definitions', readOnly: false },
@@ -68,6 +69,15 @@ const TOOLS: HelpToolInfo[] = [
   { name: 'deckent_docs', description: 'Sprint lifecycle document management (add/remove/list)', readOnly: false },
   { name: 'deckent_explain', description: 'Explain sprint history and results in natural language', readOnly: true },
   { name: 'deckent_memory_query', description: 'Search project memory across all sources (ADR, sprint, debt, pattern)', readOnly: true },
+  { name: 'deckent_watch', description: 'Watch dashboard live — real-time sprint state stream (SSE/poll)', readOnly: true },
+  { name: 'deckent_audit', description: 'Run on-demand audit pass: scope drift, lock health, heartbeat staleness', readOnly: true },
+  { name: 'deckent_feature_query', description: 'Query .deckent/features-manifest.json for feature/capability lookups', readOnly: true },
+  { name: 'deckent_recover', description: 'Resume a paused/checkpointed sprint from .deckent/sprint.lock', readOnly: false },
+  { name: 'deckent_nervous_subscribe', description: 'Subscribe to Nervous System notifications (proactive meta-orchestrator)', readOnly: false },
+  { name: 'deckent_nervous_accept', description: 'Accept a pending nervous notification proposal', readOnly: false },
+  { name: 'deckent_nervous_reject', description: 'Reject a pending nervous notification proposal', readOnly: false },
+  { name: 'deckent_nervous_status', description: 'Show Nervous System dashboard (pending, recent, config)', readOnly: true },
+  { name: 'deckent_nervous_config', description: 'Read or set Nervous System authority mode and overrides', readOnly: false },
 ];
 
 const RESOURCES: HelpResourceInfo[] = [
