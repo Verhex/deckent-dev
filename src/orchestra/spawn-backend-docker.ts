@@ -261,11 +261,31 @@ export class DockerSpawnBackend implements SpawnBackend {
 
     // Sprint 151: .partial-result path — intermediate checkpoint for OOM kill recovery
     const partialResultPath = `${CONTAINER_WORKSPACE}/${TASKS_DIR}/task-${taskId}.partial-result`;
+    // Sprint 158 fix: emit minimal .plan file from spawn-backend (Bug 5).
+    // worker.ts:writeTaskPlan() exists but has zero production callers — Sprint 154 Faz A.5
+    // Docker backend invokes the provider CLI directly, never the deckent Node-side worker.
+    // Provider CLIs (gemini/claude/codex) follow the prompt-template's "write .plan first"
+    // directive only at their discretion. To restore observability, spawn-backend now writes
+    // a stub .plan with task metadata before invoking the CLI; worker may overwrite it.
+    const planContainerPath = `${CONTAINER_WORKSPACE}/${TASKS_DIR}/task-${taskId}.plan`;
+    const planStub = JSON.stringify({
+      taskId,
+      provider,
+      model,
+      backend: 'docker',
+      writtenBy: 'spawn-backend',
+      writtenAt: new Date().toISOString(),
+      note: 'Stub written by spawn-backend before provider CLI invocation. Worker may overwrite with structured plan content per prompt-template instructions.',
+    });
     const scriptContent = [
       '#!/bin/sh',
       `RFILE="${resultPath}"`,
       `HBFILE="${hbContainerPath}"`,
       `PRFILE="${partialResultPath}"`,
+      // Sprint 158: pre-execution .plan stub for observability (Bug 5 fix)
+      `cat > "${planContainerPath}" <<PLANEOF`,
+      planStub,
+      'PLANEOF',
       // POSIX-portable fsync: copy file to itself via dd conv=fsync
       // This forces OS buffer cache → disk. Survives SIGKILL after return.
       'fsync_file() { [ -f "$1" ] && dd if="$1" of="$1.fsync" bs=4096 conv=fsync 2>/dev/null && mv "$1.fsync" "$1" 2>/dev/null; }',
