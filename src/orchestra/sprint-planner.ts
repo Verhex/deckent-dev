@@ -296,7 +296,7 @@ export async function planSprint(
   // Structured fallback (mode === 'structured' || AI fail + auto)
   if (!plannerResult && (planMode === 'structured' || planMode === 'auto')) {
     const structuredTasks = parseStructuredDirectives(context.directives);
-    const directiveSources: Array<{ title: string; description: string; scope: TaskScope; forceModel?: import('../core/types.js').ModelType; forceEffort?: import('../core/types.js').TaskEffort; testTarget?: string; forceAgent?: string; forceSkills?: string[]; excludeAgent?: string[]; excludeSkills?: string[]; priority?: import('../core/types.js').TaskPriority; dependencies?: string[] }> =
+    const directiveSources: Array<{ title: string; description: string; scope: TaskScope; provider?: import('../core/types.js').ProviderName; forceModel?: import('../core/types.js').ModelType; forceEffort?: import('../core/types.js').TaskEffort; testTarget?: string; forceAgent?: string; forceSkills?: string[]; excludeAgent?: string[]; excludeSkills?: string[]; priority?: import('../core/types.js').TaskPriority; dependencies?: string[] }> =
       structuredTasks.length > 0
         ? structuredTasks
         : context.directives
@@ -312,8 +312,12 @@ export async function planSprint(
     const parsedPatterns = deduplicatePatterns(parsePatterns(patternsRaw));
 
     for (const src of directiveSources) {
+      // Sprint 156 fix: pass src.provider through to resolveTaskModel + createTask so
+      // DIRECTIVES `Model: gemini-2.5-flash` is preserved end-to-end. Previously the
+      // provider hint was dropped at this hop and resolveTaskModel defaulted to claude,
+      // silently mapping non-claude forceModels to their Claude equivalents.
       const resolvedModel = recommendation.modelConstraint ??
-        resolveTaskModel(src.title, src.description, src.scope, config, parsedPatterns, src.forceModel);
+        resolveTaskModel(src.title, src.description, src.scope, config, parsedPatterns, src.forceModel, undefined, src.provider);
       const resolvedEffort = src.forceEffort ?? 'normal';
       tasks.push(createTask({
         title: src.title,
@@ -329,6 +333,7 @@ export async function planSprint(
         goNogo: extractGoNogoCriteria(src.description, src.testTarget),
         sprintId,
         initialStatus,
+        provider: src.provider,
         forceModel: src.forceModel,
         forceEffort: src.forceEffort,
         forceAgent: src.forceAgent,

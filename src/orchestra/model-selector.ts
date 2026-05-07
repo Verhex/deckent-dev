@@ -1,9 +1,25 @@
 // ─── Model Selection Logic ─────────────────────────────────────────
 // Extracted from brain.ts — score-based and layered model selection
 import type { TaskScope, ModelType, ResolvedConfig, PatternEntry, ProviderName } from '../core/types.js';
-import { getModelTier } from '../core/types.js';
+import { getModelTier, PROVIDER_MODEL_MAP } from '../core/types.js';
 import { getEquivalentModel, isModelAvailable, getModelTier as getModelTierName } from '../core/model-equivalence.js';
 import type { ModelTier } from '../core/model-equivalence.js';
+
+/**
+ * Infer the provider that natively owns a given model. Sprint 156 fix —
+ * resolveTaskModel previously defaulted targetProvider to 'claude' when
+ * caller didn't pass one, which silently rerouted DIRECTIVES `Model: gemini-2.5-flash`
+ * overrides to the Claude equivalent (sonnet). Now when forceModel is supplied
+ * without an explicit provider, we infer from PROVIDER_MODEL_MAP.
+ */
+function inferProviderFromModelLocal(model: ModelType): ProviderName | undefined {
+  for (const [providerName, models] of Object.entries(PROVIDER_MODEL_MAP)) {
+    if ((models as readonly string[]).includes(model)) {
+      return providerName as ProviderName;
+    }
+  }
+  return undefined;
+}
 
 // ─── Tier Helpers ───────────────────────────────────────────────────
 
@@ -209,7 +225,12 @@ export function resolveTaskModel(
   skillModels?: ModelType[],
   provider?: ProviderName,
 ): ModelType {
-  const targetProvider: ProviderName = provider ?? 'claude';
+  // Sprint 156: when caller doesn't pass provider explicitly AND a forceModel
+  // is set, infer the provider from forceModel rather than defaulting to claude.
+  // Otherwise `Model: gemini-2.5-flash` directive silently became sonnet because
+  // !isModelAvailable('gemini-2.5-flash', 'claude') → getEquivalentModel routed it.
+  const inferredProvider = forceModel ? inferProviderFromModelLocal(forceModel) : undefined;
+  const targetProvider: ProviderName = provider ?? inferredProvider ?? 'claude';
 
   // Layer 0: user override from DIRECTIVES.md — bypasses score/skill/pattern auto-selection,
   // BUT still respects Layer 1b min_tier clamp (haiku_allowed=false). Sprint 154 T5 fix:
