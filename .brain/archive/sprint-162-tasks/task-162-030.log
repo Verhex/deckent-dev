@@ -1,0 +1,23 @@
+`★ Insight ─────────────────────────────────────`
+- Sprint Lane 1'in "single audit report under docs/audits/sprint-162-live/" mandate'ı tek bir tek-write scope ile zorlandı — `scope.filesWrite` array'inde tek path olması ADR-037 RBAC enforcement'ının bu sprint'teki en güçlü garantisi.
+- Bulguların önemli bir kısmı **bidirectional drift** kategorisinde: hem CLI hem MCP'nin diğerinde olmayan özelliği var. Bu, ADR-022-V2 parity'nin tek-yönlü "MCP needs CLI features" framing'inin yetersiz olduğunu gösteriyor.
+- F-01 (kill does not kill) — Sprint 140 cost incident ile zincirleme okunduğunda P0 kategorisi **yanlış güvenlik hissi** (false safety) ekseninde haklı çıkıyor: kullanıcı "durdurdum" sanırken worker'lar bütçeyi tüketmeye devam ediyor.
+`─────────────────────────────────────────────────`
+
+## Özet
+
+Sprint 162-live Lane 1, Task 162-030 tamamlandı:
+
+**Çıktı:** `docs/audits/sprint-162-live/T-162-LIVE-030-mcp-lifecycle-plan.md` (448 satır, 30 KB)
+
+**Audit kapsamı:** 9 MCP lifecycle/planning tool (init, set_directives, plan, start, status, kill, cleanup, run, checkpoint) + 4 infrastructure module + 9 CLI counterpart (parity karşılaştırması için).
+
+**Bulgular:** 24 finding — 1× **P0** (kill tool süreç sonlandırmıyor, sadece PAUSED işaretliyor), 9× **P1** (init/plan/cleanup/run divergence + Memory V2 incompat + memory budget 600→900 drift + outdated Claude rule stubs), 10× **P2** (type-safety, i18n, validator asymmetry), 4× **P3** (cruft).
+
+**Triage:** 13 dosyanın hepsi KEEP-PRIVATE; hiç MIGRATE-PUBLIC/DELETE-CANDIDATE yok.
+
+**Öneriler:** 15 öneri 3 katmana bölündü — Tier-A (P0/P1, Sprint 162B/163), Tier-B (P2, 163-165), Tier-C (P3 + hygiene).
+
+**Doğrulama:** `tsc --noEmit` exit 0 (kaynak kod dokunulmadı). `git status` doğrulaması: yalnızca `docs/audits/sprint-162-live/` altına yazıldı, scope.filesWrite ihlali yok. Test N/A (READ-ONLY task).
+
+**self_assessment: DONE** — DIRECTIVES task spec'in tüm gerekleri (5-bölüm format, 10 dimension, severity grades, file:line evidence, migration triage, recommendations) karşılandı.

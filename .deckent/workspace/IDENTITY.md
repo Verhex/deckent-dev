@@ -21,11 +21,14 @@ Features: **Memory V2 DB-First (SQLite FTS5, dual-layer i18n normalize, 96% cont
 | Metric | Value |
 |--------|-------|
 | Version | 1.0.0-beta.1 |
-| Sprint | sprint-155 |
-| MCP Tools | 27 |
+| Sprint | sprint-162a (T4 hot fix, PARTIAL — Bug X discovered) |
+| MCP Tools | 29 (verified src/mcp/tools/) |
 | MCP Resources | 8 |
-| CLI Commands | 55+ |
-| Dashboard Pages | 7 |
-| Agents | 15 built-in + 3 custom |
+| CLI Commands | 48 (verified src/cli/commands/) |
+| Dashboard Pages | 6-7 |
+| Agents | 18 (15 built-in + 3 custom — verified Sprint 161 D8) |
 | Skills | 21 built-in |
 | Providers | 3 (Claude, Codex, Gemini) |
+| Active Bugs | Bug X (P0 dual-evaluator stale-state path race) — Sprint 162B target |
+| Multi-language adapter | 6 baseline stacks (TS/Py/Go/Rust/Java/C#) — ADR-047 Sprint 162A |
+| ADRs | 47 (44 accepted + 1 deprecated + 1 superseded + 1 proposed + ADR-047 NEW Sprint 162A) |

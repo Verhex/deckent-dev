@@ -1,0 +1,39 @@
+{
+  "id": "158-002-fix",
+  "title": "Fix: Auth Surface Checklist Validation Run",
+  "description": "Priority fix for NO_GO task 158-002.\nOriginal worker notes: Timeout - no result received\nExpected scope: docs/audits/, docs/development/\nFiles that should change: docs/audits/sprint-158-auth-surface-validation.md, docs/development/auth-surface-checklist.md, claude.ts, gemini.ts, codex.ts, doctor-checks.ts, model-selector.ts, sprint-planner.ts, spawn-backend-docker.ts",
+  "model": "gemini-2.5-flash",
+  "effort": "low",
+  "priority": "CRITICAL",
+  "reason": "Task 158-002 evaluated as NO_GO; tests failed; no files changed",
+  "scope": {
+    "directories": [
+      "docs/audits/",
+      "docs/development/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-158-auth-surface-validation.md",
+      "docs/development/auth-surface-checklist.md",
+      "claude.ts",
+      "gemini.ts",
+      "codex.ts",
+      "doctor-checks.ts",
+      "model-selector.ts",
+      "sprint-planner.ts",
+      "spawn-backend-docker.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** `ls docs/audits/sprint-158-auth-surface-validation.md` → dosya var; her 7 surface için ✓ veya ⚠️ işareti.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "EXECUTING",
+  "sprintId": "sprint-158",
+  "isPriorityFix": true,
+  "fixForTaskId": "158-002",
+  "createdAt": "2026-05-07T12:28:39.178Z",
+  "estimatedTokens": 42
+}

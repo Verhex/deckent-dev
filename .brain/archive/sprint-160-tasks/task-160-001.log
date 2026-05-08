@@ -1,0 +1,18 @@
+Result file written. Final summary:
+
+**Task 160-001 complete — selfAssessment: GO_WITH_TECH_DEBT**
+
+What I did:
+- `src/orchestra/sprint-lifecycle.ts:269` — narrowed Brain CLEANUP tmpfile sweep to `.prompt-task-` / `.worker-task-` prefix
+- `src/orchestra/sprint-docs-updater.ts:706` — narrowed `archiveOrphanTasks()` prompt filter to `.prompt-task-`
+- `src/cli/commands/cleanup.ts:78` — narrowed dry-run preview filter to `.prompt-task-`
+
+Verification:
+- `grep startsWith\('\.prompt-task-'\) src/` → 3 hits (the 3 target lines) ✓
+- `tsc --noEmit` → clean (exit 0) ✓
+- `git diff --stat src/` → only the 3 in-scope files modified, scope-compliant under ADR-037 ✓
+
+Why GO_WITH_TECH_DEBT, not DONE:
+- 4 existing unit tests now fail because they plant the OLD generic `.prompt-NNN.txt` pattern that the new spec deliberately preserves (treats as user/forensic plant). The fixtures need to be renamed to `.prompt-task-NNN.txt`. The directive explicitly anticipated this (`Mevcut unit test'ler kırılırsa düzeltilir`), but `tests/` is outside this task's `scope.filesWrite`, so I did not touch them — Sprint 160's success criteria penalize "scope dışı dosya değişimi" with sprint-NO_GO. Task 2 (E2E plant-survival suite) and a fixture-rename follow-up will close this gap cleanly.
+
+Out-of-scope observation noted in the result: `src/mcp/tools/cleanup.ts:28,46` duplicates the sprint-lifecycle filter and is the closest discipline-bleed worth a follow-up sprint task — flagged but not modified.

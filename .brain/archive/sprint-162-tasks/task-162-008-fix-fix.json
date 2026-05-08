@@ -1,0 +1,30 @@
+{
+  "id": "162-008-fix-fix",
+  "title": "Fix: Fix: src/core/ — credentials + deck-file + global-config",
+  "description": "Priority fix for NO_GO task 162-008-fix.\nOriginal worker notes: READ-ONLY god-level audit per Sprint 162 Lane 1 Task 8. Original 162-008 worker (OOM-killed before .result write) had already produced a 446-line comprehensive audit covering 5 modules (credentials.ts 265 LoC, deck-file.ts 198, global-config.ts 73, signature.ts 158, credential-encryption.ts 139 — 833 LoC total). Original report covered 4 P1, 8 P2, 5 P3 findings + 14 positive callouts + Migration triage + ADR Compliance matrix + Lead-question answers, but left F-008-P3-005 'UNCERTAIN — pending T-\nRubric: correctness=95, test_coverage=100, scope_compliance=100\nExpected scope: docs/audits/sprint-162-live/, src/core/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-008-core-credentials-deck.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-008-fix evaluated as NO_GO; correctness=95; test_coverage=100; scope_compliance=100",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/core/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-008-core-credentials-deck.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "PENDING",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-008-fix",
+  "createdAt": "2026-05-08T15:36:17.388Z"
+}

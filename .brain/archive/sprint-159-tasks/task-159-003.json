@@ -1,0 +1,103 @@
+{
+  "id": "159-003",
+  "title": "Sprint metrics CLI — `deckent metrics summary <sprintId>` [CLAUDE]",
+  "description": "Sprint metrics CLI — `deckent metrics summary <sprintId>` [CLAUDE]\n- Model: opus\n- Effort: high\n- Skills: typescript-expert, api-builder\n- Files: src/cli/commands/metrics.ts (new), src/cli/index.ts, tests/cli/commands/metrics.test.ts (new)\n- Scope: src/cli/commands/, tests/cli/commands/, src/cli/\n\n### Description\n\nSprint 159 ana mimari deliverable: bir sprint için **agent + skill + provider compliance** metriklerini CLI'dan çıkaran komut.\n\n**Komut**: `deckent metrics summary <sprintId>` ya da `deckent metrics summary --last`\n\n**Çıktı şeması** (markdown table):\n```\nSprint sprint-159 — Metrics Summary\n\nProvider Distribution:\n| Provider | Tasks | DONE | NO_GO | Avg Duration |\n| claude   | 3     | 3    | 0     | 4m 12s       |\n| gemini   | 2     | 1    | 1     | 6m 45s       |\n\nModel Distribution:\n| Model            | Tasks | Routing |\n| sonnet           | 2     | direct  |\n| opus             | 1     | direct  |\n| gemini-2.5-flash | 2     | direct  |\n\nAgent Compliance:\n| Agent          | Assigned | Used | Compliance |\n| doc-writer     | 2        | 2    | 100%       |\n| architect      | 1        | 1    | 100%       |\n| (generic)      | 2        | 2    | 100%       |\n\nSkill Compliance:\n| Skill                    | Assigned | Used (proxy: filesChanged scope match) |\n| documentation-writer     | 4        | 4 (100%)                                |\n| typescript-expert        | 1        | 1 (100%)                                |\n\nFallback Events:\n- task-159-XXX: gemini → claude (capacity 429)\n\nHonesty/Coverage Drift: 0\n```\n\nVeri kaynakları:\n- `.deckent/sprint-{id}-metrics.jsonl` (provider distribution + duration)\n- `.tasks/archive/sprint-{id}-tasks/task-*.{json,result}` (agent/skill assignments + actual filesChanged)\n- `.tasks/archive/sprint-{id}-tasks/task-*.result.fallback-attempt-N` (fallback events)\n\n**Kanıt**: `npx deckent metrics summary sprint-159` markdown table çıktısı verir; her bölüm en az 1 satır içerir; provider DONE/NO_GO sayımı task-N.result dosyalarındaki `selfAssessment` ile eşleşir.\n\n**Test**: 5+ test (cli flag parse, jsonl parse, table render, missing sprint graceful, --last resolves).\n\n---",
+  "model": "opus",
+  "effort": "high",
+  "priority": "NORMAL",
+  "reason": "Directive (model: opus -- user override)",
+  "scope": {
+    "directories": [
+      "src/cli/commands/",
+      "src/cli/",
+      "tests/cli/commands/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "src/cli/commands/metrics.ts (new)",
+      "src/cli/index.ts",
+      "tests/cli/commands/metrics.test.ts (new)",
+      "src/cli/commands/metrics.ts",
+      "tests/cli/commands/metrics.test.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; `npx deckent metrics summary sprint-159` markdown table çıktısı verir; her bölüm en az 1 satır içerir; provider DONE/NO_GO sayımı task-N.result dosyalarındaki `selfAssessment` ile eşleşir.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "DONE",
+  "sprintId": "sprint-159",
+  "provider": "claude",
+  "forceModel": "opus",
+  "forceEffort": "high",
+  "forceSkills": [
+    "typescript-expert",
+    "api-builder"
+  ],
+  "assignedAgent": "react-ts-specialist",
+  "assignedSkills": [
+    "typescript-expert",
+    "api-builder"
+  ],
+  "createdAt": "2026-05-07T12:43:24.154Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "implementation",
+        "secondary": [
+          "documentation",
+          "config"
+        ],
+        "confidence": 0.95
+      },
+      "subIntent": "routing",
+      "tags": [
+        "test-coverage"
+      ],
+      "domains": [
+        {
+          "name": "cli",
+          "weight": 1
+        }
+      ],
+      "operations": [
+        {
+          "type": "create",
+          "weight": 0.38
+        },
+        {
+          "type": "test",
+          "weight": 0.25
+        },
+        {
+          "type": "document",
+          "weight": 0.25
+        },
+        {
+          "type": "modify",
+          "weight": 0.13
+        }
+      ],
+      "complexity": {
+        "fileCount": 5,
+        "moduleCount": 1,
+        "crossCutting": false,
+        "estimatedSize": "medium"
+      },
+      "scope": {
+        "writeRatio": {
+          "src/": 0.6,
+          "tests/": 0.4
+        },
+        "primaryWriteTarget": "src/",
+        "testWriteRatio": 0.4
+      }
+    },
+    "confidence": "uncertain",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 1590,
+  "updatedAt": "2026-05-07T13:03:35.147Z"
+}

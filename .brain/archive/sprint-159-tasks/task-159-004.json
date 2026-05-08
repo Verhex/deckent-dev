@@ -1,0 +1,93 @@
+{
+  "id": "159-004",
+  "title": "README.md ve README-TR.md drift fix uygulaması [GEMINI]",
+  "description": "README.md ve README-TR.md drift fix uygulaması [GEMINI]\n- Model: gemini-2.5-flash\n- Effort: low\n- Skills: documentation-writer\n- Files: README.md, README-TR.md\n- Scope: ./\n\n### Description\n\n`docs/audits/sprint-156-tr-en-sync-report.md` (Sprint 156 deliverable) ve potansiyel `docs/audits/sprint-158-readme-drift-fix.md` (Sprint 158 deliverable) drift'lerini OKUDuktan sonra, bulunan EN-vs-TR farklılıkları için **doğrudan README.md ve README-TR.md fix'lerini uygula** (audit önerilerini kod tabanına yansıt).\n\nStratejik kural:\n- Yeni feature ekleme/silme YOK — sadece olan içeriği iki dilde tutarlı hale getir\n- Section başlıkları + listeler eşitlensin\n- Versiyon/sayım/tarih bilgileri canonical (EN) tarafa yaslansın, TR'a propagate et\n- Hiçbir değişiklik commit message için kritik değilse skip et\n\nBu task **Gemini-friendly** (geniş context — README.md + README-TR.md + audit raporları aynı anda okunmalı).\n\n**Kanıt**: `git diff README.md README-TR.md` her iki dosyada >= 5 satır değişiklik; `grep -c \"^## \" README.md` == `grep -c \"^## \" README-TR.md` (section count parity).\n\n**Test**: N/A (markdown sync only).\n\n---",
+  "model": "gemini-2.5-flash",
+  "effort": "low",
+  "priority": "NORMAL",
+  "reason": "Directive (model: gemini-2.5-flash -- user override)",
+  "scope": {
+    "directories": [
+      "./",
+      "docs/audits/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "README.md",
+      "README-TR.md",
+      "docs/audits/sprint-156-tr-en-sync-report.md",
+      "docs/audits/sprint-158-readme-drift-fix.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; `git diff README.md README-TR.md` her iki dosyada >= 5 satır değişiklik; `grep -c \"^## \" README.md` == `grep -c \"^## \" README-TR.md` (section count parity).",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "PENDING",
+  "sprintId": "sprint-159",
+  "provider": "gemini",
+  "forceModel": "gemini-2.5-flash",
+  "forceEffort": "low",
+  "forceSkills": [
+    "documentation-writer"
+  ],
+  "assignedAgent": "doc-writer",
+  "assignedSkills": [
+    "documentation-writer"
+  ],
+  "createdAt": "2026-05-07T12:43:24.154Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "documentation",
+        "secondary": [],
+        "confidence": 0.95
+      },
+      "tags": [],
+      "domains": [
+        {
+          "name": "docs",
+          "weight": 0.5
+        }
+      ],
+      "operations": [
+        {
+          "type": "document",
+          "weight": 0.5
+        },
+        {
+          "type": "modify",
+          "weight": 0.17
+        },
+        {
+          "type": "test",
+          "weight": 0.17
+        },
+        {
+          "type": "create",
+          "weight": 0.17
+        }
+      ],
+      "complexity": {
+        "fileCount": 4,
+        "moduleCount": 2,
+        "crossCutting": true,
+        "estimatedSize": "medium"
+      },
+      "scope": {
+        "writeRatio": {
+          "./": 0.5,
+          "docs/": 0.5
+        },
+        "primaryWriteTarget": "./",
+        "testWriteRatio": 0
+      }
+    },
+    "confidence": "high",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 1751,
+  "updatedAt": "2026-05-07T13:03:35.170Z"
+}

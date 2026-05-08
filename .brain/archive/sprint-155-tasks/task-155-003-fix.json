@@ -1,0 +1,38 @@
+{
+  "id": "155-003-fix",
+  "title": "Fix: Model Registry Remote Refresh",
+  "description": "Priority fix for NO_GO task 155-003.\nOriginal worker notes: Implemented stale-while-revalidate model registry refresh. All 23 new tests pass, 78 existing model-registry tests pass. TypeScript clean (only pre-existing sprint-controller.ts errors from Task 1 remain). Tech debt: tests/cli/commands/doctor.test.ts:642 expects /17/ but runDoctorChecks now returns 18 checks (added checkModelRegistryStale) — file is outside write scope (tests/cli/commands/ vs tests/core/). Fix: change `/\\/17/` to `/\\/18/` on that line. The 4 pre-existing failures in tests/cli/do\nRubric: correctness=92, test_coverage=95, scope_compliance=98\nExpected scope: src/core/, src/cli/commands/, tests/core/\nFiles that should change: src/core/model-registry.ts, src/core/model-registry-refresh.ts (new), src/cli/commands/doctor-checks.ts, tests/core/model-registry-refresh.test.ts (new), src/core/model-registry-refresh.ts, tests/core/model-registry-refresh.test.ts",
+  "model": "sonnet",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 155-003 evaluated as NO_GO; correctness=92; test_coverage=95; scope_compliance=98",
+  "scope": {
+    "directories": [
+      "src/core/",
+      "src/cli/commands/",
+      "tests/core/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "src/core/model-registry.ts",
+      "src/core/model-registry-refresh.ts (new)",
+      "src/cli/commands/doctor-checks.ts",
+      "tests/core/model-registry-refresh.test.ts (new)",
+      "src/core/model-registry-refresh.ts",
+      "tests/core/model-registry-refresh.test.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; `deckent doctor --refresh-models` 3 provider için canlı API çağrısı yapar (key/sub varsa), success → `last refreshed Just now`. Stale check unit test.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-155",
+  "isPriorityFix": true,
+  "fixForTaskId": "155-003",
+  "createdAt": "2026-05-07T10:55:42.693Z",
+  "estimatedTokens": 122,
+  "updatedAt": "2026-05-07T11:03:56.532Z"
+}

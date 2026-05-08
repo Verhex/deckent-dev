@@ -1,0 +1,96 @@
+{
+  "id": "159-005",
+  "title": "docs/CHANGELOG.md TR/EN normalize [GEMINI]",
+  "description": "docs/CHANGELOG.md TR/EN normalize [GEMINI]\n- Model: gemini-2.5-flash\n- Effort: low\n- Skills: documentation-writer\n- Files: docs/CHANGELOG.md\n- Scope: docs/\n\n### Description\n\n`docs/CHANGELOG.md` header'ı `<!-- Dil: TR | Teknik terimler EN -->` diyor — yani canonical TR. Ama bazı entry'ler tam İngilizce yazılmış (özellikle Sprint 154→158 zincirim). Sprint 158'in `docs/audits/sprint-158-changelog-drift.md` raporu bunu zaten audit etmişti.\n\nBu task: o audit raporundaki recommendation'lara göre EN entry'leri **TR canonical formuna çevir** (teknik terimler EN kalır — code, function name, file path, ADR id, commit SHA, model name, gate # etc).\n\nStratejik kural:\n- Sprint 154 öncesi entry'lere DOKUNMA (bunlar zaten orijinal yazıldıkları dilde tarihsel)\n- Sprint 154-158-159 entry'leri TR'a normalize et\n- Code blok'ları, file path'ler, commit SHA'lar EN/raw kalır\n- Cümle yapısı + bağlaç + açıklama TR'a çevirilir\n\n**Kanıt**: Sprint 154-159 entry'lerinde TR'lı baskın cümle yapısı; `grep \"Implemented\\|Fixed\\|Updated\" docs/CHANGELOG.md | wc -l` ≥ 50% azalmış (Türkçe karşılıklarla yer değiştirmiş).\n\n**Test**: N/A.\n\n---\n\n## Sprint 159 Notları (planlama meta)\n\n- **Provider routing**: 3 task Claude (sonnet/opus), 2 task Gemini (gemini-2.5-flash). `worker_provider: gemini` config'inde olsa bile Claude task'ları forceModel ile direkt claude'a gider (Sprint 157 fix sayesinde planner Model directive'ini honor ediyor).\n- **Empirical kriterler**:\n  - En az 1 task `tokenUsage.provider == \"gemini\"` (Sprint 158 158-003 seviyesi)\n  - Eğer 429 hit olursa, fallback chain canlı kanıt verir (`task-XXX.result.fallback-attempt-1` dosyası)\n  - Sprint 159 hotfix `7bec80b` doctor'a yansıdı — Task 1 deliverable bunu kalıcı yapar\n- **No regression budget**: 6088+ test geçmeye devam etmeli\n- **Quota**: Gemini Code Assist free 1000 RPD; 2 task güvenli, 429 olursa fallback chain çalışacak\n- **Bu sprint Sprint 155 fallback chain için ilk gerçek production stress test**: önceki sprintlerde fallback chain unit-test'le doğrulandı, gerçek 429'a karşı henüz canlı çalışmadı",
+  "model": "gemini-2.5-flash",
+  "effort": "low",
+  "priority": "NORMAL",
+  "reason": "Directive (model: gemini-2.5-flash -- user override)",
+  "scope": {
+    "directories": [
+      "docs/",
+      "docs/audits/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/CHANGELOG.md",
+      "docs/audits/sprint-158-changelog-drift.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; Sprint 154-159 entry'lerinde TR'lı baskın cümle yapısı; `grep \"Implemented\\|Fixed\\|Updated\" docs/CHANGELOG.md | wc -l` ≥ 50% azalmış (Türkçe karşılıklarla yer değiştirmiş).",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "PENDING",
+  "sprintId": "sprint-159",
+  "provider": "gemini",
+  "forceModel": "gemini-2.5-flash",
+  "forceEffort": "low",
+  "forceSkills": [
+    "documentation-writer"
+  ],
+  "assignedAgent": "doc-writer",
+  "assignedSkills": [
+    "documentation-writer"
+  ],
+  "createdAt": "2026-05-07T12:43:24.154Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "documentation",
+        "secondary": [
+          "config"
+        ],
+        "confidence": 0.95
+      },
+      "tags": [],
+      "domains": [
+        {
+          "name": "docs",
+          "weight": 1
+        }
+      ],
+      "operations": [
+        {
+          "type": "modify",
+          "weight": 0.3
+        },
+        {
+          "type": "document",
+          "weight": 0.3
+        },
+        {
+          "type": "create",
+          "weight": 0.2
+        },
+        {
+          "type": "test",
+          "weight": 0.1
+        },
+        {
+          "type": "configure",
+          "weight": 0.1
+        }
+      ],
+      "complexity": {
+        "fileCount": 2,
+        "moduleCount": 1,
+        "crossCutting": false,
+        "estimatedSize": "small"
+      },
+      "scope": {
+        "writeRatio": {
+          "docs/": 1
+        },
+        "primaryWriteTarget": "docs/",
+        "testWriteRatio": 0
+      }
+    },
+    "confidence": "high",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 1932,
+  "updatedAt": "2026-05-07T13:03:46.326Z"
+}

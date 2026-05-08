@@ -1,0 +1,15 @@
+Task 162-025 tamamlandı. 
+
+`★ Insight ─────────────────────────────────────`
+- Bu denetim, Sprint 144 split sonrası init.ts'in temizlenmiş thin-router yapısını doğruladı, ancak `failedSteps` array'i (declare → consume edildi ama hiç push edilmiyor) Sprint 144 split'inden kalan yarım kalmış observability iskeletinin canlı kanıtı.
+- ADR-022-V2 (CLI/MCP parametre eşitleme) ihlali plan komutunda somut: MCP `mode` enum'unu kabul ederken CLI yalnızca `--structured` boolean sunuyor — bu, "tek yapı, çoklu ortam" sözleşmesinin sınır ihlali.
+- init-templates.ts'deki TR/EN duplikasyonu (ADR-032) drift için iki katlı saldırı yüzeyi: skill listesi (11 skill, 21 olmalı), model tier matrisi (premium_plus + economy eksik), mode enum (4 değer, 7 olmalı) her iki dilde paralel olarak güncel kalmamış.
+`─────────────────────────────────────────────────`
+
+**Özet:**
+- ✓ Audit raporu yazıldı: `docs/audits/sprint-162-live/T-162-LIVE-025-cli-planning.md` (19 KB, 232 satır eklendi)
+- ✓ Result yazıldı: `.tasks/task-162-025.result` (selfAssessment: DONE)
+- ✓ 25 bulgu (7×P1, 6×P2, 12×P3, 0×P0)
+- ✓ Scope ihlali yok — yalnızca tek izinli dosyaya yazıldı
+- ✓ Kaynak kod ve test dosyaları değiştirilmedi (READ-ONLY mandate korundu)
+- ✓ ADR-039 self-modifying detector için meta-doküman, kaynak yüzeyi etkisi sıfır

@@ -1,0 +1,61 @@
+# Task 159-002 Execution Plan: Wire `deckent doctor --refresh-models` flag
+
+## Goal
+Add `--refresh-models` CLI flag to `deckent doctor`. When used, it calls
+`refreshAllProviders` from `model-registry-refresh.ts`, saves timestamps, and
+prints a per-provider result table.
+
+## Files to Modify
+- `src/cli/commands/doctor.ts` — add flag + handler
+- `tests/cli/commands/doctor.test.ts` — add mocks + tests
+
+## Changes: doctor.ts
+
+1. Add imports at top (after existing imports, ~line 22):
+   - `import { refreshAllProviders, loadRefreshState, saveRefreshState } from '../../core/model-registry-refresh.js'`
+   - `import type { RefreshResult } from '../../core/model-registry-refresh.js'`
+   - `import { modelRegistry } from '../../core/model-registry.js'`
+   - `import type { RegistryProviderName } from '../../core/model-registry.js'`
+
+2. In `registerDoctor` (line 784), add `.option('--refresh-models', '...')` to the command
+
+3. Update action opts type to include `refreshModels?: boolean`
+
+4. After root resolution (early return pattern like `--pre-flight`), add:
+   ```
+   if (opts.refreshModels) {
+     print('Model Registry Refresh')
+     print('─'.repeat(50))
+     const results = await refreshAllProviders(modelRegistry, { root })
+     // Save state
+     const state = loadRefreshState(root)
+     for each provider: if success → state.lastRefresh[prov] = res.timestamp
+     state.updatedAt = now
+     saveRefreshState(state, root)
+     // Print per-provider table
+     for each provider:
+       if success → "  Refreshed {prov} ({N} models found[, M new])"
+       elif skippedReason → "  {Prov} — skipped ({reason})"
+       else → "  {Prov} — failed: {error}"
+     print('Refresh complete. Saved to .deckent/model-registry-refresh.json')
+     return
+   }
+   ```
+
+## Changes: doctor.test.ts
+
+1. Add mocks (at top of file, after existing vi.mock calls):
+   - `vi.mock('../../../src/core/model-registry-refresh.js', ...)` — mock refreshAllProviders (success for claude, skipped for codex/gemini), loadRefreshState, saveRefreshState, formatRefreshAge
+   - `vi.mock('../../../src/core/model-registry.js', ...)` — mock modelRegistry as empty object
+
+2. Add imports (near existing imports):
+   - `import { refreshAllProviders, saveRefreshState } from '...'`
+
+3. Add new describe block `registerDoctor --refresh-models` with 3 tests:
+   - flag exists (`--refresh-models` option defined on doctor command)
+   - success path: calls refreshAllProviders, prints "Refreshed claude", "Refresh complete"
+   - no-auth path: output contains "skipped" and no-auth reason
+
+## Verify Steps
+1. `npm run lint` (tsc --noEmit)
+2. `npx vitest run tests/cli/commands/doctor.test.ts`

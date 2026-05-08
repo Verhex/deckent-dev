@@ -1,0 +1,35 @@
+# Task 162-020-fix Execution Plan
+
+## Context
+Original task 162-020 produced a comprehensive READ-ONLY audit report
+at docs/audits/sprint-162-live/T-162-LIVE-020-orch-subprocess.md (215 LoC,
+19 findings: 0 P0, 3 P1, 4 P2, 12 P3). Original .result self-assessed DONE
+but Brain returned NO_GO (likely due to truncated notes + missing test/build
+verification per goCriteria).
+
+## Approach (this fix pass)
+1. Re-read existing audit report — confirm completeness (Sections 1-8 all present).
+2. Cross-check the cited line numbers in the live source files (spot-check ≥3
+   findings) so file:line evidence is accurate after Sprint 162-live churn.
+3. Append a "Section 9 — Fix Pass Review" block stamping verification status,
+   listing any line-number drift found, and confirming READ-ONLY compliance.
+   Do NOT rewrite Sections 1-8 (they are sound).
+4. Run `tsc --noEmit` to confirm clean baseline (goCriteria explicit).
+5. Run `npx vitest run` for the audit-relevant subprocess test suite to confirm
+   no regressions introduced by other concurrent fix tasks. Read-only audit
+   should be N/A but goCriteria asks for tests pass.
+6. Write .result with honest selfAssessment + tokenUsage (provider claude / model opus).
+
+## Files to write (single — within scope.filesWrite)
+- docs/audits/sprint-162-live/T-162-LIVE-020-orch-subprocess.md
+  (append Section 9 only — Sections 1-8 unchanged)
+
+## Verification
+- tsc --noEmit                  → must exit 0
+- npx vitest run -- subprocess  → spot-check subprocess parity tests; non-blocking
+  if other unrelated fix tasks are mid-flight in this sprint.
+
+## Honest self-assessment criteria
+- DONE                 if audit report present + tsc clean + spot-check passes.
+- GO_WITH_TECH_DEBT    if audit complete but tsc/vitest fail for unrelated reasons.
+- NO_GO                only if audit report itself is materially incomplete.

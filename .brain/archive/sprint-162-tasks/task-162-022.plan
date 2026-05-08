@@ -1,0 +1,26 @@
+# Task 162-022 Execution Plan
+
+## Goal
+READ-ONLY audit of `src/orchestra/promotion-pipeline.ts` and
+`src/orchestra/temp-skill-generator.ts`.
+
+## Lead Investigation Targets
+1. Sprint 153 D3 — temp-temp- double prefix bug fix verification
+2. Demotion path correctness (promotion → demotion lifecycle)
+3. 10-dimension audit (dead code, ADR violations, conflicts, drift, type safety,
+   deps hygiene, doc pollution, memory v2, config integrity, migration triage)
+
+## Approach
+1. Read both source files in full
+2. Cross-reference test files (read-only) for behavioral expectations
+3. Search for callers of exported symbols to detect dead code
+4. Inspect git log / blame proxies (.brain memory) for Sprint 153 D3 context
+5. Write findings to docs/audits/sprint-162-live/T-162-LIVE-022-orch-promote-temp.md
+
+## Output
+Single audit report at:
+docs/audits/sprint-162-live/T-162-LIVE-022-orch-promote-temp.md
+
+## Constraints
+- READ-ONLY — no source code modifications
+- scope.filesWrite contains exactly one path (the audit report)

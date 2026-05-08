@@ -1,0 +1,30 @@
+# Task 156-003 Execution Plan — provider-fallback.ts JSDoc Expansion
+
+## Goal
+Add comprehensive JSDoc to every public export in `src/core/provider-fallback.ts` without modifying any logic.
+
+## Files to Modify
+- `src/core/provider-fallback.ts` (only)
+
+## Public Exports to Document
+1. `MAX_FALLBACK_RETRIES` (constant) — add `@example` + `@see`
+2. `CapacityErrorDetection` (interface) — add `@example` + `@see`
+3. `detectCapacityError` (function) — keep existing `@param`, add full `@returns`, `@example`, `@see`
+4. `selectFallbackProvider` (function) — keep existing `@param`, add `@returns`, `@example`, `@see`
+5. `FallbackRetryDecision` (interface) — add `@example` + `@see`
+6. `decideFallbackRetry` (function) — keep existing `@param`/`@returns`, add `@example` + `@see`
+
+## @example Content Strategy
+Each example will use real error strings observed in production (as mentioned in file comments):
+- Gemini: "No capacity available for model gemini-2.5-flash on the server"
+- OpenAI: "rate_limit_exceeded"
+- Anthropic: "overloaded_error"
+
+## Verify Steps
+1. `npx tsc --noEmit` — must pass with 0 errors
+2. `npx vitest run tests/orchestra/fallback-chain.test.ts` — must pass 29/29
+
+## ADR Compliance
+- ADR-008: File stays in src/core/, imports unchanged
+- ADR-001/002: No new imports; ESM module stays valid
+- Logic-free change — no ADR violations possible

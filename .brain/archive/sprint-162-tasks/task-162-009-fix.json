@@ -1,0 +1,31 @@
+{
+  "id": "162-009-fix",
+  "title": "Fix: src/core/ — marketplace (sandbox + registry)",
+  "description": "Priority fix for NO_GO task 162-009.\nOriginal worker notes: READ-ONLY audit of src/core/marketplace/ (5 files, ~1211 LoC) complete. 28 findings: 3 P0 (dependency-resolver dead, rating-system dead, ADR-014 plaintext token violation), 7 P1 (SSRF, HTTP downgrade, response-unbounded, token leak, topo-sort orientation, lossy semver, BUILTIN_TRUSTED_SKILLS divergence), 8 P2 (AST silent degrade, sandbox module gaps, setTimeout narrow, _collectFiles dual-mode, calculateLocalRating impure, submissions unbounded, JSON.parse cast, no retry), 10 P3. Migration triage\nRubric: correctness=95, test_coverage=100, scope_compliance=100\nExpected scope: docs/audits/sprint-162-live/, src/core/marketplace/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-009-core-marketplace.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-009 evaluated as NO_GO; correctness=95; test_coverage=100; scope_compliance=100",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/core/marketplace/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-009-core-marketplace.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-009",
+  "createdAt": "2026-05-08T15:17:26.946Z",
+  "updatedAt": "2026-05-08T15:36:17.388Z"
+}

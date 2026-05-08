@@ -1,0 +1,35 @@
+{
+  "id": "162-053-fix",
+  "title": "Fix: .brain/ memory files (ERRORS/MEMORY/PATTERNS/RETRO/IDENTITY)",
+  "description": "Priority fix for NO_GO task 162-053.\nOriginal worker notes: Timeout - no heartbeat, no result\nExpected scope: docs/audits/sprint-162-live/, .brain/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-053-brain-memory-files.md, ERRORS.md, MEMORY.md, PATTERNS.md, RETRO.md",
+  "model": "sonnet",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-053 evaluated as NO_GO; tests failed; no files changed",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      ".brain/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-053-brain-memory-files.md",
+      "ERRORS.md",
+      "MEMORY.md",
+      "PATTERNS.md",
+      "RETRO.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-053",
+  "createdAt": "2026-05-08T15:22:19.657Z",
+  "updatedAt": "2026-05-08T15:36:17.393Z"
+}

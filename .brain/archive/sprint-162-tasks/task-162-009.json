@@ -1,0 +1,96 @@
+{
+  "id": "162-009",
+  "title": "src/core/ — marketplace (sandbox + registry)",
+  "description": "src/core/ — marketplace (sandbox + registry)\n- Model: opus\n- Effort: normal\n- Skills: typescript-expert,security-specialist\n- Files: docs/audits/sprint-162-live/T-162-LIVE-009-core-marketplace.md\n- Scope: src/core/marketplace/\n\n### Description\nREAD-ONLY audit of `skill-sandbox.ts`, `registry-client.ts` and related.\nLead: AST sandbox bypass surface, eval/Function/child_process/fs/process.env blocks.\n\n**Kanıt:** Single audit report.\n**Test:** N/A.\n\n---",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "NORMAL",
+  "reason": "Directive (model: opus -- user override)",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/core/marketplace/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-009-core-marketplace.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "forceModel": "opus",
+  "forceEffort": "normal",
+  "forceSkills": [
+    "typescript-expert",
+    "security-specialist"
+  ],
+  "assignedAgent": "doc-writer",
+  "assignedSkills": [
+    "typescript-expert",
+    "security-specialist"
+  ],
+  "createdAt": "2026-05-08T14:41:19.389Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "documentation",
+        "secondary": [
+          "security",
+          "config"
+        ],
+        "confidence": 0.77
+      },
+      "tags": [],
+      "domains": [
+        {
+          "name": "docs",
+          "weight": 0.67
+        },
+        {
+          "name": "core",
+          "weight": 0.33
+        }
+      ],
+      "operations": [
+        {
+          "type": "test",
+          "weight": 0.4
+        },
+        {
+          "type": "document",
+          "weight": 0.2
+        },
+        {
+          "type": "configure",
+          "weight": 0.2
+        },
+        {
+          "type": "create",
+          "weight": 0.2
+        }
+      ],
+      "complexity": {
+        "fileCount": 1,
+        "moduleCount": 2,
+        "crossCutting": true,
+        "estimatedSize": "medium"
+      },
+      "scope": {
+        "writeRatio": {
+          "docs/": 1
+        },
+        "primaryWriteTarget": "docs/",
+        "testWriteRatio": 0
+      }
+    },
+    "confidence": "high",
+    "routingVersion": "v2"
+  },
+  "updatedAt": "2026-05-08T15:17:26.946Z"
+}

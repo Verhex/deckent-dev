@@ -1,0 +1,16 @@
+{
+  "taskId": "160-002-fix",
+  "approach": "verify-and-stabilize",
+  "context": "Original 160-002 worker created tests/e2e/cleanup-plant-survival.test.ts (266 LoC). Evaluation marked NO_GO — likely because original worker noted that 6 pre-existing unit tests still pin OLD .prompt-/.worker- filter and fail under T-001's new task-prefix filter. Those failures live OUTSIDE this task's scope (tests/orchestra/, tests/cli/commands/) but may have been counted against the suite-level GO criterion.",
+  "scope": "tests/e2e/cleanup-plant-survival.test.ts ONLY",
+  "steps": [
+    "1. Read existing test file (already 266 LoC, compiles, passes per original .result)",
+    "2. Run tsc --noEmit — verify clean type check",
+    "3. Run npx vitest run tests/e2e/cleanup-plant-survival.test.ts — verify the four regression tests pass",
+    "4. If pass: confirm DONE (file already meets GO criteria stated in task JSON: 'npx vitest run tests/e2e/cleanup-plant-survival.test.ts → pass')",
+    "5. If fail: identify the failure and patch the test file (only file in our writeable scope)",
+    "6. Write .result file with honest assessment + tokenUsage"
+  ],
+  "expected": "Test file already complete and passing. Task 160-002 was likely judged NO_GO on out-of-scope full-suite failures pinning the OLD filter — those belong to a separate Sprint 161 follow-up to refresh tests/orchestra/* and tests/cli/commands/* fixtures.",
+  "risk": "If the existing test no longer passes (e.g. T-001 source has drifted further), I will patch within tests/e2e/ scope to restore green status."
+}

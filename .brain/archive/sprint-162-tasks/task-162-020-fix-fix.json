@@ -1,0 +1,30 @@
+{
+  "id": "162-020-fix-fix",
+  "title": "Fix: Fix: src/orchestra/ — spawn-backend-subprocess + spawn helpers",
+  "description": "Priority fix for NO_GO task 162-020-fix.\nOriginal worker notes: Fix pass for NO_GO task 162-020. PRIOR ARTIFACT: original worker produced a 215-line audit report (Sections 1-8) with 19 findings (0 P0 / 3 P1 / 4 P2 / 12 P3) covering src/orchestra/spawn-backend.ts, spawn-backend-mock.ts, connector.ts, sprint-runner-entry.ts, sprint-pid-manager.ts and src/providers/subprocess.ts (cross-ref spawn-backend-docker.ts). Original .result self-assessed DONE but Brain returned NO_GO — likely root cause: original notes were truncated mid-sentence and verification comman\nExpected scope: docs/audits/sprint-162-live/, src/orchestra/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-020-orch-subprocess.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-020-fix evaluated as NO_GO",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/orchestra/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-020-orch-subprocess.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "PENDING",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-020-fix",
+  "createdAt": "2026-05-08T15:36:17.389Z"
+}

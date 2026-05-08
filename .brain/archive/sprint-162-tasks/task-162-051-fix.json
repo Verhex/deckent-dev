@@ -1,0 +1,32 @@
+{
+  "id": "162-051-fix",
+  "title": "Fix: .deckent/skills/ — all 21 skill manifests",
+  "description": "Priority fix for NO_GO task 162-051.\nOriginal worker notes: Timeout - no heartbeat, no result\nExpected scope: docs/audits/sprint-162-live/, .deckent/skills/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-051-deckent-skills.md, manifest.json",
+  "model": "sonnet",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-051 evaluated as NO_GO; tests failed; no files changed",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      ".deckent/skills/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-051-deckent-skills.md",
+      "manifest.json"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-051",
+  "createdAt": "2026-05-08T15:22:19.656Z",
+  "updatedAt": "2026-05-08T15:36:17.392Z"
+}

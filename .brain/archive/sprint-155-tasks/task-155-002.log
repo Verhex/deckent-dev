@@ -1,0 +1,22 @@
+## Summary
+
+Task 155-002 is complete. Here's what was implemented:
+
+**New file — `src/core/provider-auth-resolver.ts`:**
+- Pure `resolveAuthMode(configuredMode, detectedMode, providerName)` function
+- Enforces configured mode over detected; throws `ProviderError` on conflict with `deckent doctor` hint
+
+**Modified — `src/providers/gemini.ts`:**
+- Added `authConfig?: ConfigProviderAuth` to constructor + factory
+- Added `detectNormalizedAuthMode()` (normalizes `oauth`/`vertex`/`cloud_shell` → `'subscription'`)
+- `spawn()` uses enforcement path when `authConfig` is set; legacy `getAuthDetails()` path otherwise
+- Strips API key env vars from `spawnEnv` when subscription mode enforced
+
+**Modified — `src/providers/codex.ts` and `claude.ts`:**
+- Same pattern: opt-in enforcement via `authConfig` constructor param
+- `ClaudeAdapter` gained a new `detectAuthMode()` method
+
+**New file — `tests/providers/auth-enforcement.test.ts`:**
+- 27 tests covering all 6 required scenarios (api_key+env, api_key+no-env, subscription+oauth, subscription+env-only, auto, mismatch error messages)
+
+All 381 existing provider tests pass with zero regressions. The `authConfig !== undefined` gate ensures backward compatibility.

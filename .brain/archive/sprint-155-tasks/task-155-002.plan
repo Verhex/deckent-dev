@@ -1,0 +1,57 @@
+# Task 155-002: provider_auth.mode Runtime Enforcement — Execution Plan
+
+## Goal
+Enforce `provider_auth.{name}.mode` config in adapter `spawn()`. When explicitly configured, adapters must use the configured mode — not auto-detect. Fail-fast (ProviderError) if configured mode can't be satisfied.
+
+## Files to create/modify
+- CREATE: src/core/provider-auth-resolver.ts — pure resolveAuthMode() function
+- MODIFY: src/providers/gemini.ts — add authConfig param, enforce in spawn()
+- MODIFY: src/providers/codex.ts — add authConfig param, enforce in spawn()
+- MODIFY: src/providers/claude.ts — add authConfig param, detectAuthMode(), enforce in spawn()
+- CREATE: tests/providers/auth-enforcement.test.ts — 6+ tests
+
+## Design decisions
+
+### 1. resolveAuthMode(configuredMode, detectedMode, providerName): ResolvedAuthMode
+Pure function. Combines configured + detected, configured wins. Throws ProviderError on conflict.
+- auto/undefined + detected → return detected (throws if 'none')
+- api_key + api_key detected → return 'api_key'
+- api_key + not api_key → throw (no API key env var found)
+- subscription + subscription → return 'subscription'
+- subscription + not subscription → throw (no OAuth/session found)
+
+### 2. Adapter enforcement is GATED on `this.authConfig !== undefined`
+CRITICAL: Existing tests (gemini.test.ts:285) check spawnOpts.env.GOOGLE_API_KEY.
+In tests, existsSync=true causes detectAuthMode → 'oauth' (subscription). If we strip env vars
+unconditionally for subscription mode, the existing test breaks.
+FIX: Only enforce (and strip env vars) when authConfig is explicitly provided.
+When authConfig is undefined, use legacy behavior (backward compat).
+
+### 3. GeminiAdapter.detectNormalizedAuthMode()
+Normalizes GeminiAuthMode ('oauth','vertex','cloud_shell') → 'subscription'.
+
+### 4. ClaudeAdapter.detectAuthMode()
+Simple: ANTHROPIC_API_KEY present → 'api_key', else → 'subscription'.
+
+### 5. env var stripping for subscription mode
+When authConfig.mode='subscription' and resolvedMode='subscription':
+- Gemini: delete GEMINI_API_KEY, GOOGLE_API_KEY, DECKENT_GOOGLE_API_KEY from spawnEnv
+- Codex: delete OPENAI_API_KEY, DECKENT_OPENAI_API_KEY from spawnEnv
+- Claude: fail-fast check only (tmux doesn't directly control child env)
+
+## Test scenarios (6 required)
+1. config api_key + detected api_key → resolveAuthMode returns 'api_key'
+2. config api_key + detected none → throw ProviderError
+3. config subscription + detected subscription → resolveAuthMode returns 'subscription'
+4. config subscription + detected api_key (oauth absent, env present) → throw ProviderError
+5. config auto + detected api_key → fallback to detected ('api_key')
+6. explicit mode mismatch → ProviderError with helpful message (deckent doctor hint)
+
+## Order of operations
+1. Write src/core/provider-auth-resolver.ts (pure function — no deps)
+2. Modify src/providers/gemini.ts
+3. Modify src/providers/codex.ts
+4. Modify src/providers/claude.ts
+5. Write tests/providers/auth-enforcement.test.ts
+6. Run tsc --noEmit
+7. Run npx vitest run

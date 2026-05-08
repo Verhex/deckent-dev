@@ -1,0 +1,35 @@
+# Task 162-019 Execution Plan
+
+## Goal
+READ-ONLY static audit of `src/orchestra/tmux.ts` and `src/orchestra/spawn-backend-docker.ts`.
+Apply the 10 Sprint 162 audit dimensions and produce ONE markdown report at
+`docs/audits/sprint-162-live/T-162-LIVE-019-orch-tmux-docker.md`.
+
+## Scope (READ-ONLY)
+- `src/orchestra/tmux.ts` (~286 LoC)
+- `src/orchestra/spawn-backend-docker.ts` (~1100 LoC)
+
+## Steps
+1. Heartbeat & plan stub already created by spawn-backend — refresh both with structured content.
+2. Read both source files in full.
+3. Cross-reference adjacent modules briefly for context (no audit beyond scope):
+   - `spawn-backend.ts` (subprocess parity reference)
+   - `result-collector.ts` / event-stream.ts (HB write conventions)
+   - `tests/orchestra/spawn-backend-docker*.test.ts` (claim baseline)
+4. Apply 10 audit dimensions per file; record P0/P1/P2/P3 findings with file:line evidence.
+5. Lead questions:
+   - Sprint 154 `.claude.json:rw` mount preserved (tmux + docker)?
+   - Docker HB atomic write (Sprint 139 Task 13) — `atomicWriteFileSync` + SIGTERM fsync handler?
+   - Sprint 160 generator-side asymmetry between docker generator and worker runtime?
+6. Write migration triage per file: KEEP-PRIVATE | MIGRATE-PUBLIC | DELETE-CANDIDATE | UNCERTAIN.
+7. Write final report (single file, mandatory format).
+8. Build/test verification: N/A — read-only audit; tsc/vitest not required because no source change.
+   But run `tsc --noEmit` quickly to confirm baseline still clean (defensive).
+9. Write `.tasks/task-162-019.result` with selfAssessment + tokenUsage.
+
+## Files Written (single allowed)
+- `docs/audits/sprint-162-live/T-162-LIVE-019-orch-tmux-docker.md`
+
+## Backend Note
+- Running inside docker backend per heartbeat (`backend":"docker"`).
+- Plan stub overwritten with this structured plan per worker rules.

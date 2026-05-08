@@ -1,0 +1,34 @@
+{
+  "id": "162-052-fix",
+  "title": "Fix: .deckent/ root files (config, manifests, archives)",
+  "description": "Priority fix for NO_GO task 162-052.\nOriginal worker notes: Timeout - no heartbeat, no result\nExpected scope: docs/audits/sprint-162-live/, .deckent/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-052-deckent-root.md, config.json, project-stack.json, provider-cache.json",
+  "model": "sonnet",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-052 evaluated as NO_GO; tests failed; no files changed",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      ".deckent/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-052-deckent-root.md",
+      "config.json",
+      "project-stack.json",
+      "provider-cache.json"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-052",
+  "createdAt": "2026-05-08T15:22:19.657Z",
+  "updatedAt": "2026-05-08T15:36:17.393Z"
+}

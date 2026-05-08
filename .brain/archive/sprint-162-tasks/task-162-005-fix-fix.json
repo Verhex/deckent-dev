@@ -1,0 +1,30 @@
+{
+  "id": "162-005-fix-fix",
+  "title": "Fix: Fix: src/core/ — routing engine + activation",
+  "description": "Priority fix for NO_GO task 162-005-fix.\nOriginal worker notes: Worker timeout — process exceeded time limit and was killed\nExpected scope: docs/audits/sprint-162-live/, src/core/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-005-core-routing-engine.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-005-fix evaluated as NO_GO; tests failed; no files changed",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/core/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-005-core-routing-engine.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "PENDING",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-005-fix",
+  "createdAt": "2026-05-08T15:36:17.387Z"
+}

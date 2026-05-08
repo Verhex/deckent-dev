@@ -113,29 +113,32 @@ This is where Deckent enters the OpenClaw/Cowork/Devin category — not as anoth
 ## Deckent by the Numbers
 | Metric | Value |
 |--------|-------|
-| Version | 0.4.0-beta.1 |
-| Sprint | sprint-133 |
-| MCP Tools | 21 |
+| Version | 1.0.0-beta.1 |
+| Sprint | sprint-162a (T4 hot fix) |
+| MCP Tools | 29 (verified) |
 | MCP Resources | 8 |
-| CLI Commands | 35+ |
-| Dashboard Pages | 6 |
-| Agents | 16 built-in + 2 custom |
+| CLI Commands | 48 (verified) |
+| Dashboard Pages | 6-7 |
+| Agents | 18 (15 built-in + 3 custom) |
 | Skills | 21 built-in |
 | Providers | 3 (Claude, Codex, Gemini) |
+| ADRs | 47 (44 accepted + ADR-047 NEW multi-lang) |
+| Multi-language stacks | 6 baseline (TS/Py/Go/Rust/Java/C#) |
 
 ## Sprint History
-| Sprint | Status |
-|--------|-------|
-| sprint-132 | completed |
-| sprint-133 | completed |
+| Sprint | Status | Notable |
+|--------|--------|---------|
+| sprint-161 | FAILED (mid-flight orchestration broke) | God-audit produced 356 findings, 8 bugs identified |
+| sprint-162-failed-build-race | FAILED (build-after-spawn race) | dist mtime > sprint-state by 22s; Brain loaded old code |
+| sprint-162a | T4 IMPLEMENTATION ✓ | 8 bug closed + multi-lang adapter + 4 ADR + 12-lang i18n + ARIA + security review |
+| sprint-162-live | PARTIAL SUCCESS | 8/8 known bugs LIVE proven; Bug X discovered (dual-evaluator stale-state path race); org quota cascade at 15:36Z |
 
 ## Sprint Metrics
 | Metric | Value |
 |--------|-------|
-| Sprint | sprint-133 |
-| Total Tasks | 12 |
-| Completed | 12 |
-| Tech Debt | 4 |
-| No-Go | 0 |
-| Duration | 27dk 21sn |
-| Coverage | 8.3% |
+| Sprint | sprint-162a |
+| Status | PARTIAL — 8/8 bug closed + Bug X discovered |
+| Total deliverables | 8 fix-spec + 14 source + 14 test + 4 ADR + 12-lang i18n + ARIA + security |
+| Tests added | ~305 |
+| Source LoC | +2703/-801 (69 files) |
+| Beta GA blocker | Bug X cost cascade (Sprint 162B P0) |

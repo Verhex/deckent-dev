@@ -1,0 +1,32 @@
+{
+  "id": "162-044-fix-fix",
+  "title": "Fix: Fix: docs/ root .md — BETA-TRACKER + CHANGELOG",
+  "description": "Priority fix for NO_GO task 162-044-fix.\nOriginal worker notes: Worker timeout/killed (exitCode=0) — HIT WORKER_TIMEOUT (task exceeded its timeout budget; re-run with longer --timeout or split scope) but git diff shows 69 files modified. Brain should reconcile via Spurious NO_GO helper.\nExpected scope: docs/audits/sprint-162-live/, ./, docs/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-044-docs-beta-changelog.md, docs/CHANGELOG.md",
+  "model": "sonnet",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-044-fix evaluated as NO_GO; tests failed",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "./",
+      "docs/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-044-docs-beta-changelog.md",
+      "docs/CHANGELOG.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "PENDING",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-044-fix",
+  "createdAt": "2026-05-08T15:36:17.391Z"
+}

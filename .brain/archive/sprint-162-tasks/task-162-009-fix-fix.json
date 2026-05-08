@@ -1,0 +1,30 @@
+{
+  "id": "162-009-fix-fix",
+  "title": "Fix: Fix: src/core/ — marketplace (sandbox + registry)",
+  "description": "Priority fix for NO_GO task 162-009-fix.\nOriginal worker notes: READ-ONLY audit fix complete. The previous 162-009 worker was OOM-killed by Docker mid-write; the audit body was preserved on disk. 162-009-fix verified the report's 28 findings (3 P0 / 7 P1 / 8 P2 / 10 P3) are intact, corrected the LoC table from 1211→1206 (trailing-newline overcount, verified via `wc -l`), and appended a verification log (Section 8) with: cross-reference re-check confirming P0-1 (DependencyResolver dead) and P0-2 (RatingSystem dead); a non-blocking optional hardening note abou\nRubric: correctness=95, test_coverage=100, scope_compliance=100\nExpected scope: docs/audits/sprint-162-live/, src/core/marketplace/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-009-core-marketplace.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-009-fix evaluated as NO_GO; correctness=95; test_coverage=100; scope_compliance=100",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/core/marketplace/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-009-core-marketplace.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "PENDING",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-009-fix",
+  "createdAt": "2026-05-08T15:36:17.388Z"
+}

@@ -1,0 +1,10 @@
+{
+  "events.sprint.eval.heartbeat-skip": "Heartbeat activo — evaluación diferida",
+  "events.sprint.eval.audit-rubric-applied": "Rúbrica de auditoría aplicada",
+  "events.sprint.eval.synthetic-timeout": "Worker agotó el tiempo, trabajo parcial preservado",
+  "events.sprint.spawn.deadlock-detected": "Bloqueo del bucle de generación detectado",
+  "events.sprint.recover.state-reset": "Estado del sprint restablecido",
+  "events.sprint.recover.zombie-killed": "Proceso zombi terminado",
+  "events.sprint.recover.status-sync": "Visualización de estado sincronizada",
+  "events.sprint.recover.tmpfile-swept": "Archivos temporales eliminados"
+}

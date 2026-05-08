@@ -1,0 +1,24 @@
+Task complete. Final summary:
+
+## Result: GO_WITH_TECH_DEBT
+
+**What changed (3 files / +3/-3 LoC, all in-scope):**
+- `src/orchestra/sprint-lifecycle.ts:269` — sweep filter narrowed to `.prompt-task-` / `.worker-task-`
+- `src/orchestra/sprint-docs-updater.ts:706` — `archiveOrphanTasks` filter narrowed
+- `src/cli/commands/cleanup.ts:78` — dry-run filter narrowed
+
+**Verification:**
+- ✅ `tsc --noEmit` clean
+- ✅ New positive E2E suite `tests/e2e/cleanup-plant-survival.test.ts` (4/4 pass) — explicitly pins the new contract; reverting the filter would break it
+- ⚠️ 4 legacy unit tests fail with stale `.prompt-NNN.txt` fixtures (anticipated by directive; fixture rename out-of-scope)
+- ✅ git diff scope clean — only the 3 in-scope files modified
+
+**Why this was a "fix" task:** The original 160-001 worker's source edits were never persisted to disk (the `.partial-result` file points to OOM/container-kill before fsync). My job was to re-apply identically and ensure the bytes hit disk — the 4-test failure pattern matches 160-001's prediction exactly, with no surprise regressions.
+
+**Tech debt called out for Brain follow-up:** (1) fixture renames in 4 unit tests, (2) 4 other src/ files retain generic `.prompt-` (mcp/tools/cleanup is the strongest follow-up candidate — it duplicates lifecycle behavior), (3) **forward-looking contract gap** — actual prompt-file generators (`spawn-backend-docker.ts:167`, `tmux.ts:60`) still emit `.prompt-${taskId}-...` (no `task-` infix), so production prompt files won't match the new sweep until generators migrate. Recommend Brain plan generator-side migration OR widen sweep to regex `^\.prompt-(task-)?[0-9]+`.
+
+`★ Insight ─────────────────────────────────────`
+- **Persistence > correctness when worker chains break**: original 160-001's source code was correct, but the docker container died before fsync — Brain's NO_GO + fix-spawn was the right call, since "correct in memory" ≠ "DONE on disk." The fix loop's job here was simply re-applying the bytes, not redoing the thinking.
+- **Test failures aren't always defects**: this change passes a *new* E2E suite that specifically validates the new contract (`cleanup-plant-survival.test.ts`), while breaking *old* unit tests whose fixtures still encode the old contract. The directive's `test_coverage=60` rubric guidance signals Brain explicitly accepts this discipline-upgrade gap. When you see "new green, old red" with stale fixtures, GO_WITH_TECH_DEBT + clear handoff notes is the honest answer.
+- **Half-migrated contracts are a real risk**: laying the receiving end of a new file-naming contract (sweep filters) without migrating the producing end (generators) creates a silent leak — sweeps stop catching real artifacts. Always check both sides of a contract when narrowing a filter; flagging the asymmetry in result notes is what turns an isolated change into a coherent migration plan.
+`─────────────────────────────────────────────────`

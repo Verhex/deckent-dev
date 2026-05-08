@@ -1,0 +1,33 @@
+{
+  "id": "159-004-fix-fix",
+  "title": "Fix: Fix: README.md ve README-TR.md drift fix uygulaması [GEMINI]",
+  "description": "Priority fix for NO_GO task 159-004-fix.\nOriginal worker notes: Worker timeout/killed (exitCode=0) — HIT WORKER_TIMEOUT (task exceeded its timeout budget; re-run with longer --timeout or split scope) but git diff shows 58 files modified. Brain should reconcile via Spurious NO_GO helper.\nExpected scope: ./, docs/audits/\nFiles that should change: README.md, README-TR.md, docs/audits/sprint-156-tr-en-sync-report.md, docs/audits/sprint-158-readme-drift-fix.md",
+  "model": "gemini-2.5-flash",
+  "effort": "low",
+  "priority": "CRITICAL",
+  "reason": "Task 159-004-fix evaluated as NO_GO; tests failed",
+  "scope": {
+    "directories": [
+      "./",
+      "docs/audits/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "README.md",
+      "README-TR.md",
+      "docs/audits/sprint-156-tr-en-sync-report.md",
+      "docs/audits/sprint-158-readme-drift-fix.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; `git diff README.md README-TR.md` her iki dosyada >= 5 satır değişiklik; `grep -c \"^## \" README.md` == `grep -c \"^## \" README-TR.md` (section count parity).",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "PENDING",
+  "sprintId": "sprint-159",
+  "isPriorityFix": true,
+  "fixForTaskId": "159-004-fix",
+  "createdAt": "2026-05-07T13:15:09.819Z"
+}

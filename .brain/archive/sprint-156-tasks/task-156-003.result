@@ -1,0 +1,24 @@
+{
+  "taskId": "156-003",
+  "filesChanged": ["src/core/provider-fallback.ts"],
+  "linesAdded": 97,
+  "linesRemoved": 14,
+  "testsPassed": true,
+  "coverage": null,
+  "selfAssessment": "DONE",
+  "notes": "Added comprehensive JSDoc to all 6 public exports in src/core/provider-fallback.ts. No logic was modified — only documentation blocks were expanded. Changes: (1) MAX_FALLBACK_RETRIES: added @example + @see. (2) CapacityErrorDetection interface: added @example with real Gemini/generic 429 strings + @see. (3) detectCapacityError: added @returns, 5-scenario @example block (Gemini/Anthropic/OpenAI/clean/null), + @see chain. (4) selectFallbackProvider: added @returns, 3-scenario @example (success/self-loop/unconfigured), + @see. (5) FallbackRetryDecision interface: added @example + @see. (6) decideFallbackRetry: added @returns, 4-scenario @example (Gemini fallback/clean/unconfigured/self-loop), + @see chain. Verification: grep -c '@example' src/core/provider-fallback.ts → 6 (≥4 required). tsc --noEmit: 0 errors. vitest run tests/orchestra/fallback-chain.test.ts: 29/29 pass.",
+  "tokenUsage": {
+    "inputTokens": 12500,
+    "outputTokens": 2800,
+    "cacheReadTokens": 45000,
+    "provider": "claude",
+    "model": "sonnet"
+  },
+  "rubricScores": {
+    "correctness": 100,
+    "test_coverage": 100,
+    "scope_compliance": 100,
+    "documentation": 100
+  },
+  "evaluationDecision": "DONE"
+}

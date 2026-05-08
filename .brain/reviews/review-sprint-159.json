@@ -1,0 +1,34 @@
+{
+  "sprintId": "sprint-159",
+  "reviews": [
+    {
+      "taskId": "159-001",
+      "decision": "approved",
+      "reviewedAt": "2026-05-07T13:03:13.945Z"
+    },
+    {
+      "taskId": "159-002",
+      "decision": "approved",
+      "reviewedAt": "2026-05-07T13:03:13.945Z"
+    },
+    {
+      "taskId": "159-003",
+      "decision": "approved",
+      "reviewedAt": "2026-05-07T13:03:13.946Z"
+    },
+    {
+      "taskId": "159-004",
+      "decision": "retry",
+      "reviewedAt": "2026-05-07T13:03:13.946Z",
+      "reason": "Auto-retry: tests failed"
+    },
+    {
+      "taskId": "159-005",
+      "decision": "retry",
+      "reviewedAt": "2026-05-07T13:03:13.946Z",
+      "reason": "Auto-retry: tests failed"
+    }
+  ],
+  "createdAt": "2026-05-07T13:03:13.945Z",
+  "updatedAt": "2026-05-07T13:15:50.467Z"
+}

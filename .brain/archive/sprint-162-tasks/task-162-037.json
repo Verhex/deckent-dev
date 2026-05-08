@@ -1,0 +1,96 @@
+{
+  "id": "162-037",
+  "title": "src/api/ + src/connectors/ — server + auth + bots",
+  "description": "src/api/ + src/connectors/ — server + auth + bots\n- Model: opus\n- Effort: normal\n- Skills: typescript-expert,api-builder\n- Files: docs/audits/sprint-162-live/T-162-LIVE-037-api-connectors.md\n- Scope: src/api/, src/connectors/\n\n### Description\nREAD-ONLY audit of `api/server.ts`, `api/auth.ts`, SSE, rate limiter, connectors\n(discord, telegram, whatsapp, incoming-router). Lead: messaging trio (Gate #13)\ncode readiness, auth security.\n\n**Kanıt:** Single audit report.\n**Test:** N/A.\n\n---",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "NORMAL",
+  "reason": "Directive (model: opus -- user override)",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/api/",
+      "src/connectors/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-037-api-connectors.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "forceModel": "opus",
+  "forceEffort": "normal",
+  "forceSkills": [
+    "typescript-expert",
+    "api-builder"
+  ],
+  "assignedAgent": "architect",
+  "assignedSkills": [
+    "typescript-expert",
+    "api-builder"
+  ],
+  "createdAt": "2026-05-08T14:41:19.389Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "documentation",
+        "secondary": [
+          "security"
+        ],
+        "confidence": 0.86
+      },
+      "tags": [],
+      "domains": [
+        {
+          "name": "docs",
+          "weight": 0.5
+        },
+        {
+          "name": "api",
+          "weight": 0.25
+        },
+        {
+          "name": "connectors",
+          "weight": 0.25
+        }
+      ],
+      "operations": [
+        {
+          "type": "create",
+          "weight": 0.5
+        },
+        {
+          "type": "test",
+          "weight": 0.25
+        },
+        {
+          "type": "document",
+          "weight": 0.25
+        }
+      ],
+      "complexity": {
+        "fileCount": 1,
+        "moduleCount": 3,
+        "crossCutting": true,
+        "estimatedSize": "large"
+      },
+      "scope": {
+        "writeRatio": {
+          "docs/": 1
+        },
+        "primaryWriteTarget": "docs/",
+        "testWriteRatio": 0
+      }
+    },
+    "confidence": "uncertain",
+    "routingVersion": "v2"
+  },
+  "updatedAt": "2026-05-08T15:22:19.644Z"
+}

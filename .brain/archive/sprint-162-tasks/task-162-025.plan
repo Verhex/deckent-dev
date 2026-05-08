@@ -1,0 +1,46 @@
+# Task 162-025 — Execution Plan
+
+## Goal
+READ-ONLY audit of src/cli/commands/init.ts, plan.ts, set-directives.ts, init-templates.ts.
+Apply 10 audit dimensions per Sprint 162 Lane 1 mandate. Output single audit
+report at docs/audits/sprint-162-live/T-162-LIVE-025-cli-planning.md.
+
+## Lead Questions
+- ADR-018 multi-environment config generation correctness
+- structured/ai/auto mode wire (planning mode dispatch)
+- init lifecycle adapter generation
+- DIRECTIVES.md handling (set-directives, init template)
+
+## Approach
+1. Read 4 target files in full (init.ts, plan.ts, set-directives.ts, init-templates.ts)
+2. Discover related modules referenced by them (init-templates is imported by init.ts)
+3. Cross-reference ADR-018 (multi-environment config)
+4. Apply 10 dimensions:
+   - Dead code (unused exports)
+   - ADR violations (44 active ADRs)
+   - Conflicting areas (duplicated logic)
+   - Drift (comments vs behavior)
+   - Type safety (any, ts-ignore)
+   - Dependency hygiene (.js extensions, circular)
+   - Documentation pollution
+   - Memory V2 coherence (where applicable)
+   - Config integrity
+   - Migration triage (KEEP-PRIVATE / MIGRATE-PUBLIC / DELETE-CANDIDATE / UNCERTAIN)
+5. Write findings with file:line evidence
+6. Write recommendations (NO code changes)
+
+## Scope Constraint
+- WRITE ONLY: docs/audits/sprint-162-live/T-162-LIVE-025-cli-planning.md
+- READ ANY: project-wide for context/cross-reference
+
+## Verify
+- tsc --noEmit (no source changes — should be no impact)
+- vitest run (no source changes — no impact)
+
+## Output
+Single Markdown audit report with sections:
+1. Scope
+2. Findings (severity P0/P1/P2/P3, dimension, summary)
+3. Evidence (file:line citations)
+4. Migration triage per file
+5. Recommendation

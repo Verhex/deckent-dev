@@ -1,0 +1,45 @@
+# Task 160-002 — E2E plant-survival regression test suite
+
+## Approach
+Add `tests/e2e/cleanup-plant-survival.test.ts` covering all three sweep paths
+that Sprint 160 T-001 hardened with task-prefix discipline.
+
+## Verified pre-conditions
+- T-001 changes are present in source:
+  - src/orchestra/sprint-lifecycle.ts:269 — `.prompt-task-` / `.worker-task-`
+  - src/orchestra/sprint-docs-updater.ts:706 — `.prompt-task-`
+  - src/cli/commands/cleanup.ts:78 — `.prompt-task-` (dry-run path)
+- `dist/` is stale — Test 3 cannot rely on `dist/cli/entry.js` having the new
+  filter compiled in. Strategy: register the CLI cleanup command on a fresh
+  Commander instance and invoke it programmatically against a temp `cwd` so
+  the test exercises the *source*, not the build artifact.
+
+## Structure
+- `mkdtempSync(tmpdir(), 'deckent-plant-')` per test for isolation.
+- `beforeEach` plants:
+  - `.tasks/.prompt-TEST-PLANT.txt`        (must SURVIVE)
+  - `.tasks/.worker-TEST-PLANT.sh`         (must SURVIVE)
+  - `.tasks/.worker-MANUAL-PLANT.sh`       (must SURVIVE — alt prefix)
+  - `.tasks/.prompt-task-160-001.txt`      (must be archived/swept)
+  - `.tasks/.worker-task-160-001.sh`       (must be archived/swept)
+  - `.tasks/task-160-001.json` (DONE status, sprintId sprint-160)
+- `afterEach` rmSync sandbox.
+
+## Three tests
+1. Test 1 — `archiveOrphanTasks`:
+   - Call `archiveOrphanTasks(root, 'sprint-160')`.
+   - Assert plants still exist; assert task artifacts moved to
+     `.brain/archive/sprint-160-tasks/`; assert plant byte-for-byte equality.
+2. Test 2 — `cleanup()` lifecycle sweep:
+   - Build a synthetic empty-task Sprint, supply a stub SpawnBackend whose
+     `list()` returns [], then call `cleanup(root, sprint, backend)`.
+   - Assert plants survive, task tmpfiles unlinked.
+3. Test 3 — `deckent cleanup` CLI:
+   - Create a fresh Commander program, register `registerCleanup`, then
+     `process.chdir(root)` and invoke `parseAsync(['node','test','cleanup'])`.
+   - Restore cwd in finally.
+   - Assert plants still exist after CLI run.
+
+## Verify
+- `tsc --noEmit` clean
+- `npx vitest run tests/e2e/cleanup-plant-survival.test.ts` → 3 passing

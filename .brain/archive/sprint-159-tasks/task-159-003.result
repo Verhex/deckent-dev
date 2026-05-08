@@ -1,0 +1,29 @@
+{
+  "taskId": "159-003",
+  "workerId": "w-159-003",
+  "filesChanged": [
+    "src/cli/commands/metrics.ts",
+    "src/cli/index.ts",
+    "tests/cli/commands/metrics.test.ts"
+  ],
+  "linesAdded": 720,
+  "linesRemoved": 0,
+  "testsPassed": true,
+  "coverage": 0,
+  "selfAssessment": "DONE",
+  "notes": "Implemented `deckent metrics summary <sprintId>` and `--last` per spec.\n\n## What was built\n- src/cli/commands/metrics.ts (new, ~400 LoC): registerMetrics(program) following ADR-012 pattern. Pure helpers (parseMetricsJsonl, resolveSprintTasksDir, resolveLastSprint, scanSprintTasks, aggregateProviderStats, aggregateModelStats, aggregateAgentStats, aggregateSkillStats, scanFallbackEvents, computeHonestyDrift, buildMetricsSummary, renderMetricsSummary, formatDurationMs) + commander subcommand wiring.\n- src/cli/index.ts: import + registerMetrics(program).\n- tests/cli/commands/metrics.test.ts (new, 22 tests): unit tests for every aggregator + filesystem-fixture integration tests for sprint discovery, scanning, and CLI parse.\n\n## Output sections\nProvider Distribution (Tasks/DONE/NO_GO/Avg Duration), Model Distribution (Tasks/Routing), Agent Compliance (Assigned/Used/%), Skill Compliance (Assigned/Used/%), Fallback Events list, Honesty/Coverage Drift.\n\n## Data sources wired\n- .tasks/archive/sprint-{id}-tasks/ (canonical) → falls back to sprint-{id}/, sprint-{id}-* glob, then live .tasks/ if metrics.jsonl exists.\n- task-*.json + task-*.result for assignments and outcomes.\n- task-*.result.fallback-attempt-N for fallback events (extracts fromProvider via tokenUsage.provider in archived attempt).\n- selfAssessment DONE/GO_WITH_TECH_DEBT counted as success; NO_GO counted explicitly.\n- Duration computed as result.mtime - task.createdAt per task (no per-provider duration in metrics.jsonl, so derived).\n- `--last` resolves the highest-numbered sprint id by scanning .deckent/sprint-*-metrics.jsonl + .tasks/archive/ subdirs.\n\n## Verification\n1. `tsc --noEmit` — passes clean (no type errors).\n2. `npx vitest run tests/cli/commands/metrics.test.ts` — 22/22 passing.\n3. `npx vitest run` (full suite) — 16083 passed, 10 pre-existing failures unrelated to metrics (mcp/help.test.ts checks '## Tools (27)' string mismatch; doctor-checks tests + provider-smoke + docker-oom-reproducer all fail with same errors on baseline tree without my changes — confirmed via `git stash` + rerun).\n4. Live dogfood: `node dist/cli/entry.js metrics summary --last` against this very sprint-159 produces accurate markdown table — 5 tasks, 3 claude (2 DONE) / 2 gemini, agent + skill rows, fallback section, honesty drift = 0. `--json` also works.\n\n## ADR compliance\n- ADR-010 (single runtime dependency): only commander imported, no chalk/inquirer.\n- ADR-012 (register<Name>(program) pattern): implementation follows convention.\n- ADR-039 (self-modifying): stayed strictly within scope.filesWrite (src/cli/commands/, src/cli/, tests/cli/commands/).\n\n## Honesty self-assessment\nBaseline: command did not exist. End state: full implementation with 22 passing tests + tsc clean + live CLI smoke-tested against sprint-159 archive data. Delta: ~100% of spec implemented. Spec said 'Test: 5+ test'; delivered 22.",
+  "tokenUsage": {
+    "inputTokens": 50000,
+    "outputTokens": 9000,
+    "cacheReadTokens": 0,
+    "provider": "claude",
+    "model": "opus"
+  },
+  "rubricScores": {
+    "correctness": 95,
+    "test_coverage": 95,
+    "scope_compliance": 100,
+    "documentation": 85
+  },
+  "evaluationDecision": "DONE"
+}

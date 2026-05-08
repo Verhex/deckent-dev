@@ -1,0 +1,31 @@
+{
+  "id": "162-010-fix",
+  "title": "Fix: src/core/ — validators + utilities",
+  "description": "Priority fix for NO_GO task 162-010.\nOriginal worker notes: READ-ONLY audit complete per Sprint 162-live Lane 1 mandate. Single audit report written to docs/audits/sprint-162-live/T-162-LIVE-010-core-validators-utils.md (281 lines, ~25 KB) covering src/core/validators.ts (122 LoC), src/core/utils.ts (340 LoC), src/core/sprint-file-retention.ts (354 LoC), src/core/orphan-cleaner.ts (451 LoC) — 1267 LoC total. All 10 audit dimensions applied. 19 findings: 5 P1 (parseSprintNumber duplicated 3x, validateSprintId regex rejects sprint-162-live form, 5 competin\nExpected scope: docs/audits/sprint-162-live/, src/core/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-010-core-validators-utils.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-010 evaluated as NO_GO",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/core/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-010-core-validators-utils.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-010",
+  "createdAt": "2026-05-08T15:17:26.951Z",
+  "updatedAt": "2026-05-08T15:36:17.388Z"
+}

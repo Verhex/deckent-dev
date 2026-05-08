@@ -1,0 +1,39 @@
+# Plan — Task 162-003 — agent-pool + skill-pool + skill-registry READ-ONLY audit
+
+## Goal
+Produce single audit report at `docs/audits/sprint-162-live/T-162-LIVE-003-core-agent-skill-pool.md`
+applying 10 audit dimensions to:
+- src/core/agent-pool.ts (491 LoC)
+- src/core/skill-pool.ts (306 LoC)
+- src/core/skill-registry.ts (134 LoC)
++ peripheral context: agent-types.ts, agent-cache.ts, agent-selector.ts, src/core/builtins/{agents,skills}/
+
+## Lead Questions (per DIRECTIVES Task 3)
+1. **15 built-in agents claim** — Verify count vs `.deckent/agents/` and `src/core/builtins/agents/`
+2. **21 built-in skills claim** — Verify count vs `.deckent/skills/` and `src/core/builtins/skills/`
+3. **LRU eviction** — Where is it implemented? Correct policy? `MAX_TEMP_AGENTS=50`, `MAX_SPRINT_AGE=5`?
+4. **AST sandbox** — skill-registry.ts validation logic; bypass surfaces
+
+## 10 Audit Dimensions
+1. Dead code — unused exports, unreferenced helpers
+2. ADR violations — ADR-001/002 (ESM + .js extensions), ADR-008 (no brain import), ADR-041 (taxonomy)
+3. Conflicting areas — duplicated logic between agent-pool / skill-pool / skill-registry
+4. Drift — comments/JSDoc vs actual behavior; claim verification (15 agents, 21 skills, LRU)
+5. Type safety — `any`, `as unknown as`, `@ts-ignore`, missing return types
+6. Dependency hygiene — `.js` extensions in imports, circular dep risk
+7. Documentation pollution — stale comments
+8. Memory V2 coherence — N/A (no MemoryStore touch in these files, but flag if any)
+9. Config integrity — N/A unless config touch
+10. Migration triage — KEEP-PRIVATE | MIGRATE-PUBLIC | DELETE-CANDIDATE | UNCERTAIN per file
+
+## Steps
+1. Read all 6 source files top-to-bottom
+2. Sample bundled built-in manifests (1-2 agent.json, 1-2 manifest.json) for schema check
+3. Cross-reference vs `.deckent/agents/*/agent.json` runtime state
+4. Build Findings table with severity (P0/P1/P2/P3) + file:line citation
+5. Migration triage per file
+6. Write report; do NOT touch source code
+
+## Boundaries
+- `scope.filesWrite` = single path: `docs/audits/sprint-162-live/T-162-LIVE-003-core-agent-skill-pool.md`
+- READ-ONLY mandate strictly enforced; no source code edits

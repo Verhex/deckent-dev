@@ -1,0 +1,7 @@
+`★ Insight ─────────────────────────────────────`
+- **Tek-kaynak (single-source-of-truth) iddiası vs gerçek**: `model-registry.ts` "all other modules delegate here" der, ama 7 tüketicinin tamamı `ModelTier`'i `model-equivalence.js`'ten import ediyor — runtime delegation çalışıyor, type delegation kâğıt üstünde kalmış. Bu, ADR niyeti ile koddaki imza arasındaki tipik bir drift desenidir; refactor'un "yarım kalmış" olduğunu gösteriyor.
+- **Sprint borç haritalama**: Bir önceki sprint sonucundaki "T-151-NEW-H remains P2 open" notu, bu sprintteki audit için doğrudan delil oldu. Brain'in hafıza sistemi (memory.db FTS5) tam da bu tip cross-sprint debt korelasyonu için tasarlanmış.
+- **`(string & {})` idiom**: TypeScript'te `BuiltinModelId | (string & {})` yazmak, autocomplete'i kaybetmeden arbitrary string'lere izin verir — `string` tek başına yazılırsa union literal'leri yutar. Audit'te bunu yorumsuz bırakmak P3 dokümentasyon kirliliği sayılır.
+`─────────────────────────────────────────────────`
+
+Audit raporu yazıldı (398 satır, 22.7 KB), `.result` `DONE` ile yazıldı. Kapsam: yalnızca `docs/audits/sprint-162-live/T-162-LIVE-006-core-model-mode.md` (filesWrite tek-yol kuralı). 0 sınır ihlali, 0 source code değişikliği. 12 bulgu (P1×4, P2×4, P3×4); başlıca olanlar Sprint 150 H3 residual debt teyidi, `TIER_ORDER`/`compareTiers`/`ModelTier` duplikasyonu ve opus apiId drift'i.

@@ -1,0 +1,15 @@
+Task complete. Here's the summary:
+
+---
+
+`★ Insight ─────────────────────────────────────`
+**What the previous NO_GO attempt got right**: The full implementation was already correct — `resolveAuthMode()` uses a **fail-fast enforcement** pattern rather than silent fallback. This is intentional: once a user explicitly sets `mode: 'api_key'` in config, the system refuses to silently fall back to subscription auth even if it's available. This prevents subtle auth mode drift between development and production environments.
+
+**Why the fix task succeeded without code changes**: The previous 155-002 worker wrote correct code but the NO_GO result was likely due to the pre-existing `error-handling-unification.test.ts` failure caused by `model-registry-refresh.ts` (Task 3's artifact). My fix task confirmed this — all 27 task-specific tests pass, `tsc --noEmit` is clean, and the one failing test is outside my scope.
+`─────────────────────────────────────────────────`
+
+**Result**: `selfAssessment: DONE`
+- `tsc --noEmit`: clean
+- Auth enforcement tests: 27/27 pass
+- All provider tests: 381/381 pass
+- Pre-existing `error-handling-unification` failure noted in result — caused by `model-registry-refresh.ts` (Task 3 file, outside filesWrite scope)

@@ -1,0 +1,36 @@
+# Task 162-029 Execution Plan — src/cli/ entry + helpers + register* audit
+
+## Approach
+READ-ONLY audit of src/cli/ entry, index, helpers/, command registration pattern (ADR-012).
+Single output file: docs/audits/sprint-162-live/T-162-LIVE-029-cli-entry-register.md
+
+## Files to read (NOT modify)
+- src/cli/entry.ts — CLI entrypoint shebang, error handling
+- src/cli/index.ts — central register* call site, command wiring
+- src/cli/auto-setup.ts — first-run setup
+- src/cli/version-info.ts — version banner
+- src/cli/helpers/*.ts — shared helpers (paths, ux, errors)
+- src/cli/commands/*.ts (sample register* signatures, NOT contents)
+- package.json — bin entry, runtime deps (commander single dep ADR-010)
+
+## Audit dimensions (10 per CLAUDE.md)
+1. Dead code (unused exports/handlers)
+2. ADR violations (ADR-010, ADR-012, ADR-022-V2)
+3. Conflicting areas (duplicate command registration / overrides)
+4. Drift (claim "46+ commands" vs actual count, version-info.ts vs package.json)
+5. Type safety (any, ts-ignore in entry/helpers)
+6. Dependency hygiene (.js extensions, single commander dep)
+7. Documentation pollution
+8. Memory V2 coherence (N/A unless touched)
+9. Config integrity (bin path, engines >=20)
+10. Migration triage (KEEP-PRIVATE / MIGRATE-PUBLIC / DELETE-CANDIDATE / UNCERTAIN)
+
+## Lead questions
+- Are 46+ commands all registered? (compare commands/*.ts vs index.ts imports)
+- ADR-010: Is commander.js the only runtime dep used by the CLI?
+- ADR-012: Does every command file export `register<Name>(program)`?
+- ADR-022-V2: Are CLI flags consistent with MCP tool params?
+
+## Output
+docs/audits/sprint-162-live/T-162-LIVE-029-cli-entry-register.md
+- Scope, Findings (P0-P3), Evidence (file:line), Migration triage, Recommendation

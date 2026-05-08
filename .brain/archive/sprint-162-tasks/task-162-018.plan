@@ -1,0 +1,41 @@
+{
+  "taskId": "162-018",
+  "provider": "claude",
+  "model": "opus",
+  "backend": "docker",
+  "approach": "READ-ONLY static audit — no source code mutation",
+  "scope_files": [
+    "src/orchestra/sprint-finalizer.ts",
+    "src/orchestra/sprint-lifecycle.ts",
+    "src/orchestra/sprint-phases.ts"
+  ],
+  "output_file": "docs/audits/sprint-162-live/T-162-LIVE-018-orch-finalize-lifecycle.md",
+  "lead_questions": [
+    "cleanup_delay_ms wire — does config flow into the actual archive/cleanup phase?",
+    "archiveOrphanTasks pattern — orphan detection and disposition correctness",
+    "Phase transitions — PLAN→SPAWN→EXECUTE→EVALUATE→FIX→RETRO→DECAY→CLEANUP order, fault handling"
+  ],
+  "dimensions_applied": [
+    "1 dead code",
+    "2 ADR violations (44 active)",
+    "3 conflicting/duplicated logic",
+    "4 drift (claims vs behavior)",
+    "5 type safety (any/ts-ignore/as unknown as)",
+    "6 dependency hygiene (.js ext, circular)",
+    "7 documentation pollution",
+    "8 memory v2 coherence",
+    "9 config integrity",
+    "10 migration triage classification"
+  ],
+  "steps": [
+    "1. Read sprint-finalizer.ts (1413 LoC est)",
+    "2. Read sprint-lifecycle.ts (562 LoC est)",
+    "3. Read sprint-phases.ts (1010 LoC est)",
+    "4. Cross-grep for cleanup_delay_ms, archiveOrphanTasks, phase enums",
+    "5. Map imports for ADR-008 dependency check",
+    "6. Identify unused exports for dead code finding",
+    "7. Write structured audit report with file:line citations",
+    "8. tsc --noEmit + vitest run sanity (read-only — no source touched)",
+    "9. Write .result with honest selfAssessment"
+  ]
+}

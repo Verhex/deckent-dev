@@ -1,0 +1,33 @@
+# Plan: Task 155-004 — Codex Live Install + Dogfood (BLOCKED on external)
+
+## Status: BLOCKED on external dependency
+
+## Assessment
+
+This task is explicitly marked BLOCKED in DIRECTIVES.md:
+> "Bu task external dependency tarafından blocked: Codex CLI erişimi henüz Alperen tarafında alınmadı. Brain bu task'ı `BLOCKED` state'inde bırakmalı, otomatik spawn etmemeli."
+
+The task was spawned despite this directive. Correct action: write NO_GO result documenting the block.
+
+## GO Criteria Analysis
+
+- BETA-TRACKER gate #8 → 3/3 live: CANNOT ACHIEVE (codex is 0/1, only claude+gemini are live)
+- CHANGELOG entry "Codex live dogfood DONE": CANNOT WRITE TRUTHFULLY (no CLI access)
+
+## Current State
+
+- BETA-TRACKER gate #8: 🟡 2/3 live (claude + gemini Docker E2E DONE via Sprint 154)
+- Codex CLI: not installed, no OPENAI_API_KEY, no subscription configured
+- docs/CHANGELOG.md Sprint 154 entry already has: "Codex live install + dogfood (user awaiting CLI access)" in Backlog section
+
+## Correct Action
+
+Write NO_GO result. No files should be modified — writing a false CHANGELOG entry claiming
+"Codex live dogfood DONE" would be inaccurate and violate honest self-assessment rules.
+
+When Codex CLI access is obtained by Alperen:
+1. `npm i -g @openai/codex && codex login` (subscription) or set OPENAI_API_KEY
+2. `deckent doctor` → verify "Codex CLI v0.X — auth: subscription (codex auth status)"
+3. `deckent run "Print one short word in Turkish" --model gpt-5-mini --timeout 60000`
+4. Update docs/CHANGELOG.md Sprint 155 section with live evidence
+5. Update BETA-TRACKER.md gate #8 to ✅ PASS (3/3)

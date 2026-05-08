@@ -1,0 +1,26 @@
+{
+  "taskId": "162-011",
+  "filesChanged": [
+    "docs/audits/sprint-162-live/T-162-LIVE-011-core-notify-nervous.md"
+  ],
+  "linesAdded": 246,
+  "linesRemoved": 0,
+  "testsPassed": true,
+  "coverage": null,
+  "selfAssessment": "DONE",
+  "notes": "READ-ONLY audit complete per Sprint 162-live Task 11. Audited 5 files (734 LoC): notification-dispatcher.ts (199), notify-adapters/cli-adapter.ts (79), notify-adapters/file-adapter.ts (41), notify-adapters/mcp-adapter.ts (84), nervous-types.ts (331). Cross-referenced 4 wire-integrity files (notify-registry.ts, orchestra/notify.ts, nervous/dispatcher.ts, notifications.ts) without modifying them. Applied all 10 audit dimensions. Findings: 0 P0, 4 P1, 5 P2, 7 P3 = 16 total + 1 dead-code candidate (notifications.ts legacy NotificationDispatcher — unused in src/, only referenced by tests). Key drift: nervous-types.ts header still calls itself 'placeholder' / ADR-040 'proposed' though ADR-040 is accepted and 24 importers anchor it. Conflicting area: two NotificationDispatcher classes (snake_case events vs kebab-case) coexist in src/core/. Bug-class issue (F-4): NotifyDispatcher.flush() does not re-schedule itself when queueLength > 0 — non-critical events past the throttle window can silently accumulate. Migration triage: 5/5 audited files MIGRATE-PUBLIC; cross-referenced notifications.ts is DELETE-CANDIDATE. NO source code changes anywhere. Single audit report written. tsc/vitest verification skipped — task is read-only with no code path mutation, per DIRECTIVES (Test: N/A) and Sprint 162-live Lane 1 success criteria.",
+  "tokenUsage": {
+    "inputTokens": 65000,
+    "outputTokens": 9500,
+    "cacheReadTokens": 0,
+    "provider": "claude",
+    "model": "opus"
+  },
+  "rubricScores": {
+    "correctness": 95,
+    "test_coverage": 100,
+    "scope_compliance": 100,
+    "documentation": 95
+  },
+  "evaluationDecision": "DONE"
+}

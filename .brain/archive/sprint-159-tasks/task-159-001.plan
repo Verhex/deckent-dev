@@ -1,0 +1,23 @@
+# Execution Plan — Task 159-001: Auth Surface Checklist 7→9
+
+## Objective
+Add Surface 8 (detectCodex) and Surface 9 (detectGemini) to docs/development/auth-surface-checklist.md.
+These are legacy paths in src/core/provider.ts that were missing from the Sprint 157 surface taxonomy.
+
+## Files Modified
+- docs/development/auth-surface-checklist.md (only write target)
+
+## Changes
+1. Update "The 7 surfaces" heading + intro paragraph to "The 9 surfaces"
+2. Add "## Surface 8: `src/core/provider.ts` — `detectCodex()` legacy path" section
+   - Code intent: standalone module-level Codex detection, previously API-key-only
+   - Sprint 159 fix: added subscription auth via `codex auth status` CLI check
+   - Commit SHA: 7bec80b
+3. Add "## Surface 9: `src/core/provider.ts` — `detectGemini()` legacy path" section
+   - Code intent: standalone module-level Gemini detection, previously API-key-only
+   - Sprint 159 fix: added OAuth/subscription detection via ~/.gemini/settings.json + oauth_creds.json
+   - Commit SHA: 7bec80b
+4. Add Step 6 to Validation Playbook: verify doctor output shows correct auth labels per provider
+
+## Acceptance Criterion
+`grep -c "## Surface " docs/development/auth-surface-checklist.md` → 9

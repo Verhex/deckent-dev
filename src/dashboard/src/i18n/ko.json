@@ -1,0 +1,10 @@
+{
+  "events.sprint.eval.heartbeat-skip": "하트비트 활성 — 평가 보류",
+  "events.sprint.eval.audit-rubric-applied": "감사 루브릭 적용됨",
+  "events.sprint.eval.synthetic-timeout": "워커 시간 초과, 부분 작업 보존됨",
+  "events.sprint.spawn.deadlock-detected": "스폰 루프 데드락 감지됨",
+  "events.sprint.recover.state-reset": "스프린트 상태 초기화됨",
+  "events.sprint.recover.zombie-killed": "좀비 프로세스 종료됨",
+  "events.sprint.recover.status-sync": "상태 표시 동기화됨",
+  "events.sprint.recover.tmpfile-swept": "임시 파일 정리됨"
+}

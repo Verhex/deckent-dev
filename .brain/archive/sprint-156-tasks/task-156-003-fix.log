@@ -1,0 +1,11 @@
+`★ Insight ─────────────────────────────────────`
+This fix task confirmed that `src/core/provider-fallback.ts` was already fully documented by the prior worker — the NO_GO on the original task likely came from a verification gap (missing result file or timeout), not from missing JSDoc. The JSDoc pattern used here (`@param` + `@returns` + `@example` with real sprint error strings + `@see` chain) creates a self-contained documentation layer that doubles as a mini-specification: the `@example` blocks in `detectCapacityError` show all 5 match scenarios including the live Sprint 154 evidence string, making the regex table's intent immediately verifiable from the docs alone.
+`─────────────────────────────────────────────────`
+
+**Task 156-003-fix: DONE**
+
+- `tsc --noEmit` — 0 errors
+- `vitest run tests/orchestra/fallback-chain.test.ts` — 29/29 passed
+- `grep -c "@example" src/core/provider-fallback.ts` → **6** (requirement ≥4)
+
+The original task's JSDoc was fully in place. All 6 public exports (`MAX_FALLBACK_RETRIES`, `CapacityErrorDetection`, `FallbackRetryDecision`, `detectCapacityError`, `selectFallbackProvider`, `decideFallbackRetry`) have complete `@param`/`@returns`/`@example`/`@see` blocks. Result written to `.tasks/task-156-003-fix.result`.

@@ -1,0 +1,14 @@
+Görev tamamlandı. Aşağıdakiler teslim edildi:
+
+**Çıktılar**
+- `docs/audits/sprint-162-live/T-162-LIVE-028-cli-advanced.md` (434 satır)
+- `.tasks/task-162-028.result` (selfAssessment: DONE)
+
+**Audit özeti**
+- 8 CLI komut dosyası incelendi (~1648 LoC, ≤2000 LoC bütçesi içinde): `audit.ts`, `features.ts`, `recover.ts`, `docs.ts`, `recall.ts`, `remember.ts`, `memory.ts`, `metrics.ts`
+- **Önemli DIRECTIVES drift**: directive 7 dosya istemişti, ama 3 dosya gerçekte yok/farklı isimde — `feature-query.ts`→`features.ts`, `memory-query.ts`→3 dosyaya bölünmüş, `notify.ts` CLI komutu olarak hiç var değil. F-DRIFT-001 olarak raporlandı.
+- **Bulgular**: P0=0, P1=1 (`features.ts` `print`/`resolveProjectRoot` konvansiyonunu ihlal ediyor), P2=5 (CLI/MCP isim asimetrisi, `getRawDb` punch-through, eski `node:readline` API, ölü `routing` kolonu, kullanılmayan `parseMetricsJsonl`), P3=6 (exit code politikası, ölü interface alanı, dry-run asimetrisi, vb.)
+- **Migration triage**: 5 MIGRATE-PUBLIC, 2 KEEP-PRIVATE, 1 UNCERTAIN (`memory.ts` split-recommended)
+- **Type safety**: temiz (0 `any`/ts-ignore/as unknown as). ADR-001/002/010/012 PASS. ADR-022-V2 partial drift dokümante edildi.
+
+**Scope uyumu**: Sadece `docs/audits/sprint-162-live/T-162-LIVE-028-cli-advanced.md` eklendi; `src/cli/commands/` içinde değişiklik yapılmadı (READ-ONLY mandat onurlandırıldı).

@@ -1,0 +1,102 @@
+{
+  "id": "159-001",
+  "title": "Auth Surface Checklist 7→9 surface güncelle [CLAUDE]",
+  "description": "Auth Surface Checklist 7→9 surface güncelle [CLAUDE]\n- Model: sonnet\n- Effort: low\n- Skills: documentation-writer\n- Files: docs/development/auth-surface-checklist.md\n- Scope: docs/development/\n\n### Description\n\n`docs/development/auth-surface-checklist.md` Sprint 157'de 7 surface'la oluştu. Sprint 159 hotfix'te `src/core/provider.ts:detectGemini` + `detectCodex` legacy paths bulundu — ki bunlar surface 8 ve 9. Mevcut 7 maddeyi koruyarak Surface 8 (`detectCodex`) ve Surface 9 (`detectGemini`) bölümlerini ekle:\n\n- Her birinde \"code intent\" + \"Sprint 159 fix description\" + commit SHA `7bec80b` referansı\n- Validation playbook'a yeni adım ekle: `npx deckent doctor` çıktısında her provider için \"subscription auth active\" / \"API key configured\" / \"session auth active\" labelinin doğru göründüğünü doğrula\n\nSalt-yazı task — sadece checklist .md dosyası güncellenir.\n\n**Kanıt**: `grep -c \"## Surface \" docs/development/auth-surface-checklist.md` → 9 (önceden 7).\n\n**Test**: N/A (documentation-only).\n\n---",
+  "model": "sonnet",
+  "effort": "low",
+  "priority": "NORMAL",
+  "reason": "Directive (model: sonnet -- user override)",
+  "scope": {
+    "directories": [
+      "docs/development/",
+      "src/core/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/development/auth-surface-checklist.md",
+      "src/core/provider.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; `grep -c \"## Surface \" docs/development/auth-surface-checklist.md` → 9 (önceden 7).",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "DONE",
+  "sprintId": "sprint-159",
+  "provider": "claude",
+  "forceModel": "sonnet",
+  "forceEffort": "low",
+  "forceSkills": [
+    "documentation-writer"
+  ],
+  "assignedAgent": "doc-writer",
+  "assignedSkills": [
+    "documentation-writer"
+  ],
+  "createdAt": "2026-05-07T12:43:24.153Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "documentation",
+        "secondary": [
+          "security",
+          "config"
+        ],
+        "confidence": 0.92
+      },
+      "tags": [],
+      "domains": [
+        {
+          "name": "docs",
+          "weight": 0.5
+        },
+        {
+          "name": "core",
+          "weight": 0.5
+        }
+      ],
+      "operations": [
+        {
+          "type": "create",
+          "weight": 0.25
+        },
+        {
+          "type": "document",
+          "weight": 0.25
+        },
+        {
+          "type": "configure",
+          "weight": 0.25
+        },
+        {
+          "type": "modify",
+          "weight": 0.13
+        },
+        {
+          "type": "test",
+          "weight": 0.13
+        }
+      ],
+      "complexity": {
+        "fileCount": 2,
+        "moduleCount": 2,
+        "crossCutting": true,
+        "estimatedSize": "medium"
+      },
+      "scope": {
+        "writeRatio": {
+          "docs/": 0.5,
+          "src/": 0.5
+        },
+        "primaryWriteTarget": "docs/",
+        "testWriteRatio": 0
+      }
+    },
+    "confidence": "high",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 1728,
+  "updatedAt": "2026-05-07T13:03:01.817Z"
+}

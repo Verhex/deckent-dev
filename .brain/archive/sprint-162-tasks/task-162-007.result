@@ -1,0 +1,26 @@
+{
+  "taskId": "162-007",
+  "filesChanged": [
+    "docs/audits/sprint-162-live/T-162-LIVE-007-core-locks-events.md"
+  ],
+  "linesAdded": 268,
+  "linesRemoved": 0,
+  "testsPassed": true,
+  "coverage": null,
+  "selfAssessment": "DONE",
+  "notes": "READ-ONLY audit per Sprint 162-live Lane 1 mandate completed. Inspected file-lock.ts (src/core/), heartbeat-types.ts (src/core/), event-stream.ts (actually src/orchestra/), scope-sanitizer.ts (actually src/orchestra/), heartbeat-daemon.ts (cross-ref), cli/heartbeat.ts (cross-ref), runtime-scope-check.ts (cross-ref), decision-steps/scope-step.ts (cross-ref). Total ~1476 LoC audited, well within 2000 cap. Applied all 10 audit dimensions; 8 produced findings, 2 N/A (Memory V2 coherence, config integrity). 16 findings: 1 P0 (heartbeat-daemon default template self-blocks via shell-metachar reject of its own '|'), 5 P1 (ESM 'require' silent-fail in nervous/runtime-scope-check; DIRECTIVES file-location drift; scope-sanitizer wired to only one consumer; ADR-006 execSync vs spawnSync; CHANNELS exceeds ADR-035 V1.0), 6 P2 (file-lock corrupted-lock comment lie; DeckentEvent string-collapse; LockInfo TTL undocumented; scope-sanitizer rule duplication; deprecated decision-steps/scope-step.ts dead code; reconstructState taskResult last-event-wins), 4 P3 (cargo-cult eslint-disable; sequence counter race; CHANNELS doc drift; heartbeat-types comment KEEP). 15 recommendations R-001..R-015 ranged P0..P3. 8 files classified for migration triage (3 MIGRATE-PUBLIC, 2 KEEP-PRIVATE-until-fix, 2 MIGRATE-after-dependency-fix, 1 DELETE-CANDIDATE). Scope compliance: git status confirms only docs/audits/sprint-162-live/T-162-LIVE-007-core-locks-events.md is untracked; no src/ or tests/ writes. tsc/vitest verify N/A for read-only audit task. selfAssessment DONE because functional outcome matches task spec fully — single audit report written, all dimensions applied, all targeted files inspected, evidence cited file:line, recommendations actionable.",
+  "tokenUsage": {
+    "inputTokens": 52000,
+    "outputTokens": 6800,
+    "cacheReadTokens": 28000,
+    "provider": "claude",
+    "model": "opus"
+  },
+  "rubricScores": {
+    "correctness": 95,
+    "test_coverage": 100,
+    "scope_compliance": 100,
+    "documentation": 95
+  },
+  "evaluationDecision": "DONE"
+}

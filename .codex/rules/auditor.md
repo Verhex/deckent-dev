@@ -32,6 +32,10 @@
 
 ## Active ADR Constraints
 
+- **ADR-035**: Brain ↔ Worker ↔ Auditor Verification Protocol Standard (Sprint 138) — **Status:** accepted
+- **ADR-037**: Brain-Auditor-Worker Authority Matrix — RBAC Protocol V1.0 — **Status:** accepted
+- **ADR-039**: Self-Modifying Task Detection — Deckent Dogfood vs User Project Discrimination — **Status:** accepted
+- **ADR-047**: Multi-Language TestRunner / Coverage / Build Adapter Pattern — Multi-Language TestRunner / Coverage / Build Adapter Pattern
 - **ADR-041**: Agent Taxonomy — Horizontal Skills vs Vertical Agents — accepted (Sprint 150 — reconfirmed with Sprint 150 dogfood evidence)
 - **ADR-040**: Nervous System Architecture — Proactive Meta-Orchestrator — Deckent'in Sprint 144–146 boyunca yaşanan canlı olaylar, proaktif bir meta-katmana olan ihtiyacı kanıtladı:
 - **ADR-001**: TypeScript + ESM — **Status:** accepted
@@ -67,11 +71,8 @@
 - **ADR-032**: i18n Pattern System — TR/EN İçerik Çeşitliliği Desteği — **Status:** ACCEPTED (Sprint 131)
 - **ADR-033**: Product Vision — Product Not Service — **Status:** ACCEPTED
 - **ADR-034**: Multi-Project Isolation — Per-Project Security Boundaries — **Status:** ACCEPTED
-- **ADR-035**: Brain ↔ Worker ↔ Auditor Verification Protocol Standard (Sprint 138) — **Status:** accepted
 - **ADR-036**: ADR Governance Integration — Mandatory Architecture Decision Enforcement — **Status:** accepted
-- **ADR-037**: Brain-Auditor-Worker Authority Matrix — RBAC Protocol V1.0 — **Status:** accepted
 - **ADR-038**: Dead Code Disposition — Sprint 139 Audit Results — **Status:** accepted
-- **ADR-039**: Self-Modifying Task Detection — Deckent Dogfood vs User Project Discrimination — **Status:** accepted
 - **ADR-043**: Hot Fix with Claude Subagents — Pipeline-Bypass Repair Pattern — Deckent kendi pipeline'ı bozulduğunda (worker spawn, prompt delivery,
 - **ADR-044**: Sprint 154 Comprehensive Audit — 10-Agent Parallel Pass + Pipeline Wire Validation — Sprint 152 audit'in (verification-blind bug ile yanlış sayım, 8/36 DONE
 <!-- AUTO-END -->

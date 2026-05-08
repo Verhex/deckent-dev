@@ -1,0 +1,30 @@
+{
+  "id": "162-023-fix-fix",
+  "title": "Fix: Fix: src/orchestra/ — sprint-utils + sprint-docs-updater + remaining",
+  "description": "Priority fix for NO_GO task 162-023-fix.\nOriginal worker notes: Worker timeout/killed (exitCode=0) — HIT WORKER_TIMEOUT (task exceeded its timeout budget; re-run with longer --timeout or split scope) but git diff shows 69 files modified. Brain should reconcile via Spurious NO_GO helper.\nExpected scope: docs/audits/sprint-162-live/, src/orchestra/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-023-orch-utils-docs.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-023-fix evaluated as NO_GO; tests failed",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/orchestra/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-023-orch-utils-docs.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "PENDING",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-023-fix",
+  "createdAt": "2026-05-08T15:36:17.389Z"
+}

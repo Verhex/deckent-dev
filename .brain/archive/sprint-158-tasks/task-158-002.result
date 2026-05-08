@@ -1,0 +1,22 @@
+{
+  "taskId": "158-002",
+  "filesChanged": [
+    "docs/audits/sprint-158-auth-surface-validation.md"
+  ],
+  "testsPassed": false,
+  "selfAssessment": "NO_GO",
+  "notes": "The task to audit auth surfaces was completed and the report generated. However, `npx vitest run` failed with several pre-existing errors unrelated to the audit report:
+
+1. `tests/e2e/docker-oom-reproducer.test.ts`: Expected 'timeout:' in docker logs output, but not found.
+2. `tests/e2e/provider-smoke.test.ts`: `GeminiAdapter.isAvailable()` returned `true` when `GOOGLE_API_KEY` was not set, but `false` was expected.
+3. `tests/mcp/help.test.ts`: Expected '## Tools (27)' but found '## Tools (31)' in the help instructions, indicating a mismatch in the number of declared tools.
+
+Since the task was an audit and not to fix existing code, and these failures are pre-existing, the `selfAssessment` is `NO_GO`.",
+  "tokenUsage": {
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "cacheReadTokens": 0,
+    "provider": "claude",
+    "model": "gemini-2.5-flash"
+  }
+}

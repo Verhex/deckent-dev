@@ -1,0 +1,49 @@
+# Task 159-003 Execution Plan
+
+## Goal
+Implement `deckent metrics summary <sprintId>` (and `--last`) CLI command that aggregates and renders agent + skill + provider compliance metrics from sprint artifacts.
+
+## Files
+- src/cli/commands/metrics.ts (new) — registerMetrics + helper functions (parsers, aggregators, table renderers)
+- src/cli/index.ts — import + register
+- tests/cli/commands/metrics.test.ts (new) — 5+ tests
+
+## Data Sources
+1. `.deckent/sprint-{id}-metrics.jsonl` — events: wave.start, result.collected, hb.stale, traces (durationMs)
+2. `.tasks/archive/sprint-{id}-tasks/task-*.json` — task definitions (assignedAgent, assignedSkills, provider, model)
+3. `.tasks/archive/sprint-{id}-tasks/task-*.result` — selfAssessment, filesChanged, tokenUsage
+4. `.tasks/archive/sprint-{id}-tasks/task-*.result.fallback-attempt-N` — fallback events
+5. Fall-back: if no archive dir, read live `.tasks/` for current/in-flight sprint
+
+## Output Sections (markdown)
+- Header: `Sprint <id> — Metrics Summary`
+- Provider Distribution: provider, tasks, DONE, NO_GO, avg duration
+- Model Distribution: model, tasks, routing (always "direct" until we have re-routing telemetry)
+- Agent Compliance: agent, assigned, used, compliance%
+- Skill Compliance: skill, assigned, used (proxy = filesChanged scope match)
+- Fallback Events: list of `task-XXX: fromProvider → toProvider (reason)`
+- Honesty/Coverage Drift: count of tasks with selfAssessment=DONE but tests not actually run/pass
+
+## Approach
+- Pure helper functions (parseMetricsJsonl, scanArchive, aggregateProviderStats, aggregateModelStats, aggregateAgentStats, aggregateSkillStats, scanFallbackEvents, computeHonestyDrift, renderMarkdownTable, renderSummary) → testable in isolation.
+- `--last` resolves the most-recent sprint by reading sorted archive dirs or sprint metrics files (prefer archive presence; else fall back to .deckent/sprint-*-metrics.jsonl with highest sprint number).
+- "Compliance" for agent: how many of the assigned-agent tasks reached DONE/GO_WITH_TECH_DEBT (i.e., the worker stayed in role). For "(generic)" we count tasks without assignedAgent.
+- "Used" for skill: filesChanged contains at least one path that overlaps with task.scope.directories (proxy), OR result was DONE/GO_WITH_TECH_DEBT.
+- Avg duration: derived from sprint metrics traces or task createdAt → result mtime difference.
+- Graceful: if sprint has no archive AND no metrics file → print friendly "no data found" message and exit 0.
+
+## Tests (target 7+)
+1. `parseMetricsJsonl` — handles valid jsonl, ignores invalid lines
+2. `aggregateProviderStats` — counts DONE/NO_GO and computes avg duration correctly
+3. `aggregateModelStats` — collects unique models with counts
+4. `aggregateAgentStats` — handles generic (missing assignedAgent) bucket
+5. `aggregateSkillStats` — uses filesChanged proxy correctly
+6. `scanFallbackEvents` — finds and reports fallback-attempt-N files
+7. CLI flag parse — `summary <sprintId>` and `summary --last` resolve correctly
+8. Missing sprint graceful message
+9. Render full markdown contains every section header
+
+## Verify
+- `tsc --noEmit`
+- `npx vitest run tests/cli/commands/metrics.test.ts`
+- `npx vitest run` (full)

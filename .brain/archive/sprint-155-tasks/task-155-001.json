@@ -1,0 +1,114 @@
+{
+  "id": "155-001",
+  "title": "Runtime Fallback Chain — 429/Capacity Auto-Recovery",
+  "description": "Runtime Fallback Chain — 429/Capacity Auto-Recovery\n- Model: opus\n- Effort: high\n- Skills: typescript-expert, system-architect, testing-expert\n- Files: src/orchestra/sprint-controller.ts, src/orchestra/result-evaluator.ts, src/core/provider-fallback.ts (new), tests/orchestra/fallback-chain.test.ts (new)\n- Scope: src/orchestra/, src/core/, tests/orchestra/\n\n### Description\n\nWorker output'unda 429/capacity/quota patterns tespit edildiğinde (örn. Gemini'nin `\"No capacity available for model X on the server\"` veya OpenAI'nin `\"rate_limit_exceeded\"`), task'ı otomatik olarak `fallback_provider` ile yeniden execute et. Sprint 154'te doctor `checkFallbackProviderGap()` config'de fallback unset uyarısı veriyor; bu task runtime tarafını tamamlıyor.\n\n**Dizayn**:\n1. **`src/core/provider-fallback.ts`** — `detectCapacityError(workerOutput): { hit: boolean; reason: string; provider: ProviderName }` regex tabanlı tespit. Test edilebilir saf fonksiyon.\n2. **`src/orchestra/result-evaluator.ts`** — Result evaluate ederken `selfAssessment === 'NO_GO'` + `capacity error detected` → `RetryWithFallback` action emit et.\n3. **`src/orchestra/sprint-controller.ts`** — FIX phase'inde RetryWithFallback geldiğinde, task'ın provider'ını `fallback_provider`a swap edip respawn et (max 1 fallback retry per task — sonsuz döngü yok).\n4. Retry sonucu .result'a `tokenUsage.provider`'da kullanılan provider yazılı kalmalı (fallback olduğu görülmeli).\n\n**Kanıt**: `npx vitest run tests/orchestra/fallback-chain.test.ts` 8+ test; mock worker output ile `detectCapacityError` true/false matris; `result-evaluator` retry önerisi; `sprint-controller` fallback respawn integration.\n\n**Test**: 8+ test (gemini 429 detect, openai rate_limit detect, claude overloaded detect, no capacity = no fallback, fallback chain unset = NO_GO not retry, max-retry=1 enforcement, fallback success path, fallback also fails path).\n\n---",
+  "model": "opus",
+  "effort": "high",
+  "priority": "NORMAL",
+  "reason": "Directive (model: opus -- user override)",
+  "scope": {
+    "directories": [
+      "src/orchestra/",
+      "src/core/",
+      "tests/orchestra/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "src/orchestra/sprint-controller.ts",
+      "src/orchestra/result-evaluator.ts",
+      "src/core/provider-fallback.ts (new)",
+      "tests/orchestra/fallback-chain.test.ts (new)",
+      "src/core/provider-fallback.ts",
+      "tests/orchestra/fallback-chain.test.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; `npx vitest run tests/orchestra/fallback-chain.test.ts` 8+ test; mock worker output ile `detectCapacityError` true/false matris; `result-evaluator` retry önerisi; `sprint-controller` fallback respawn integration.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "DONE",
+  "sprintId": "sprint-155",
+  "provider": "claude",
+  "forceModel": "opus",
+  "forceEffort": "high",
+  "forceSkills": [
+    "typescript-expert",
+    "system-architect",
+    "testing-expert"
+  ],
+  "assignedAgent": "architect",
+  "assignedSkills": [
+    "typescript-expert",
+    "system-architect",
+    "testing-expert"
+  ],
+  "createdAt": "2026-05-07T10:40:43.901Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "implementation",
+        "secondary": [
+          "documentation",
+          "config"
+        ],
+        "confidence": 0.74
+      },
+      "subIntent": "config",
+      "tags": [
+        "test-coverage"
+      ],
+      "domains": [
+        {
+          "name": "orchestra",
+          "weight": 0.67
+        },
+        {
+          "name": "core",
+          "weight": 0.33
+        }
+      ],
+      "operations": [
+        {
+          "type": "create",
+          "weight": 0.33
+        },
+        {
+          "type": "modify",
+          "weight": 0.17
+        },
+        {
+          "type": "test",
+          "weight": 0.17
+        },
+        {
+          "type": "document",
+          "weight": 0.17
+        },
+        {
+          "type": "configure",
+          "weight": 0.17
+        }
+      ],
+      "complexity": {
+        "fileCount": 6,
+        "moduleCount": 2,
+        "crossCutting": true,
+        "estimatedSize": "large"
+      },
+      "scope": {
+        "writeRatio": {
+          "src/": 0.67,
+          "tests/": 0.33
+        },
+        "primaryWriteTarget": "src/",
+        "testWriteRatio": 0.33
+      }
+    },
+    "confidence": "medium",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 3193,
+  "updatedAt": "2026-05-07T10:55:06.011Z"
+}

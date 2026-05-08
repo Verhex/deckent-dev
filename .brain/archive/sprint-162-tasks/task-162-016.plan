@@ -1,0 +1,28 @@
+# Task 162-016 Execution Plan
+
+## Goal
+READ-ONLY audit of `src/orchestra/task-router.ts`, `src/orchestra/rule-evolver.ts`,
+`src/orchestra/outcome-tracker.ts`. Output single audit report at
+`docs/audits/sprint-162-live/T-162-LIVE-016-orch-router-evolve.md`.
+
+## Approach
+1. Read all three source files (≤2000 LoC total)
+2. Read related types: routing-types, outcome-tracker types, condition-evaluator
+3. Apply 10 audit dimensions per file
+4. Verify lead questions:
+   - 6-level routing priority (config → force → agent → skill → worker → fallback per ADR-015)
+   - learning bonus correctness (recordOutcome → applyLearningBonus delta)
+   - synergy matrix (agent×skill pair tracking)
+5. Severity classify findings: P0/P1/P2/P3
+6. Migration triage per file: KEEP-PRIVATE | MIGRATE-PUBLIC | DELETE-CANDIDATE | UNCERTAIN
+
+## Output
+Single report file (mandatory format: Scope, Findings, Evidence, Migration triage,
+Recommendation). Severity-ordered findings with file:line citations.
+
+## Constraints
+- READ-ONLY: NO source code edits
+- scope.filesWrite contains exactly ONE path: the audit report
+- ADR-039 self-modifying detector active
+- Build/test verify (tsc + vitest) is N/A per task spec but I will run tsc to ensure
+  audit report doesn't accidentally break build

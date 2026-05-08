@@ -1,0 +1,32 @@
+{
+  "id": "162-007-fix",
+  "title": "Fix: src/core/ — file-lock + event-stream + heartbeat",
+  "description": "Priority fix for NO_GO task 162-007.\nOriginal worker notes: READ-ONLY audit per Sprint 162-live Lane 1 mandate completed. Inspected file-lock.ts (src/core/), heartbeat-types.ts (src/core/), event-stream.ts (actually src/orchestra/), scope-sanitizer.ts (actually src/orchestra/), heartbeat-daemon.ts (cross-ref), cli/heartbeat.ts (cross-ref), runtime-scope-check.ts (cross-ref), decision-steps/scope-step.ts (cross-ref). Total ~1476 LoC audited, well within 2000 cap. Applied all 10 audit dimensions; 8 produced findings, 2 N/A (Memory V2 coherence, config inte\nRubric: correctness=95, test_coverage=100, scope_compliance=100\nExpected scope: docs/audits/sprint-162-live/, src/core/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-007-core-locks-events.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-007 evaluated as NO_GO; correctness=95; test_coverage=100; scope_compliance=100",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/core/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-007-core-locks-events.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-007",
+  "createdAt": "2026-05-08T15:17:26.938Z",
+  "estimatedTokens": 98,
+  "updatedAt": "2026-05-08T15:36:17.387Z"
+}

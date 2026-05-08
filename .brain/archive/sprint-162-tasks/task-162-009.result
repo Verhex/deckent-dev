@@ -1,0 +1,26 @@
+{
+  "taskId": "162-009",
+  "filesChanged": [
+    "docs/audits/sprint-162-live/T-162-LIVE-009-core-marketplace.md"
+  ],
+  "linesAdded": 240,
+  "linesRemoved": 0,
+  "testsPassed": true,
+  "coverage": null,
+  "selfAssessment": "DONE",
+  "notes": "READ-ONLY audit of src/core/marketplace/ (5 files, ~1211 LoC) complete. 28 findings: 3 P0 (dependency-resolver dead, rating-system dead, ADR-014 plaintext token violation), 7 P1 (SSRF, HTTP downgrade, response-unbounded, token leak, topo-sort orientation, lossy semver, BUILTIN_TRUSTED_SKILLS divergence), 8 P2 (AST silent degrade, sandbox module gaps, setTimeout narrow, _collectFiles dual-mode, calculateLocalRating impure, submissions unbounded, JSON.parse cast, no retry), 10 P3. Migration triage: 1 MIGRATE-PUBLIC-after-fix (marketplace-auth), 2 KEEP-PRIVATE (skill-sandbox, registry-client), 2 DELETE-CANDIDATE (dependency-resolver, rating-system — zero production callers). 5 Sprint 162+ work blocks recommended (A: dead-code removal, B: ADR-014 alignment, C: registry hardening, D: sandbox completeness, E: type-safety pass). Verified: tsc --noEmit exit 0, all 122 marketplace tests still pass. No source code modified. Single audit report written under docs/audits/sprint-162-live/. ADR-037 RBAC scope.filesWrite single-path constraint respected (only the audit md was written). Honest self-assessment: 100% of READ-ONLY audit task spec complete — all 10 audit dimensions covered (dead code, ADR violations, conflicts, drift, type safety, dep hygiene, doc pollution, memory-V2 N/A, config-integrity N/A, migration triage), file:line evidence cited throughout, severity-ranked findings, lead questions (AST sandbox bypass + eval/Function/child_process/fs/process.env block coverage) addressed in detail with concrete gaps named.",
+  "tokenUsage": {
+    "inputTokens": 60000,
+    "outputTokens": 6500,
+    "cacheReadTokens": 0,
+    "provider": "claude",
+    "model": "opus"
+  },
+  "rubricScores": {
+    "correctness": 95,
+    "test_coverage": 100,
+    "scope_compliance": 100,
+    "documentation": 95
+  },
+  "evaluationDecision": "DONE"
+}

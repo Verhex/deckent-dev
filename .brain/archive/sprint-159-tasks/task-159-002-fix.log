@@ -1,0 +1,5 @@
+`★ Insight ─────────────────────────────────────`
+The root cause was a **semantic gap between `authStatus` and `authMethod`** on `HealthCheckResult`. The `authStatus: 'ok'` field means "authenticated", but the code was also relying on `authMethod: 'api_key'` to choose the human label. Since `HealthCheckResult` doesn't require `authMethod`, old callers that only set `authStatus` would hit the fallback `'auth configured'`. The fix treats `undefined` authMethod the same as `api_key` for non-Claude providers — a safe default because Codex/Gemini have no other auth mechanism.
+`─────────────────────────────────────────────────`
+
+Task complete. The fix was a one-line change in `formatConnectorHealthLines` (doctor.ts:312) — added `|| am === undefined` to the `api_key` branch so non-Claude providers default to `"API key configured"` when no `authMethod` is present on the `HealthCheckResult`. All 190 doctor tests now pass; the `--refresh-models` flag itself was already fully wired by the original worker.

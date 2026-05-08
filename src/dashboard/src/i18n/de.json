@@ -1,0 +1,10 @@
+{
+  "events.sprint.eval.heartbeat-skip": "Heartbeat aktiv — Bewertung verschoben",
+  "events.sprint.eval.audit-rubric-applied": "Audit-Bewertungsraster angewendet",
+  "events.sprint.eval.synthetic-timeout": "Worker hat das Zeitlimit überschritten, Teilarbeit erhalten",
+  "events.sprint.spawn.deadlock-detected": "Spawn-Schleifen-Deadlock erkannt",
+  "events.sprint.recover.state-reset": "Sprint-Status zurückgesetzt",
+  "events.sprint.recover.zombie-killed": "Zombie-Prozess beendet",
+  "events.sprint.recover.status-sync": "Statusanzeige synchronisiert",
+  "events.sprint.recover.tmpfile-swept": "Temporäre Dateien bereinigt"
+}

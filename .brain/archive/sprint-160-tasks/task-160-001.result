@@ -1,0 +1,28 @@
+{
+  "taskId": "160-001",
+  "filesChanged": [
+    "src/orchestra/sprint-lifecycle.ts",
+    "src/orchestra/sprint-docs-updater.ts",
+    "src/cli/commands/cleanup.ts"
+  ],
+  "linesAdded": 8,
+  "linesRemoved": 5,
+  "testsPassed": false,
+  "coverage": null,
+  "selfAssessment": "GO_WITH_TECH_DEBT",
+  "notes": "Source-code change complete and correct per spec: all three sweep paths now use `.prompt-task-` / `.worker-task-` prefix narrowing instead of generic `.prompt-` / `.worker-`. Verified: `grep -n \"startsWith('\\\\.prompt-task-')\" src/` returns exactly 3 hits in the three target files (sprint-lifecycle.ts:270, sprint-docs-updater.ts:707, cleanup.ts:79). `tsc --noEmit` is clean (exit 0).\n\nTECH_DEBT (out of filesWrite scope — defer to tests/ follow-up): 4 existing unit tests fail because their fixtures plant the OLD generic `.prompt-NNN.txt` pattern, which the new spec intentionally treats as a non-task plant and preserves. Failing tests:\n  1. tests/orchestra/sprint-docs-cleanup.test.ts > 'archives .prompt-* files alongside task files' (plants `.prompt-abc123.txt`)\n  2. tests/cli/commands/cleanup-dryrun.test.ts > 'should list prompt files correctly' (plants `.prompt-001.txt`)\n  3. tests/cli/commands/cleanup.test.ts > 'A) dry-run correctly separates task files and prompt files in single pass'\n  4. tests/cli/commands/cleanup.test.ts > 'E) dry-run shows prompts will be archived not deleted'\nFix: rename plant fixtures to `.prompt-task-NNN.txt`. This is anticipated by the directive's `Mevcut unit test'ler kırılırsa düzeltilir` clause but lives outside this task's filesWrite scope (3 src/ files only). ADR-037 RBAC enforcement honored — did not touch tests/.\n\nObservation (not in scope of this task): `src/mcp/tools/cleanup.ts:28,46` and `src/orchestra/spawn-backend-docker.ts:776` and `src/providers/claude.ts:155` and `src/cli/commands/kill.ts:74` still use generic `.prompt-` matching. Of these, `mcp/tools/cleanup.ts` is the closest discipline-bleed (parallel sweep that should likely also be narrowed to match the in-sprint cleanup behavior). The other three are backend-internal tmpfile lifecycle and may be intentional. Not modified — strictly outside filesWrite. Recommend follow-up sprint task to evaluate.\n\nVerify-delta: baseline state — generic `.prompt-` filter active in 3 paths; end state — `.prompt-task-` prefix enforced in those 3 paths; functional delta matches directive 100%. Code change is DONE; test fixtures are stale (~95% complete; gap is fixture rename).",
+  "tokenUsage": {
+    "inputTokens": 18000,
+    "outputTokens": 3500,
+    "cacheReadTokens": 0,
+    "provider": "claude",
+    "model": "opus"
+  },
+  "rubricScores": {
+    "correctness": 100,
+    "test_coverage": 60,
+    "scope_compliance": 100,
+    "documentation": 85
+  },
+  "evaluationDecision": "GO_WITH_TECH_DEBT"
+}

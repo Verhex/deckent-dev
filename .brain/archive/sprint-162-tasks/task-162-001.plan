@@ -1,0 +1,30 @@
+{
+  "taskId": "162-001",
+  "title": "src/core/ — config + types READ-ONLY audit",
+  "approach": "Apply 10 audit dimensions to src/core/{config.ts, config-types.ts, types.ts, constants.ts} + 2-3 related *-types.ts files. WRITE NO SOURCE CODE. Single audit report at docs/audits/sprint-162-live/T-162-LIVE-001-core-config-types.md. Lead question: ADR-004 3-layer config merge correctness.",
+  "filesToRead": [
+    "src/core/config.ts",
+    "src/core/config-types.ts",
+    "src/core/types.ts",
+    "src/core/constants.ts",
+    "src/core/routing-types.ts",
+    "src/core/memory-types.ts"
+  ],
+  "filesToWrite": [
+    "docs/audits/sprint-162-live/T-162-LIVE-001-core-config-types.md"
+  ],
+  "dimensions": [
+    "1. Dead code (unused exports)",
+    "2. ADR violations (44 active ADRs, esp. ADR-004 3-layer config merge)",
+    "3. Conflicting areas (duplicated logic)",
+    "4. Drift (comments vs behavior, claims vs reality)",
+    "5. Type safety (any, ts-ignore, as unknown as)",
+    "6. Dependency hygiene (.js extensions, circular deps)",
+    "7. Documentation pollution",
+    "8. Memory V2 coherence",
+    "9. Config integrity",
+    "10. Migration triage classification"
+  ],
+  "writtenAt": "2026-05-08T14:50:00.000Z",
+  "writtenBy": "worker-w-162-001-restart"
+}

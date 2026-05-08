@@ -1,0 +1,104 @@
+{
+  "id": "162-001",
+  "title": "src/core/ — config + types",
+  "description": "src/core/ — config + types\n- Model: opus\n- Effort: normal\n- Skills: typescript-expert\n- Files: docs/audits/sprint-162-live/T-162-LIVE-001-core-config-types.md\n- Scope: src/core/\n\n### Description\nREAD-ONLY audit of `src/core/config.ts`, `src/core/config-types.ts`, `src/core/types.ts`,\n`src/core/constants.ts` and 2-3 related `*-types.ts` modules (≤8 files, ≤2000 LoC).\nApply 10 dimensions. Lead questions: ADR-004 3-layer config merge correctness?\n\n**Kanıt:** Single audit report.\n**Test:** N/A (read-only).\n\n---",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "NORMAL",
+  "reason": "Directive (model: opus -- user override)",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/core/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-001-core-config-types.md",
+      "src/core/config.ts",
+      "src/core/config-types.ts",
+      "src/core/types.ts",
+      "src/core/constants.ts",
+      "types.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "DONE",
+  "sprintId": "sprint-162",
+  "provider": "claude",
+  "forceModel": "opus",
+  "forceEffort": "normal",
+  "forceSkills": [
+    "typescript-expert"
+  ],
+  "assignedAgent": "architect",
+  "assignedSkills": [
+    "typescript-expert"
+  ],
+  "createdAt": "2026-05-08T14:41:19.389Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "implementation",
+        "secondary": [
+          "documentation",
+          "config"
+        ],
+        "confidence": 0.63
+      },
+      "subIntent": "types",
+      "tags": [],
+      "domains": [
+        {
+          "name": "core",
+          "weight": 0.63
+        },
+        {
+          "name": "docs",
+          "weight": 0.25
+        }
+      ],
+      "operations": [
+        {
+          "type": "test",
+          "weight": 0.25
+        },
+        {
+          "type": "document",
+          "weight": 0.25
+        },
+        {
+          "type": "configure",
+          "weight": 0.25
+        },
+        {
+          "type": "create",
+          "weight": 0.25
+        }
+      ],
+      "complexity": {
+        "fileCount": 6,
+        "moduleCount": 2,
+        "crossCutting": true,
+        "estimatedSize": "large"
+      },
+      "scope": {
+        "writeRatio": {
+          "docs/": 0.17,
+          "src/": 0.67,
+          "./": 0.17
+        },
+        "primaryWriteTarget": "src/",
+        "testWriteRatio": 0
+      }
+    },
+    "confidence": "medium",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 1901,
+  "updatedAt": "2026-05-08T15:17:24.164Z"
+}

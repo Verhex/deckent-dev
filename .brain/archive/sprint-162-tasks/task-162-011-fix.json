@@ -1,0 +1,31 @@
+{
+  "id": "162-011-fix",
+  "title": "Fix: src/core/ — notification + nervous types",
+  "description": "Priority fix for NO_GO task 162-011.\nOriginal worker notes: READ-ONLY audit complete per Sprint 162-live Task 11. Audited 5 files (734 LoC): notification-dispatcher.ts (199), notify-adapters/cli-adapter.ts (79), notify-adapters/file-adapter.ts (41), notify-adapters/mcp-adapter.ts (84), nervous-types.ts (331). Cross-referenced 4 wire-integrity files (notify-registry.ts, orchestra/notify.ts, nervous/dispatcher.ts, notifications.ts) without modifying them. Applied all 10 audit dimensions. Findings: 0 P0, 4 P1, 5 P2, 7 P3 = 16 total + 1 dead-code candidate (\nRubric: correctness=95, test_coverage=100, scope_compliance=100\nExpected scope: docs/audits/sprint-162-live/, src/core/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-011-core-notify-nervous.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-011 evaluated as NO_GO; correctness=95; test_coverage=100; scope_compliance=100",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/core/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-011-core-notify-nervous.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-011",
+  "createdAt": "2026-05-08T15:17:26.955Z",
+  "updatedAt": "2026-05-08T15:36:17.388Z"
+}

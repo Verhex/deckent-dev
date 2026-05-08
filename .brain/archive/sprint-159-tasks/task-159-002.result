@@ -1,0 +1,27 @@
+{
+  "taskId": "159-002",
+  "filesChanged": [
+    "src/cli/commands/doctor.ts",
+    "tests/cli/commands/doctor.test.ts"
+  ],
+  "linesAdded": 55,
+  "linesRemoved": 2,
+  "testsPassed": true,
+  "coverage": null,
+  "selfAssessment": "DONE",
+  "notes": "Wired `deckent doctor --refresh-models` flag:\n1. Added `.option('--refresh-models', '...')` to registerDoctor in doctor.ts\n2. Added handler: calls refreshAllProviders(modelRegistry, { root }), saves state via saveRefreshState, prints per-provider table (success/skipped/failed), returns early\n3. Added imports for refreshAllProviders, loadRefreshState, saveRefreshState, modelRegistry, RefreshResult, RegistryProviderName\n4. Added vi.mock for model-registry-refresh.js and model-registry.js in test file\n5. Added 3 new tests: flag registration, success output, no-auth skip output — all 3 pass\n\nEvidence: grep -c 'refresh-models' src/cli/commands/doctor.ts → 2\nBaseline: 187 tests, 1 pre-existing failing (formatConnectorHealthLines API key label test — makeResult helper missing authMethod field, unrelated to this task)\nEnd state: 190 tests, 189 passing (+3 new), 1 same pre-existing failure\ntsc --noEmit: clean (0 errors)\nDelta: 100% complete — flag wired, handler implemented, state saved, output formatted, tests passing",
+  "tokenUsage": {
+    "inputTokens": 42000,
+    "outputTokens": 4800,
+    "cacheReadTokens": 85000,
+    "provider": "claude",
+    "model": "sonnet"
+  },
+  "rubricScores": {
+    "correctness": 100,
+    "test_coverage": 95,
+    "scope_compliance": 100,
+    "documentation": 80
+  },
+  "evaluationDecision": "DONE"
+}

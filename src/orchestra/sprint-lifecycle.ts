@@ -30,6 +30,7 @@ import {
 
 // ─── Core — utils ─────────────────────────────────────────────────
 import { readJsonSafe, debugLog } from '../core/utils.js';
+import { isTaskTmpfile } from '../core/task-tmpfile-pattern.js';
 
 // ─── Notify (DECKENT→USER:NOTIFY — Hot Fix H6) ────────────────────
 import { notify } from './notify.js';
@@ -263,10 +264,13 @@ export function cleanup(projectRoot: string, sprint: Sprint, spawnBackend?: Spaw
     }
   }
 
-  // Clean up leftover .tasks/.prompt-* and .worker-*.sh hidden tmpfiles from Docker/tmux backends
+  // Clean up leftover .tasks/.prompt-* and .worker-*.sh hidden tmpfiles
+  // from Docker/tmux backends. Forensic plants (TEST-*, MANUAL-*, lowercase
+  // test-/manual-) preserved via shared isTaskTmpfile classifier
+  // (ADR-039 V2 — Sprint 162A R5 Plan B digit-prefix guard).
   if (existsSync(tasksDir)) {
     for (const file of readdirSync(tasksDir)) {
-      if (file.startsWith('.prompt-') || (file.startsWith('.worker-') && file.endsWith('.sh'))) {
+      if (isTaskTmpfile(file)) {
         try { unlinkSync(join(tasksDir, file)); } catch (e) { debugLog('cleanup:unlinkTmpFile', e); }
       }
     }

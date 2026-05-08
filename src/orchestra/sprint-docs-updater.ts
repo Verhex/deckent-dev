@@ -19,6 +19,7 @@ import './doc-updaters/index.js';
 import { runManagedDocUpdates } from './managed-docs/managed-doc-runner.js';
 import { debugLog } from '../core/utils.js';
 import { modelRegistry } from '../core/model-registry.js';
+import { isTaskTmpfile } from '../core/task-tmpfile-pattern.js';
 import { extractSprintNumber } from './sprint-metrics.js';
 import {
   buildSprintLogLines,
@@ -702,9 +703,11 @@ export function archiveOrphanTasks(projectRoot: string, sprintId: string): numbe
   const taskFiles = allFiles.filter(f =>
     f.startsWith(prefix) && ORPHAN_TASK_EXTENSIONS.test(f),
   );
-  // Also archive .prompt-* files for this sprint
-  const promptFiles = allFiles.filter(f => f.startsWith('.prompt-'));
-  const filesToArchive = [...taskFiles, ...promptFiles];
+  // Also archive .prompt-${taskId}-…txt + .worker-${taskId}.sh tmpfiles for
+  // this sprint. Plant guard inside isTaskTmpfile preserves forensic
+  // TEST-*/MANUAL-*/lowercase test-/manual- files (ADR-039 V2 — Sprint 162A R5).
+  const tmpFiles = allFiles.filter(isTaskTmpfile);
+  const filesToArchive = [...taskFiles, ...tmpFiles];
 
   if (filesToArchive.length === 0) {
     debugLog('archiveOrphanTasks', `No orphan task files for ${sprintId}`);

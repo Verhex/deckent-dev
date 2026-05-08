@@ -1,0 +1,17 @@
+Task complete. Here's a summary of what was implemented:
+
+**`deckent doctor --refresh-models` is now wired.**
+
+**Changes made:**
+
+`src/cli/commands/doctor.ts`:
+- Added 4 imports: `refreshAllProviders`, `loadRefreshState`, `saveRefreshState`, `RefreshResult` from `model-registry-refresh.js`; `modelRegistry`, `RegistryProviderName` from `model-registry.js`
+- Added `.option('--refresh-models', 'Refresh provider model registries from remote APIs...')` to the command
+- Added early-return handler: calls `refreshAllProviders`, saves timestamps via `saveRefreshState`, prints per-provider output (`Refreshed claude (3 models found)` / `Codex — skipped (No OPENAI_API_KEY...)`)
+
+`tests/cli/commands/doctor.test.ts`:
+- Added `vi.mock` stubs for `model-registry-refresh.js` (success for claude, skipped for codex/gemini) and `model-registry.js`
+- Added import for `refreshAllProviders`, `saveRefreshState`
+- Added 3 new tests: flag registration, success output, no-auth skip path — all 3 pass
+
+**Verification:** `tsc --noEmit` clean, 189/190 tests pass (1 pre-existing unrelated failure).

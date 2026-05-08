@@ -1,0 +1,107 @@
+{
+  "id": "156-003",
+  "title": "src/core/provider-fallback.ts JSDoc Genişletme",
+  "description": "src/core/provider-fallback.ts JSDoc Genişletme\n- Model: gemini-2.5-flash\n- Effort: low\n- Skills: documentation-writer, typescript-expert\n- Files: src/core/provider-fallback.ts\n- Scope: src/core/\n\n### Description\n\nSprint 155 Task 1'de oluşturulan `src/core/provider-fallback.ts`'in (216 LoC) public API'sine **kapsamlı JSDoc** ekle. Mevcut comment'leri korurken her exported fonksiyon ve type için:\n- `@param` her parametre için\n- `@returns` dönen değer açıklaması\n- `@example` en az 1 kullanım örneği (gerçek 429 mesajı pattern'i ile)\n- `@see` related fonksiyonlar veya ADR referansları\n\n**Mevcut kodu değiştirme** — sadece JSDoc bloklarını genişlet. Public exports: `detectCapacityError`, `selectFallbackProvider`, `decideFallbackRetry`, `MAX_FALLBACK_RETRIES`, ve type'lar.\n\n**Kanıt**: `grep -c \"@example\" src/core/provider-fallback.ts` → ≥4 (her major fonksiyon için 1 örnek); `npx tsc --noEmit` clean kalır.\n\n**Test**: \n1. `npx tsc --noEmit` 0 errors (tip-cast bozulması olmadığını doğrular)\n2. `npx vitest run tests/orchestra/fallback-chain.test.ts` 29/29 pass (mevcut testler etkilenmedi)\n\n---\n\n## Sprint 156 Notları (planlama meta)\n\n- **Tüm task'lar Gemini routing'te çalışmalı** (`worker_provider: gemini` config'de set). Task model fields `gemini-2.5-flash` explicit override.\n- **Fallback chain test fırsatı**: Eğer Gemini 429/capacity hit ederse, Sprint 155 Task 1 fallback chain Claude'a swap etmeli. tokenUsage.provider'a bakarak fallback'in tetiklenip tetiklenmediğini görürüz.\n- **Sprint completion criteria**: 3 task'tan en az 1 DONE → Sprint 156 başarılı kabul edilir (gate #8 close için yeterli kanıt).\n- **No regression**: Mevcut 6332+ test geçmeye devam etmeli.\n- **Quota optimizasyonu**: Tüm task'lar `gemini-2.5-flash` (free Code Assist tier'da en cömert quota); pro variant'tan kaçınıldı.",
+  "model": "sonnet",
+  "effort": "low",
+  "priority": "NORMAL",
+  "reason": "Directive (model: sonnet -- user override)",
+  "scope": {
+    "directories": [
+      "src/core/",
+      "tests/orchestra/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "src/core/provider-fallback.ts",
+      "tests/orchestra/fallback-chain.test.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; `grep -c \"@example\" src/core/provider-fallback.ts` → ≥4 (her major fonksiyon için 1 örnek); `npx tsc --noEmit` clean kalır.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-156",
+  "provider": "claude",
+  "forceModel": "gemini-2.5-flash",
+  "forceEffort": "low",
+  "forceSkills": [
+    "documentation-writer",
+    "typescript-expert"
+  ],
+  "assignedAgent": "react-ts-specialist",
+  "assignedSkills": [
+    "documentation-writer",
+    "typescript-expert"
+  ],
+  "createdAt": "2026-05-07T11:10:04.501Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "implementation",
+        "secondary": [
+          "documentation",
+          "config"
+        ],
+        "confidence": 0.7
+      },
+      "subIntent": "config",
+      "tags": [
+        "test-coverage"
+      ],
+      "domains": [
+        {
+          "name": "core",
+          "weight": 0.5
+        },
+        {
+          "name": "orchestra",
+          "weight": 0.5
+        }
+      ],
+      "operations": [
+        {
+          "type": "document",
+          "weight": 0.43
+        },
+        {
+          "type": "delete",
+          "weight": 0.14
+        },
+        {
+          "type": "test",
+          "weight": 0.14
+        },
+        {
+          "type": "configure",
+          "weight": 0.14
+        },
+        {
+          "type": "create",
+          "weight": 0.14
+        }
+      ],
+      "complexity": {
+        "fileCount": 2,
+        "moduleCount": 2,
+        "crossCutting": true,
+        "estimatedSize": "medium"
+      },
+      "scope": {
+        "writeRatio": {
+          "src/": 0.5,
+          "tests/": 0.5
+        },
+        "primaryWriteTarget": "src/",
+        "testWriteRatio": 0.5
+      }
+    },
+    "confidence": "uncertain",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 1540,
+  "updatedAt": "2026-05-07T11:15:08.780Z"
+}

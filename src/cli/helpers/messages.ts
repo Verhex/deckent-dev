@@ -126,6 +126,10 @@ const MESSAGES: MessageMap = {
     en: 'Failed to read dashboard file.',
     tr: 'Dashboard dosyası okunamadı.',
   },
+  'status.dashboard_stale_fallback': {
+    en: '  ⚠ Dashboard snapshot is stale (post-recover) — counts rebuilt from task files.',
+    tr: '  ⚠ Dashboard görüntüsü güncel değil (recover sonrası) — sayımlar görev dosyalarından yenilendi.',
+  },
 
   // ─── cleanup command ─────────────────────────────────────────────────
   'cleanup.decay_complete': {

@@ -1,0 +1,34 @@
+# Task 162-020 Plan — src/orchestra/ spawn-backend-subprocess + spawn helpers Audit
+
+## Scope (READ-ONLY)
+Audit `src/orchestra/spawn-backend.ts` (subprocess) and related spawn helpers.
+Single output: docs/audits/sprint-162-live/T-162-LIVE-020-orch-subprocess.md
+
+## Files To Audit
+1. src/orchestra/spawn-backend.ts (subprocess hybrid backend, ADR-027)
+2. src/orchestra/spawn-backend-mock.ts (test mock)
+3. src/orchestra/connector.ts (worker spawn entry point)
+4. src/orchestra/sprint-spawner.ts (high-level spawn orchestrator)
+5. src/orchestra/sprint-runner-entry.ts (subprocess runner)
+6. src/orchestra/sprint-pid-manager.ts (PID lifecycle)
+
+## Lead Questions
+- ADR-027 hybrid spawn backend correctness
+- Parity with spawn-backend-docker.ts
+- Process lifecycle (spawn, kill, exit) hygiene
+- Error handling, exit code propagation
+
+## 10 Audit Dimensions
+1. Dead code / unused exports
+2. ADR violations (ADR-006 spawnSync, ADR-008 dependency, ADR-027 hybrid)
+3. Conflicting/duplicated logic with docker backend
+4. Drift (claims vs behavior)
+5. Type safety (any, ts-ignore)
+6. Dependency hygiene (.js extensions, circular)
+7. Documentation pollution
+8. Memory V2 coherence (n/a)
+9. Config integrity
+10. Migration triage classification per file
+
+## Output
+Single markdown report at docs/audits/sprint-162-live/T-162-LIVE-020-orch-subprocess.md

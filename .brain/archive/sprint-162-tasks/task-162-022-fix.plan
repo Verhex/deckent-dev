@@ -1,0 +1,24 @@
+# Plan — Task 162-022-fix: Audit promotion-pipeline + temp-skill-generator
+
+## Approach
+Re-do the READ-ONLY audit cleanly. Previous attempt was NO_GO. Output is one
+markdown report at docs/audits/sprint-162-live/T-162-LIVE-022-orch-promote-temp.md
+covering the full 10-dimension audit pass over:
+- src/orchestra/promotion-pipeline.ts (291 LoC)
+- src/orchestra/temp-skill-generator.ts (391 LoC)
+
+## Steps
+1. Read both target files in full.
+2. Read referenced types (PromotionResult, AgentDefinition, TempSkillCriteria, etc).
+3. Cross-check Sprint 153 D3 fix history (temp-temp- double prefix).
+4. Identify 10-dimension findings, attach file:line citations.
+5. Per-file migration triage (KEEP/MIGRATE/DELETE/UNCERTAIN).
+6. Write report.
+7. tsc --noEmit + vitest run smoke check (no source changes — should pass).
+8. Write result file.
+
+## Files modified
+Only docs/audits/sprint-162-live/T-162-LIVE-022-orch-promote-temp.md (write).
+
+## Risk
+Zero source changes. ADR-039 not triggered.

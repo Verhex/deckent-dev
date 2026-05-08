@@ -9,6 +9,16 @@
 
 | ID | Title | Priority | Sprint | Status |
 |----|-------|----------|--------|--------|
+| debt-162-024 | Tech debt from 162-024: READ-ONLY audit of 6 lifecycle CLI commands (start.ts, s | normal | sprint-162 | resolved |
+| debt-162-025 | Tech debt from 162-025: READ-ONLY god-level audit of src/cli/commands/ planning  | normal | sprint-162 | resolved |
+| debt-162-026 | Tech debt from 162-026: READ-ONLY audit of CLI introspection commands (history.t | normal | sprint-162 | resolved |
+| debt-162-027 | Tech debt from 162-027: Sprint 162A-smoke Lane 1 READ-ONLY audit of src/cli/comm | normal | sprint-162 | resolved |
+| debt-162-028 | Tech debt from 162-028: READ-ONLY audit complete. Audited 8 advanced CLI command | normal | sprint-162 | resolved |
+| debt-159-001 | Tech debt from 159-001: Added Surface 8 (detectCodex) and Surface 9 (detectGemin | normal | sprint-159 | resolved |
+| debt-159-005 | Tech debt from 159-005: Worker timeout/killed (exitCode=0) — HIT WORKER_TIMEOUT  | normal | sprint-159 | resolved |
+| debt-158-001 | Tech debt from 158-001: Generated the drift fix proposal as per the instructions | normal | sprint-158 | resolved |
+| debt-158-003 | Tech debt from 158-003: Generated a language consistency audit report for CHANGE | normal | sprint-158 | resolved |
+| debt-156-001 | Tech debt from 156-001: Audit complete. Read all 4 docs (README.md, README-TR.md | normal | sprint-156 | resolved |
 | debt-155-004 | Tech debt from 155-004: BLOCKED on external dependency — Codex CLI access not ye | normal | sprint-155 | resolved |
 | debt-debt-138-002 | Tech debt from 138-002: ADR-035 Brain ↔ Worker ↔ Auditor Verification Protocol S | normal | - | resolved |
 | debt-debt-138-008 | Tech debt from 138-008: Worker Honest Assessment Calibration v2 tamamlandı. 3 al | normal | - | resolved |

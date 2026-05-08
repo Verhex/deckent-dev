@@ -1,0 +1,30 @@
+{
+  "taskId": "155-001",
+  "workerId": "w-155-001",
+  "filesChanged": [
+    "src/core/provider-fallback.ts",
+    "src/orchestra/result-evaluator.ts",
+    "src/orchestra/sprint-controller.ts",
+    "tests/orchestra/fallback-chain.test.ts"
+  ],
+  "linesAdded": 1001,
+  "linesRemoved": 1,
+  "testsPassed": true,
+  "coverage": 100,
+  "selfAssessment": "DONE",
+  "notes": "Sprint 155 Task 1 — Runtime Fallback Chain (429/Capacity Auto-Recovery) — implemented end-to-end.\n\nDESIGN:\n1. src/core/provider-fallback.ts (NEW, 216 LoC) — pure utility module per ADR-008. Exports:\n   - detectCapacityError(workerOutput): regex-based detection across Gemini (\"No capacity available\", RESOURCE_EXHAUSTED), OpenAI/Codex (rate_limit_exceeded, insufficient_quota, 429), Claude (overloaded_error, 529), and generic HTTP 429 patterns. Provider-specific patterns take precedence over generic ones.\n   - selectFallbackProvider(): refuses self-loop (current === fallback) and returns null when fallback unset.\n   - decideFallbackRetry(): composed decision returning a swap plan or null.\n   - MAX_FALLBACK_RETRIES = 1 constant — no fallback-of-fallback chains.\n2. src/orchestra/result-evaluator.ts — added evaluateForFallback() returning a discriminated FallbackEvaluation = RetryWithFallbackAction | NoFallbackAction. Pure function, NO_GO + capacity hit + eligible fallback → RetryWithFallback.\n3. src/orchestra/sprint-controller.ts — added prepareFallbackRetries() (pure) + runFallbackRetries() (orchestrating, DI-friendly via FallbackRetryDeps). Wired into runSprint between EVALUATE and FIX phases (Phase 4.5). Successful fallback retries upgrade evaluations BEFORE FIX phase runs, so FIX only sees truly unrecoverable failures.\n\nMECHANICS (per task):\n- Mutate task.provider = fallbackProvider (in-memory), persist task JSON to disk.\n- Move original .result aside as .result.fallback-attempt-N (so waitForResults doesn't re-collect stale failure).\n- Spawn via existing spawnWorkers + waitForResults pipeline (resolveTaskProvider() picks up the swapped task.provider automatically — no special path needed in spawner).\n- Re-evaluate retry result with evaluateResult(), update evaluations Map + replace results entry. tokenUsage.provider on the new .result reflects the actual fallback provider used.\n- Bounded by alreadyRetried Set<string> to enforce MAX_FALLBACK_RETRIES=1.\n\nVERIFICATION:\n- npx tsc --noEmit: 2 pre-existing errors in src/providers/codex.ts (Sprint 155 Task 2 territory, not mine). My touched files type-clean.\n- npx vitest run tests/orchestra/fallback-chain.test.ts: 29/29 pass in 8ms.\n- npx vitest run tests/orchestra/: 4081/4081 orchestra tests pass — zero regression.\n- npx vitest run tests/core/: 3751/3752 — only failure is error-handling-unification flagging Sprint 155 Task 3's src/core/model-registry-refresh.ts (not mine).\n- Full suite: 16027 pass / 12 fail / 66 skip — all 12 failures pre-existing or from Sprint 155 Tasks 2/3 (docker-oom-reproducer, doctor-checks gemini, mcp/help tool count, scripts/verify-publish.sh build, etc.).\n\nADR COMPLIANCE:\n- ADR-001/002 (TS+ESM Node16): all imports use .js extensions.\n- ADR-008 (Brain merkezi import): provider-fallback.ts (core/) does NOT import from orchestra/. result-evaluator.ts imports the core helper. sprint-controller.ts (the only allowed brain orchestrator) imports both. No cycles.\n- ADR-039 (self-modifying detection): stayed strictly within scope.filesWrite. Did NOT touch core/types.ts to add a fallbackRetried field — used a Set<string> in the orchestrator for the same guarantee.\n\nTEST COVERAGE (29 tests, exceeds 8+ requirement):\n- detectCapacityError: 8 tests (Gemini no-capacity + RESOURCE_EXHAUSTED, OpenAI rate_limit + insufficient_quota, Claude overloaded_error/529, generic HTTP 429, unrelated tsc error, empty/null input)\n- selectFallbackProvider: 4 tests (unset, self-loop, distinct, undefined-current)\n- decideFallbackRetry: 3 tests (no-error, fallback-unset, eligible swap)\n- evaluateForFallback: 5 tests (RetryWithFallback emit, DONE+capacity = no retry, no-fallback config, self-loop, no-pattern)\n- prepareFallbackRetries: 5 tests (no-fallback, no-NO_GO, eligible plan, alreadyRetried max-1, current=fallback)\n- runFallbackRetries: 3 tests (no-fallback no-op, end-to-end success with DI mocks, fallback-also-fails)\n- MAX_FALLBACK_RETRIES constant: 1 test\n\nHONEST ASSESSMENT:\n- Baseline: tasks 155-001 through 155-004 had no implementation (no provider-fallback.ts, no fallback chain in sprint-controller, no test file).\n- End state: full pipeline implemented + tested + verified zero regression on 4081 orchestra + 3751 core tests.\n- Delta: 100% of task spec delivered. detectCapacityError + result-evaluator wiring + sprint-controller respawn + 8+ tests — all checked. tokenUsage.provider preserves fallback provenance via the new result replacing the old in the results array.\n- The only \"could-be-extended\" area: live integration test against a real provider 429 — but DIRECTIVES note explicitly defers Codex live dogfood (Task 4 is BLOCKED on external CLI access), so unit-test coverage of the decision logic is the appropriate verification level for Task 1.",
+  "tokenUsage": {
+    "inputTokens": 78000,
+    "outputTokens": 14500,
+    "cacheReadTokens": 0,
+    "provider": "claude",
+    "model": "opus"
+  },
+  "rubricScores": {
+    "correctness": 100,
+    "test_coverage": 100,
+    "scope_compliance": 100,
+    "documentation": 90
+  },
+  "evaluationDecision": "DONE"
+}

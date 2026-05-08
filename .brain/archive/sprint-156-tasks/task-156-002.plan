@@ -1,0 +1,19 @@
+# Task 156-002 Execution Plan: docs/development/ Staleness Audit
+
+## Approach
+1. Read all 6 .md files in docs/development/ (agent-guide, brain-guide, dashboard-guide, plugin-guide, troubleshooting, worker-guide)
+2. For each file, check:
+   a. Source file references — do those paths exist in /workspace?
+   b. Sprint number references — are they still relevant?
+   c. Code snippets — basic syntax check
+   d. TODO/FIXME/deprecated keywords
+3. Compile findings into a structured report at docs/audits/sprint-156-development-staleness.md
+4. Write result file
+
+## Files to Write
+- docs/audits/sprint-156-development-staleness.md (new audit report)
+- .tasks/task-156-002.result
+
+## Expected Findings
+Sprint 154+155 reorganized several files in src/orchestra/ and src/core/. References to
+old file paths are likely stale. Agent list changed (Sprint 148 removed test-writer).

@@ -1,0 +1,42 @@
+# Task 162-002 Execution Plan
+
+## Scope
+READ-ONLY audit of src/core/ Memory V2 modules.
+
+## Files to Audit
+1. src/core/memory-store.ts — MemoryStore class (CRUD, FTS5, tags, relations, decay, history)
+2. src/core/memory-query.ts — searchMemory(), buildAutoQuery(), dual-layer FTS5 search
+3. src/core/memory-normalize.ts — turkishNormalize() i18n text normalization
+4. src/core/memory-types.ts — MemoryEntryV2, CreateEntryInput, MemoryQueryParams
+5. src/core/memory-export.ts — DB → .md snapshot generation
+6. src/core/memory-import.ts — .md → DB migration parser
+
+## Output
+Single audit report at: docs/audits/sprint-162-live/T-162-LIVE-002-core-memory-v2.md
+
+## Lead Questions
+- DB schema migration version correctness
+- FTS5 dual-layer turkishNormalize alignment
+- Exports vs DB drift
+- decay-exempt correctness
+
+## 10 Audit Dimensions
+1. Dead code (unused exports)
+2. ADR violations (44 active ADRs)
+3. Conflicting areas (duplicated logic)
+4. Drift (comments vs behavior, claims vs reality)
+5. Type safety (any, ts-ignore, as unknown as)
+6. Dependency hygiene (.js extensions, circular deps)
+7. Documentation pollution (duplicate, orphan, outdated)
+8. Memory V2 coherence
+9. Config integrity (where applicable)
+10. Migration triage classification
+
+## Per-File Migration Triage
+KEEP-PRIVATE | MIGRATE-PUBLIC | DELETE-CANDIDATE | UNCERTAIN
+
+## Constraints
+- READ-ONLY: NO source code changes
+- NO test/file deletes
+- ONLY write to assigned audit report path
+- ADR-037 RBAC + ADR-039 self-modifying enforcement active

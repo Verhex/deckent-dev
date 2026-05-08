@@ -111,31 +111,34 @@ Deckent'in OpenClaw/Cowork/Devin kategorisine girdiği nokta — başka bir tek-
 ---
 
 ## Sayılarla Deckent
-| Metric | Value |
+| Metrik | Değer |
 |--------|-------|
-| Version | 0.4.0-beta.1 |
-| Sprint | sprint-133 |
-| MCP Tools | 21 |
-| MCP Resources | 8 |
-| CLI Commands | 35+ |
-| Dashboard Pages | 6 |
-| Agents | 16 built-in + 2 custom |
-| Skills | 21 built-in |
-| Providers | 3 (Claude, Codex, Gemini) |
+| Sürüm | 1.0.0-beta.1 |
+| Sprint | sprint-162a (T4 hot fix) |
+| MCP Araçları | 29 (doğrulanmış) |
+| MCP Kaynakları | 8 |
+| CLI Komutları | 48 (doğrulanmış) |
+| Dashboard Sayfaları | 6-7 |
+| Ajanlar | 18 (15 yerleşik + 3 özel) |
+| Skill'ler | 21 yerleşik |
+| Sağlayıcılar | 3 (Claude, Codex, Gemini) |
+| ADR'ler | 47 (44 kabul + ADR-047 NEW multi-lang) |
+| Multi-language stack | 6 baz (TS/Py/Go/Rust/Java/C#) |
 
 ## Sprint History
-| Sprint | Status |
-|--------|-------|
-| sprint-132 | completed |
-| sprint-133 | completed |
+| Sprint | Durum | Not |
+|--------|-------|-----|
+| sprint-161 | FAILED (mid-flight kırıldı) | God-audit 356 finding, 8 bug tespit |
+| sprint-162-failed-build-race | FAILED (build race) | dist mtime > sprint-state +22s |
+| sprint-162a | T4 IMPLEMENTATION ✓ | 8 bug closed + multi-lang adapter + 4 ADR + i18n + ARIA |
+| sprint-162-live | PARTIAL | 8/8 known bugs LIVE proven; Bug X discovered; org quota cascade 15:36Z |
 
 ## Sprint Metrics
-| Metric | Value |
+| Metrik | Değer |
 |--------|-------|
-| Sprint | sprint-133 |
-| Total Tasks | 12 |
-| Completed | 12 |
-| Tech Debt | 4 |
-| No-Go | 0 |
-| Duration | 27dk 21sn |
-| Coverage | 8.3% |
+| Sprint | sprint-162a |
+| Durum | PARTIAL — 8/8 bug closed + Bug X keşfedildi |
+| Toplam deliverable | 8 fix-spec + 14 source + 14 test + 4 ADR + 12 dil i18n + ARIA + güvenlik |
+| Eklenen test | ~305 |
+| Source LoC | +2703/-801 (69 dosya) |
+| Beta GA blocker | Bug X cost cascade (Sprint 162B P0) |

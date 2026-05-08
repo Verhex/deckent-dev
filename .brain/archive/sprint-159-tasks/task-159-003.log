@@ -1,0 +1,21 @@
+Task 159-003 complete. Result file written with `selfAssessment: DONE`.
+
+## Summary
+
+`★ Insight ─────────────────────────────────────`
+**What ships**: `deckent metrics summary <sprintId>` (and `--last`) — the first CLI surface that aggregates Sprint 159's mixed-provider experiment data (Claude vs. Gemini compliance) into a single markdown table.
+
+**Architecture choices**:
+- **Pure helpers + thin CLI shell** — every aggregator (`aggregateProviderStats`, `aggregateAgentStats`, `aggregateSkillStats`, etc.) is a pure function that takes records and returns stats. The commander wrapper is a 30-line `registerMetrics(program)` glue layer. This keeps unit tests fast (23ms for 22 tests) and the CLI logic trivially mockable.
+- **Multi-strategy sprint discovery** — `resolveSprintTasksDir()` searches canonical `sprint-{id}-tasks/` first, then fallback variants (`sprint-{id}/`, glob match), then live `.tasks/` if a metrics file exists. This lets the same command work against archived AND in-flight sprints (we just dogfooded it on Sprint 159 mid-execution).
+- **Fallback event detection via filesystem siblings** — when the brain re-routes a failed task to a different provider, it renames the original `.result` to `.result.fallback-attempt-N`. We extract `fromProvider` from that archived file's `tokenUsage.provider` and `toProvider` from the final result. No new schema needed.
+- **Honesty drift heuristic** — counts DONE results that are partial-marker, have `testsPassed: false`, or empty `filesChanged`. This gives auditors a single number for "how often did workers over-claim DONE this sprint."
+`─────────────────────────────────────────────────`
+
+**Files changed**: `src/cli/commands/metrics.ts` (new, ~400 LoC), `src/cli/index.ts` (+2 lines), `tests/cli/commands/metrics.test.ts` (new, 22 tests).
+
+**Verification**:
+- `tsc --noEmit` — clean.
+- `npx vitest run tests/cli/commands/metrics.test.ts` — 22/22 pass.
+- Full vitest run — 16083 pass; 10 pre-existing failures unrelated to metrics (verified by re-running on the baseline tree).
+- Live smoke test — `node dist/cli/entry.js metrics summary --last` rendered Sprint 159's actual data correctly (5 tasks across 3 providers, accurate DONE counts, agent/skill compliance, drift=0).

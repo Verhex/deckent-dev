@@ -36,7 +36,7 @@ export interface OrphanInfo {
 
 const PID_DIR = join(DECKENT_DIR, 'pids');
 
-function pidFilePath(root: string, sprintId: string): string {
+export function pidFilePath(root: string, sprintId: string): string {
   return join(root, PID_DIR, `${sprintId}.pid`);
 }
 

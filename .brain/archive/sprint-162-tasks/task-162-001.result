@@ -1,0 +1,20 @@
+{
+  "taskId": "162-001",
+  "workerId": "w-162-001",
+  "filesChanged": [
+    "docs/audits/sprint-162-live/T-162-LIVE-001-core-config-types.md"
+  ],
+  "linesAdded": 230,
+  "linesRemoved": 0,
+  "testsPassed": true,
+  "coverage": 0,
+  "selfAssessment": "DONE",
+  "notes": "READ-ONLY audit complete per Sprint 162-live Lane 1 ABSOLUTE RULES. Files audited: src/core/config.ts (1367 LoC), config-types.ts (641), types.ts (10 barrel), constants.ts (113), task-types.ts (362), sprint-types.ts (143), monitoring-types.ts (123), config-migration.ts (662). Exactly one file written: docs/audits/sprint-162-live/T-162-LIVE-001-core-config-types.md (21 findings, severities P1-P3, full Migration triage table, 12 forward-looking recommendations). Lead question (ADR-004 3-layer correctness): the static 3-layer file merge (defaults → global → project) is implemented correctly at config.ts:677-721; however, loadConfig() applies 8 additional normalization phases (env vars, grouped→flat projection, mode-preset overlay, alias collapse, $DECK: interpolation, etc.) on top — recommended ADR-004 amendment captured in §5 #6. Top P1 findings: (1) CONFIG_METADATA defaults out-of-sync with createDefaultConfig (memory_budget 600 vs 5000, decay_after_sprints 5 vs 20); (2) ~30 missing CONFIG_METADATA entries leading to stale generateConfigReference output; (3) mergeConfigs() is a stale parallel of loadConfig missing ~25 fields; (4) module-level import cycle config.ts ↔ config-migration.ts; (5) cache key ignores ENV var inputs, mid-process overrides silently dropped. Tests/build: N/A — DIRECTIVES.md Task 1 explicitly states 'Test: N/A (read-only)'. No source code modified, so tsc --noEmit / npx vitest run would validate state I did not change; skipped per scope. git status --porcelain shows only docs/audits/sprint-162-live/ as my addition (pre-existing untracked src/core/lang/ and src/core/task-tmpfile-pattern.ts are not from this worker). ADR-039 self-modifying: no source code touched; ADR-037 RBAC: scope.filesWrite respected (only audit report written). Previous container's partial-result stub overwritten with this DONE result.",
+  "tokenUsage": {
+    "inputTokens": 26000,
+    "outputTokens": 6500,
+    "cacheReadTokens": 0,
+    "provider": "claude",
+    "model": "opus"
+  }
+}

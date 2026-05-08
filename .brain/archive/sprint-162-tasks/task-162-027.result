@@ -1,0 +1,26 @@
+{
+  "taskId": "162-027",
+  "filesChanged": [
+    "docs/audits/sprint-162-live/T-162-LIVE-027-cli-config-lists.md"
+  ],
+  "linesAdded": 312,
+  "linesRemoved": 0,
+  "testsPassed": true,
+  "coverage": null,
+  "selfAssessment": "DONE",
+  "notes": "READ-ONLY audit complete. Produced single audit report at docs/audits/sprint-162-live/T-162-LIVE-027-cli-config-lists.md covering src/cli/commands/{config,sync,agent,skill,mode}.ts (5 files, ~1,830 LoC). Applied all 10 dimensions. 16 findings: 0×P0, 3×P1 (F01 loadAgentSprintStats regex inflates per-agent stats by counting all sprint task rows; F02 skill validateManifest type guard claims SkillDefinition narrowing while Zod schema only validates 3 fields; F03 ADR-010 single-runtime-dep claim diverges from package.json's 7 deps including zod imported by skill.ts), 8×P2, 5×P3. Lead questions addressed: config schema validation (config.ts safe, ADR-004 compliant), sync manifest correctness (sync.ts uses legacy MEMORY.md write — F10 coherence with Memory V2 DB), mode CLI Sprint 149 finding (mode.ts parent description claims 'auto' as a value but VALID_STYLES = ['sprint','task'] only — F04, plus F05 validatePartialConfig bypass and F06 unsafe double-cast). Migration triage: all 5 files KEEP-PRIVATE (config/sync/mode clean; agent/skill carry tech debt). Tests N/A (no source modifications). Verified scope: git diff for the 5 audit-target files shows 0 byte change; pre-existing modifications to other src/cli/commands/*.ts files (cleanup.ts, recover.ts, status.ts) are unrelated dirty workspace state from before this task. Single write target docs/audits/sprint-162-live/T-162-LIVE-027-cli-config-lists.md respected. ADR-037 RBAC + ADR-039 self-modifying detector boundary respected. Honest self-assessment: 100% of READ-ONLY audit task spec delivered (single comprehensive report with scope, findings, evidence, triage, recommendations). No source code touched.",
+  "tokenUsage": {
+    "inputTokens": 38000,
+    "outputTokens": 7500,
+    "cacheReadTokens": 0,
+    "provider": "claude",
+    "model": "opus"
+  },
+  "rubricScores": {
+    "correctness": 95,
+    "test_coverage": 100,
+    "scope_compliance": 100,
+    "documentation": 95
+  },
+  "evaluationDecision": "DONE"
+}

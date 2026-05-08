@@ -1,0 +1,33 @@
+# Plan — Task 162-026: src/cli/commands/ introspection audit
+
+## Scope
+READ-ONLY audit of:
+- src/cli/commands/history.ts
+- src/cli/commands/retro.ts
+- src/cli/commands/explain.ts
+- src/cli/commands/help.ts
+- src/cli/commands/doctor.ts (35K — large)
+- src/cli/commands/watch.ts
+
+## Approach
+1. Read each file fully (or in segments for doctor.ts)
+2. For each, check 10 dimensions:
+   1. Dead code (unused exports/imports)
+   2. ADR violations (44 active, especially ADR-022-V2 CLI/MCP parity, ADR-010 single dep, ADR-011 readline, ADR-012 register pattern)
+   3. Conflicting/duplicated logic
+   4. Drift (claims vs reality)
+   5. Type safety (any, ts-ignore, as unknown as)
+   6. Dependency hygiene (.js extensions, circular deps)
+   7. Documentation pollution
+   8. Memory V2 coherence
+   9. Config integrity
+   10. Migration triage classification
+3. Lead questions:
+   - doctor Sprint 160 DECISIONS.md FAIL bug status
+   - retro counter accuracy
+   - metrics/output format consistency
+4. Write SINGLE audit report to docs/audits/sprint-162-live/T-162-LIVE-026-cli-introspection.md
+5. Each file gets: Findings (P0/P1/P2/P3), Evidence (file:line), Migration triage, Recommendation
+
+## Output
+docs/audits/sprint-162-live/T-162-LIVE-026-cli-introspection.md

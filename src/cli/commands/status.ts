@@ -8,6 +8,8 @@ import type { CIBaseline, CIReport } from '../helpers/output.js';
 import { resolveProjectRoot } from '../helpers/process.js';
 import { getMessage } from '../helpers/messages.js';
 import { getCurrentSprintId } from '../../monitor/sprint-state.js';
+import { readDashboardSafe } from '../../monitor/dashboard-manager.js';
+import { writeEvent } from '../../orchestra/event-stream.js';
 import { formatStatus, resolveOutputMode } from '../../core/output-formatter.js';
 import { eventBus } from '../../orchestra/event-bus.js';
 import { StatusRenderer } from '../helpers/status-renderer.js';
@@ -113,6 +115,25 @@ function readDashboard(dashPath: string): DashboardState | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * Bug R4 (Sprint 162A): rebuild dashboard.progress counts from the
+ * authoritative task-file ledger. Used when `.dashboard` is older than
+ * `sprint-state.json` (post-recover stale snapshot).
+ */
+function rebuildStateFromTasks(state: DashboardState, tasks: Task[]): DashboardState {
+  const done = tasks.filter((t) => (t.status as string) === 'DONE').length;
+  const blocked = tasks.filter((t) => (t.status as string) === 'NO_GO').length;
+  const active = tasks.filter((t) => {
+    const s = t.status as string;
+    return s === 'EXECUTING' || s === 'CLAIMED' || s === 'TESTING';
+  }).length;
+  return {
+    ...state,
+    progress: { done, active, blocked, total: tasks.length },
+    updatedAt: new Date().toISOString(),
+  };
 }
 
 /**
@@ -386,8 +407,43 @@ export function registerStatus(program: Command): void {
       }
 
       try {
-        const rawData = readFileSync(dashPath, 'utf-8');
-        const state = JSON.parse(rawData) as DashboardState;
+        // Bug R4 (Sprint 162A): use readDashboardSafe to detect when
+        // `.dashboard` is older than `sprint-state.json` (post-recover stale
+        // snapshot). When stale, rebuild progress counts from task files.
+        const dashResult = readDashboardSafe(root);
+        let state = dashResult.state;
+
+        if (dashResult.stale) {
+          const tasksFresh = loadTaskFiles(root);
+          state = rebuildStateFromTasks(state, tasksFresh);
+
+          // Emit observability event (DECKENT→*:SPRINT_RECOVER_STATUS_SYNC)
+          const sprintIdEvt = getCurrentSprintId(root);
+          if (sprintIdEvt) {
+            try {
+              writeEvent(
+                root,
+                sprintIdEvt,
+                'deckent',
+                '*',
+                'DECKENT→*:SPRINT_RECOVER_STATUS_SYNC',
+                {
+                  sprintId: sprintIdEvt,
+                  cacheInvalidated: true,
+                  freshRead: { ...state.progress },
+                  reason: dashResult.staleReason,
+                },
+              );
+            } catch { /* event-stream is fail-safe */ }
+          }
+
+          // i18n notice — only when not in --json/--raw modes (the warning
+          // line would corrupt machine-readable output)
+          if (!opts.json && !opts.raw) {
+            output(getMessage('status.dashboard_stale_fallback', lang));
+          }
+        }
+
         if (opts.json) {
           // (E) --json + --verbose: include agent/skill info
           const tasks = loadTaskFiles(root);

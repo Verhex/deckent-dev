@@ -1,0 +1,25 @@
+# Task 162-013 — Execution Plan
+
+## Goal
+READ-ONLY audit of `src/orchestra/brain.ts` and `src/orchestra/sprint-controller.ts`
+covering ADR-008 dependency direction, sprint lifecycle phase transitions, error
+handling. Output: `docs/audits/sprint-162-live/T-162-LIVE-013-orch-brain-controller.md`.
+
+## Steps
+1. Read `src/orchestra/brain.ts` (re-export façade per ADR-008/ADR-024/ADR-026).
+2. Read `src/orchestra/sprint-controller.ts` (orchestrator slim — Sprint 136 T-008).
+3. Cross-check imports against ADR-008 invariants:
+   - Brain ↔ tmux/auditor/worker direction must be one-way.
+4. Walk lifecycle: PLAN→SPAWN→EXECUTE→EVALUATE→FIX→RETRO→DECAY→CLEANUP.
+5. Identify error-handling surfaces and resilience hooks (graceful shutdown,
+   resume, finalizer).
+6. Apply 10 audit dimensions: dead code, ADR violations, conflicts, drift, type
+   safety, dependency hygiene, doc pollution, memory v2 coherence, config
+   integrity, migration triage.
+7. Cite findings with file:line evidence; assign severity (P0/P1/P2/P3) and
+   migration-triage label.
+8. Write report only to scope.filesWrite path. No source mutations.
+
+## Constraints
+- Read-only on src/. No tests/. No deletes. No refactors.
+- Only writes: heartbeat, plan, audit report, result.

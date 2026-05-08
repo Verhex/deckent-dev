@@ -1,0 +1,14 @@
+{
+  "taskId": "158-003",
+  "filesChanged": ["docs/audits/sprint-158-changelog-drift.md"],
+  "testsPassed": "N/A",
+  "selfAssessment": "DONE",
+  "notes": "Generated a language consistency audit report for CHANGELOG.md, classifying entries as TR or EN and marking them as consistent/inconsistent with the TR canonical direction. The report is in markdown table format and saved to docs/audits/sprint-158-changelog-drift.md.",
+  "tokenUsage": {
+    "inputTokens": 0,
+    "outputTokens": 0,
+    "cacheReadTokens": 0,
+    "provider": "gemini",
+    "model": "gemini-2.5-flash"
+  }
+}

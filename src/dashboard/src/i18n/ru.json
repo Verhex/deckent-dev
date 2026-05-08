@@ -1,0 +1,10 @@
+{
+  "events.sprint.eval.heartbeat-skip": "Heartbeat активен — оценка отложена",
+  "events.sprint.eval.audit-rubric-applied": "Рубрика аудита применена",
+  "events.sprint.eval.synthetic-timeout": "Время ожидания воркера истекло, частичная работа сохранена",
+  "events.sprint.spawn.deadlock-detected": "Обнаружена взаимная блокировка цикла запуска",
+  "events.sprint.recover.state-reset": "Состояние спринта сброшено",
+  "events.sprint.recover.zombie-killed": "Зомби-процесс завершён",
+  "events.sprint.recover.status-sync": "Отображение статуса синхронизировано",
+  "events.sprint.recover.tmpfile-swept": "Временные файлы удалены"
+}

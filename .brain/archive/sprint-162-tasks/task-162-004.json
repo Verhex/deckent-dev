@@ -1,0 +1,89 @@
+{
+  "id": "162-004",
+  "title": "src/core/ — provider + routing core",
+  "description": "src/core/ — provider + routing core\n- Model: opus\n- Effort: normal\n- Skills: typescript-expert\n- Files: docs/audits/sprint-162-live/T-162-LIVE-004-core-provider-routing.md\n- Scope: src/core/\n\n### Description\nREAD-ONLY audit of `provider.ts`, `routing-types.ts`, `manifest-migrator.ts`,\n`condition-evaluator.ts`. Lead: ProviderAdapter interface contract, V1→V2 manifest\nmigration completeness.\n\n**Kanıt:** Single audit report.\n**Test:** N/A.\n\n---",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "NORMAL",
+  "reason": "Directive (model: opus -- user override)",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/core/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-004-core-provider-routing.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "provider": "claude",
+  "forceModel": "opus",
+  "forceEffort": "normal",
+  "forceSkills": [
+    "typescript-expert"
+  ],
+  "assignedAgent": "doc-writer",
+  "assignedSkills": [
+    "typescript-expert"
+  ],
+  "createdAt": "2026-05-08T14:41:19.389Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "documentation",
+        "secondary": [],
+        "confidence": 0.95
+      },
+      "tags": [],
+      "domains": [
+        {
+          "name": "docs",
+          "weight": 0.67
+        },
+        {
+          "name": "core",
+          "weight": 0.33
+        }
+      ],
+      "operations": [
+        {
+          "type": "test",
+          "weight": 0.33
+        },
+        {
+          "type": "document",
+          "weight": 0.33
+        },
+        {
+          "type": "create",
+          "weight": 0.33
+        }
+      ],
+      "complexity": {
+        "fileCount": 1,
+        "moduleCount": 2,
+        "crossCutting": true,
+        "estimatedSize": "medium"
+      },
+      "scope": {
+        "writeRatio": {
+          "docs/": 1
+        },
+        "primaryWriteTarget": "docs/",
+        "testWriteRatio": 0
+      }
+    },
+    "confidence": "high",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 1527,
+  "updatedAt": "2026-05-08T15:17:26.926Z"
+}

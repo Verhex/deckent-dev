@@ -1,0 +1,17 @@
+{
+  "taskId": "162-008",
+  "filesChanged": ["docs/audits/sprint-162-live/T-162-LIVE-008-core-credentials-deck.md"],
+  "linesAdded": 446,
+  "linesRemoved": 0,
+  "testsPassed": true,
+  "coverage": null,
+  "selfAssessment": "DONE",
+  "notes": "READ-ONLY god-level security audit of src/core/credentials.ts (265 LoC), deck-file.ts (198), global-config.ts (73), signature.ts (158). credential-encryption.ts (139) read transitively because credentials.ts delegates AES-256-GCM there — lead question cannot be answered without it. 833 LoC audited total. Findings: 4 P1 (plaintext credential fallback silent; decryption errors swallowed; signature.ts missing chmodSync belt-and-suspenders; mergeWithProjectConfig double-merge fragile), 8 P2 (KEYRING_DIR duplication, ADR-006 execSync drift, ADR-014 closed KNOWN_DECK_KEYS list, missing DECKENT_ prefix enforcement, skill-sig manifest crash, no keypair length validator, provider-name aliasing, loadDeckSecrets swallows errors), 5 P3 (cast safety, Zod gap, doc drift, dead-code candidate). 14 positive callouts (AES-GCM 96-bit IV correct, fresh per-encrypt, auth tag round-trip, master-key length checks, @noble/ed25519 wired with sha512, .deck not auto-injected per ADR-033/034, all .js ESM extensions). 0 ADR violations rising to NO_GO; 4 ADR drifts (ADR-004, ADR-006, ADR-014×2, ADR-035). Migration triage: credentials/deck-file/global-config = KEEP-PRIVATE; signature.ts core half = MIGRATE-PUBLIC candidate (publishable @verhexio/ed25519-helpers split). No DELETE candidates; 1 UNCERTAIN (top-level convenience exports — needs T-162-LIVE-029 cross-check). Output: single audit report at docs/audits/sprint-162-live/T-162-LIVE-008-core-credentials-deck.md. NO source code modified. tsc/vitest not run because mandate is read-only and no .ts files were touched.",
+  "tokenUsage": {
+    "inputTokens": 32000,
+    "outputTokens": 7800,
+    "cacheReadTokens": 18000,
+    "provider": "claude",
+    "model": "opus"
+  }
+}

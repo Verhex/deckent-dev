@@ -1,0 +1,42 @@
+{
+  "sprintId": "sprint-151",
+  "checkpointNumber": 5,
+  "timestamp": "2026-04-22T06:55:30.187Z",
+  "completedTasks": [],
+  "pendingTasks": [
+    "151-004",
+    "151-005",
+    "151-006",
+    "151-007",
+    "151-008",
+    "151-009",
+    "151-010",
+    "151-011",
+    "151-012",
+    "151-013",
+    "151-014",
+    "151-015"
+  ],
+  "activeWorkers": [
+    {
+      "workerId": "w-151-001",
+      "taskId": "151-001",
+      "status": "EXECUTING",
+      "spawnedAt": "2026-04-22T06:55:30.187Z"
+    },
+    {
+      "workerId": "w-151-002",
+      "taskId": "151-002",
+      "status": "EXECUTING",
+      "spawnedAt": "2026-04-22T06:55:30.187Z"
+    },
+    {
+      "workerId": "w-151-003",
+      "taskId": "151-003",
+      "status": "EXECUTING",
+      "spawnedAt": "2026-04-22T06:55:30.187Z"
+    }
+  ],
+  "brainPhase": "FIX",
+  "eventStreamOffset": 0
+}

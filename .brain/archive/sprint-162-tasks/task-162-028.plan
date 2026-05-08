@@ -1,0 +1,38 @@
+# Task 162-028 Plan — CLI Advanced Commands READ-ONLY Audit
+
+## Scope
+READ-ONLY audit of `src/cli/commands/`:
+- audit.ts
+- feature-query.ts
+- recover.ts
+- docs.ts
+- memory-query.ts (recall/remember UX)
+- notify.ts
+- metrics.ts
+
+Output: ONE report at `docs/audits/sprint-162-live/T-162-LIVE-028-cli-advanced.md`
+
+## Approach
+1. Read each command file fully
+2. Cross-reference with src/cli/index.ts (registration)
+3. Apply 10 audit dimensions:
+   1. Dead code (unused exports)
+   2. ADR violations (focus ADR-010 single dep, ADR-012 register pattern, ADR-022-V2 CLI/MCP parity, ADR-011 readline)
+   3. Conflicting areas (duplicated logic across commands)
+   4. Drift (claims vs behavior, code comments vs reality)
+   5. Type safety (any, ts-ignore, as unknown as)
+   6. Dependency hygiene (.js extensions, circular deps)
+   7. Documentation pollution
+   8. Memory V2 coherence (especially memory-query.ts)
+   9. Config integrity
+   10. Migration triage (KEEP-PRIVATE | MIGRATE-PUBLIC | DELETE-CANDIDATE | UNCERTAIN)
+4. Lead questions:
+   - Sprint 150 new commands (audit, recover, docs) wired correctly?
+   - Sprint 159 deckent metrics summary command quality?
+   - recall/remember UX (memory-query.ts) — error handling, output format
+5. Write report with mandatory format: Scope, Findings (P0/P1/P2/P3), Evidence (file:line), Migration triage, Recommendation
+
+## Constraints
+- READ-ONLY: NO source code edits
+- Single output: docs/audits/sprint-162-live/T-162-LIVE-028-cli-advanced.md
+- N/A for tests (read-only audit)

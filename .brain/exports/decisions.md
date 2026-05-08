@@ -1008,6 +1008,55 @@ Event stream write başarısız olursa (disk tam, permission hata) → `console.
 
 ---
 
+## V2 Amendment — Sprint 162A (Bug A + Bug C + Bug Stall)
+
+### 4.A Synthetic Result Handling Clause (Bug A)
+
+When `runEvaluatePhase` encounters a task without a collected `.result`, Brain MUST consult the task's heartbeat artefact (`.tasks/task-{id}.hb`) before synthesizing a verdict. Decision matrix:
+
+| Heartbeat state | Action |
+|-----------------|--------|
+| File absent | Synthesize `TIMEOUT_WITH_WORK` with `notes: 'Timeout - no heartbeat, no result'` |
+| File present, timestamp unparseable | Synthesize `TIMEOUT_WITH_WORK` with `notes: 'Timeout - heartbeat malformed, no result'` |
+| File present, age > `heartbeat_timeout × eval_heartbeat_grace_multiplier` | Synthesize `TIMEOUT_WITH_WORK` with `notes: 'Timeout - heartbeat stale beyond grace'` |
+| File present, age ≤ grace | **Defer** — emit `sprint.eval.heartbeat-skip` via `BRAIN→*:METRIC_EMITTED`; do not insert into evaluations map |
+
+### 4.B Synthetic Result Type Discipline (Bug C)
+
+1. **Synthetic results MUST set `selfAssessment: 'TIMEOUT_WITH_WORK'`.** `'NO_GO'` is reserved for *worker-self-assessed* failures. Brain MUST NOT write `'NO_GO'` on the worker's behalf — the absence of a `.result` is not an authoritative failure signal; partial work may exist on disk.
+2. **`reconcileSpuriousNoGo` MUST run before any synthetic NO_GO commit.** Brain queries `git diff --stat` (within `task.scope`), `tsc --noEmit`, and `vitest run --filter` over the task's scope. If reconcile returns `GO_WITH_TECH_DEBT`, the synthetic NO_GO is downgraded; otherwise NO_GO stands with reconcile evidence attached to `result.notes`.
+3. **Regression guard.** A unit test in `tests/orchestra/` MUST assert that the synthetic-result path produces `selfAssessment === 'TIMEOUT_WITH_WORK'` and not `'NO_GO'`. This guards against silent regressions of Bug C.
+4. **Event emission.** Brain MUST emit `sprint.eval.synthetic-timeout` (broadcast) with `{taskId, hbAgeMs, lastResult}` payload before `handleEvaluation` is called for synthetic results. This makes the synthesis observable to the auditor and post-mortem reconstruction.
+
+### 4.C Spawn-Liveness Mandate (Bug Stall)
+
+For every PENDING task in any sprint phase, Brain MUST guarantee one of three terminal outcomes within `phase_timeout_ms`:
+
+1. **Worker spawned** — at least one TASK_ASSIGN event emitted for the task before phase timeout.
+2. **Synthetic NO_GO committed** — task transitions PENDING → NO_GO via handleEvaluation with a synthetic TaskResult (mirroring the EVALUATE else-branch at sprint-phases.ts).
+3. **SPAWN_DEADLOCK_DETECTED emitted** — Brain writes `BRAIN→AUDITOR:SPAWN_DEADLOCK_DETECTED` for any task that ends the phase still PENDING without an EVALUATE entry. The Auditor then either escalates or tolerates per its policy.
+
+**Forbidden:** silent stalls in which the run loop holds for the timeout window with PENDING tasks and no spawn / no NO_GO / no event.
+
+**Enforcement:**
+- Static — code reviews of any new sprint-phase function MUST show a task-queue thread from `spawnWorkers`'s return value into `waitForResults`'s queue parameter, or a justification comment if the phase is single-wave.
+- Runtime — `emitSpawnDeadlockIfStalled` (sprint-phases.ts) is the canonical enforcement point for FIX phase. Future phases SHOULD adopt the helper.
+- Test — `tests/orchestra/sprint-controller-spawn-loop.test.ts` validates that 47 fix tasks + max_workers=6 drain to zero PENDING within fix_phase_timeout. CI gate: this test MUST pass.
+
+### 4.D New Channels (V2 additions)
+
+- `BRAIN→AUDITOR:SPAWN_DEADLOCK_DETECTED` — payload `{phase, pendingTaskIds, elapsedMs, timeoutMs}`
+- `sprint.eval.heartbeat-skip` — carried in `BRAIN→*:METRIC_EMITTED` payload.kind
+- `sprint.eval.synthetic-timeout` — broadcast raw channel
+- `sprint.eval.audit-rubric-applied` — broadcast raw channel (Bug B observability)
+
+**Compatibility:** ADR-035 V1 protocol unchanged — V2 adds new channels and a new producer. Existing `protocol_version` remains `"1.0"`; channels are additive.
+
+**Rationale:** Sprint 161 dogfood evidence — 49/56 tasks were declared NO_GO while their workers were still actively writing artefacts. The pre-amendment code path declared death without consulting the standard liveness signal Brain itself owns. Sprint 161 FIX-phase deadlock — 43/49 fix tasks stranded PENDING because runFixPhase discarded the queued-tasks return from `spawnWorkers` and passed `undefined` as the queue argument to `waitForResults`.
+
+
+---
+
 ## adr-036: ADR Governance Integration — Mandatory Architecture Decision Enforcement
 
 **Status:** accepted
@@ -1383,6 +1432,66 @@ Bu RBAC matrix Protocol Version 1.0 ile birlikte tanımlanmıştır. Değişikli
 
 ---
 
+## V2 Amendment — Sprint 162A (Bug R2 + Bug R3 + Bug R4)
+
+### §7 — Recovery Surface Authority (Bug R2)
+
+The `deckent recover` CLI surface (`src/cli/commands/recover.ts`) is a **Brain-tier orchestration operation** executed out-of-band of the live agent loop. As such:
+
+1. **Recovery MAY mutate `.deckent/sprint-state.json`** via the dedicated helper `resetSprintStateOnRecover()` (`src/orchestra/sprint-utils.ts`). This is the ONLY new write surface added by recovery.
+2. **Recovery mutations are bounded to known terminal-state fields**: `phase` (→ `COMPLETE`), `status` (→ `ABORTED`), `updatedAt` (→ now), `completedAt` (→ now). Recovery MUST NOT add unknown fields, mutate `sprintId`, mutate `startedAt`, or mutate `taskIds`. Field-level enforcement is the responsibility of `resetSprintStateOnRecover()` (single chokepoint).
+3. **Atomicity**: state mutation MUST use the temp+rename pattern. Direct in-place rewrites are prohibited because partial writes would corrupt the canonical state oracle consumed by every status surface.
+4. **Auditor and Worker remain DENIED** from any recovery-related write — recovery is operator-invoked, not agent-invoked. Existing DENY rules in `authority-enforcer.ts:166,202` are unchanged.
+5. **Telemetry is mandatory**: every successful state reset MUST emit a `DECKENT→*:SPRINT_RECOVER_STATE_RESET` event with the `{sprintId, oldPhase, newPhase, oldStatus, newStatus, updatedAt}` payload. Observability is not optional for state-mutating operations (consistent with ADR-035 §3 verification protocol).
+
+### §6.5 Process Signal Authority (Bug R3)
+
+The recover CLI (`deckent recover`) is granted authority to terminate a Brain coordinator process **only** when:
+
+1. The PID is read from `.deckent/pids/<sprintId>.pid` (the canonical PID source written by `runSprint`), validated against `sprint-state.brainPid` when both exist.
+2. The PID corresponds to the sprint id passed on the command line — i.e. the file path itself is the binding (`pidFilePath(root, sprintId)` is keyed by `sprintId`, no other PID source is consulted).
+3. The PID > 1 (no init-process kills) and is a positive integer.
+4. The kill sequence is **SIGTERM → grace [100, 60000]ms → SIGKILL fallback**, never reversed, never escalated past SIGKILL.
+5. The signal is sent via Node's `process.kill(pid, signal)` with a structured signal name (compliant with ADR-006 — no shell interpolation).
+
+No other CLI command, MCP tool, or runtime component may signal the Brain process for the sprint lifetime. Workers may be killed via existing per-task channels (`tmux kill-window`, `docker kill`); this amendment exclusively governs the Brain coordinator.
+
+| Component | Action | Allowed | Conditions |
+|-----------|--------|---------|-----------|
+| recover CLI | `process.kill(brainPid, SIGTERM/SIGKILL)` | YES | PID source = `.deckent/pids/<sprintId>.pid`, sprintId matches CLI arg |
+| Auditor | Signal Brain | NO | Auditor independence (ADR-037 §3) |
+| Worker | Signal Brain | NO | Workers cannot upward-signal |
+| MCP tool `deckent_recover` | Same as CLI | YES | Inherits CLI authority |
+| MCP tool `deckent_kill` | Same as CLI for sprint kill | YES | Pre-existing — clarified as identical mechanism |
+
+**Audit hook:** the `SPRINT_RECOVER_ZOMBIE_KILLED` event is emitted on every successful kill. Auditor consumers (`runSelfAuditGate` extension in Sprint 163+) MAY assert that any sprint with status `STALLED` followed by a successful re-`start` was preceded by a recover→zombie-killed event.
+
+### §3.4 Cache Invalidation Discipline (Bug R4)
+
+Any read-side surface that consumes auditor-written display files (`.dashboard`, sprint-NNN-status snapshots, etc.) MUST validate freshness against the authoritative state source (`sprint-state.json` or task-file ledger) before rendering counts/status to the user.
+
+**Required pattern:**
+1. `stat()` the display snapshot mtime.
+2. `stat()` the authoritative state-source mtime.
+3. If state-source is newer → rebuild display fields from task ledger, emit `sprint.recover.status-sync` event (`DECKENT→*:SPRINT_RECOVER_STATUS_SYNC`).
+4. NEVER write back to the auditor-owned snapshot from a read-side surface (preserves auditor-as-sole-writer invariant — RBAC layer 1).
+
+**Forbidden patterns:**
+- In-process memoization with TTL (would mask stale-on-disk state).
+- "Last successful read" caching across CLI invocations (CLI is single-shot).
+- Auto-repair write-back from `readDashboardSafe()` to refresh mtime (violates separation-of-writer per ADR-037 §2.1).
+
+**Cross-reference:** ADR-035 §"Channel Catalog" — `sprint.recover.status-sync` registered as a deckent→user broadcast channel (Protocol V1.0).
+
+### V2 New Channel Codes (registered with ADR-035)
+
+- `DECKENT→*:SPRINT_RECOVER_STATE_RESET` (Bug R2)
+- `DECKENT→*:SPRINT_RECOVER_ZOMBIE_KILLED` (Bug R3)
+- `DECKENT→*:SPRINT_RECOVER_STATUS_SYNC` (Bug R4)
+
+
+---
+
 ## adr-038: Dead Code Disposition — Sprint 139 Audit Results
 
 **Status:** accepted
@@ -1589,6 +1698,40 @@ Self-modifying task tamamlandıktan sonra otomatik checkpoint yazılır (sprint-
 - ADR-037: RBAC Authority Matrix — Brain/Worker dosya erişim sınırları
 - `src/orchestra/self-modifying-detector.ts` — Sprint 139 implementasyonu
 - `src/orchestra/sprint-spawner.ts` — Sprint 140+ sequential wave wiring
+
+---
+
+## V2 Amendment — Sprint 162A (Bug R5)
+
+### Tmpfile Sweep Discipline
+
+Every sprint-cleanup or recover code path that operates on `.tasks/` MUST classify hidden tmpfiles via the canonical helper `src/core/task-tmpfile-pattern.ts` (function `isTaskTmpfile`). Direct string-matching on `.prompt-` or `.worker-` literals is forbidden in:
+
+- `src/cli/commands/recover.ts`
+- `src/cli/commands/cleanup.ts`
+- `src/orchestra/sprint-lifecycle.ts:cleanup`
+- `src/orchestra/sprint-docs-updater.ts:archiveOrphanTasks`
+
+Out-of-scope sites (`mcp/tools/cleanup.ts`, `providers/claude.ts`, `kill.ts`, `archivePromptFiles`, `prompt-linter.mjs`) MUST be migrated by Sprint 162B; until then they use legacy filters and risk plant destruction.
+
+### Plant Preservation Exception
+
+Forensic plants (`TEST-*`, `MANUAL-*`, lowercase `test-*`, `manual-*`, etc.) are preserved by the `isTaskTmpfile` plant guard: the token following `.prompt-` / `.worker-` MUST start with a digit to qualify for sweep. Any non-digit prefix (alphabetic) is treated as a plant. Adding a new plant family requires no code change — it only requires that the plant name not begin with a digit.
+
+### Path Traversal Rejection
+
+Sweep callers MUST reject any candidate path containing `..` segments. `isTaskTmpfile` resolves the candidate against the canonical `.tasks/` directory and refuses traversal. Direct `unlinkSync` on user-supplied paths without traversal validation is forbidden across all sweep sites.
+
+### Test Obligation
+
+Every cleanup site touched in this discipline MUST have a positive test plant survival assertion (e.g. `tests/cli/recover-r5-tmpfile-sweep.test.ts` pattern). The plant survival assertion runs against a fixture with: a) digit-prefixed tmpfiles (must be swept), b) alphabetic-prefixed plants (must survive), c) `..`-traversal candidates (must be rejected with no FS mutation).
+
+### V2 New Channel Code (registered with ADR-035)
+
+- `DECKENT→*:SPRINT_RECOVER_TMPFILE_SWEPT` — payload `{sprintId, sweptCount, plantsPreserved, plantNames}`
+
+**Status transition:** ADR-039 stays `accepted`; ADR-039 V2 added as amendment in same entry (per Sprint 162A ADR governance).
+
 
 ---
 
@@ -2013,6 +2156,114 @@ ile comprehensive audit pass yapıldı: 273 file explicit claim, 87 finding
 - docs/audits/sprint-154/audit-coverage.json (registry, 273 file, 10/10 complete)
 - ADR-043 (Hot Fix with Subagents — execution pattern)
 - /home/alperen/.claude/plans/rippling-noodling-pie.md (audit plan dokümanı)
+
+---
+
+## adr-047: Multi-Language TestRunner / Coverage / Build Adapter Pattern
+
+**Status:** accepted
+
+# ADR-047: Multi-Language TestRunner / Coverage / Build Adapter Pattern
+
+**Status:** accepted (Sprint 162A)
+**Date:** 2026-05-08
+**Supersedes:** none
+**Superseded-by:** none
+**Related:** ADR-006 (spawnSync), ADR-008 (one-way imports), ADR-033 (Product Vision), ADR-035 (Verification Protocol)
+
+## Context
+
+`src/orchestra/result-evaluator.ts` and `worker-default.md` rules hardcode TypeScript+vitest commands (`npx tsc --noEmit`, `npx vitest run`) and vitest JSON coverage parsing. Deckent's product vision (ADR-033) is to be a project-agnostic orchestrator — Sprint 162A surfaces this debt as Bug B (coverage=0 for non-TS stacks → systematic NO_GO).
+
+The hardcoded toolchain creates two failure modes for non-TypeScript projects:
+1. **Coverage gate misfires** — `scoreTestCoverage` returns 0 for any stack lacking a `coverage/coverage-final.json` artifact, forcing rubric NO_GO regardless of actual test outcomes.
+2. **Worker prompt drift** — workers receive verify-loop instructions phrased for tsc/vitest even when working in Python/Go/Rust scopes, leading to plausible-looking but incorrect command invocations.
+
+## Decision
+
+Introduce three minimal interface contracts in `src/core/lang/` and a static `STACKS` registry of six baseline stacks:
+
+- **`TestRunnerAdapter`** — supplies `command(opts)` returning `string[]` and `parse(stdout, stderr, exitCode) → TestOutcome`.
+- **`CoverageAdapter`** — supplies `reportGlobs()` and `parse(content, path) → CoverageOutcome | null`.
+- **`BuildAdapter`** — supplies `command()` and `parse() → BuildOutcome`.
+- **`getStackAdapters(stackId)`** returns the bundle of all three for a given stack.
+
+Six baseline stacks: `typescript`, `python`, `go`, `rust`, `java`, `csharp`. Each has all three adapters. Stack identification is performed via `detectStack(projectRoot)` which consults `.deckent/project-stack.json` first (Layer 1) then a file-presence walk (Layer 2 — `package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, `pom.xml`/`build.gradle`, `*.csproj`/`*.sln`).
+
+`result-evaluator.ts:scoreTestCoverage` and any future `scoreBuildHealth` consume adapters instead of hardcoding tooling. The worker prompt builder consumes the same adapter registry to inject correct verify-loop commands per stack.
+
+### Adapter Interface Contracts
+
+```typescript
+export interface TestRunnerAdapter {
+  command(opts: { scope?: string[]; coverage?: boolean }): string[];
+  parse(stdout: string, stderr: string, exitCode: number): TestOutcome;
+}
+
+export interface CoverageAdapter {
+  reportGlobs(): string[];
+  parse(content: string, path: string): CoverageOutcome | null;
+}
+
+export interface BuildAdapter {
+  command(): string[];
+  parse(stdout: string, stderr: string, exitCode: number): BuildOutcome;
+}
+```
+
+### Six Baseline Stacks
+
+| Stack | TestRunner | Coverage | Build |
+|-------|------------|----------|-------|
+| typescript | `vitest run` | `coverage/coverage-final.json` | `tsc --noEmit` |
+| python | `pytest` | `coverage.xml` (cobertura) | `mypy + ruff` (sh -c whitelisted) |
+| go | `go test ./...` | `coverage.out` | `go build ./...` |
+| rust | `cargo test` | `tarpaulin-report.json` | `cargo build` |
+| java | `mvn test` / `gradle test` | `jacoco.xml` | `mvn compile` / `gradle compileJava` |
+| csharp | `dotnet test` | `TestResults/*/coverage.cobertura.xml` | `dotnet build` |
+
+## Consequences
+
+**Positive:**
+- Bug B closure (audit rubric still independent, but code tasks across stacks score correctly).
+- Worker prompt builder injects correct `tsc/mypy/go-build/cargo-build/javac/dotnet` commands per stack.
+- Adding Ruby/PHP/Elixir/Kotlin/Swift is a one-file change per adapter family + STACKS append.
+- Single source of truth for "what is the build command for stack X".
+
+**Negative:**
+- New module surface (~6 files) → +~600 LoC.
+- Adapter `parse()` heuristics will drift as tools change output format → maintenance cost.
+- Mypy+ruff combo requires `sh -c` (cannot run two binaries in one spawn) — documented exception to ADR-006 with whitelist enforcement.
+
+**Neutral:**
+- No runtime perf impact (adapters are lazy, registry is static).
+
+## Alternatives Considered
+
+1. **Per-stack giant switch in `result-evaluator.ts`** — rejected: violates ADR-008 by importing tool knowledge into orchestra/.
+2. **Per-stack plugin loader (dynamic)** — rejected: complexity not justified for 6 stacks; static registry is enough.
+3. **Defer to Sprint 162B** — rejected: Bug B is acute now; partial fix without adapters would entrench TS hardcoding.
+
+## Future Work — Extensibility Roadmap
+
+| Stack | Test runner | Coverage | Build |
+|-------|-------------|----------|-------|
+| Ruby | rspec | simplecov JSON | bundle exec |
+| PHP | phpunit | clover XML | composer |
+| Elixir | mix test | coveralls JSON | mix compile |
+| Kotlin | gradle test (junit) | jacoco | gradle build |
+| Swift | swift test | llvm-cov | swift build |
+
+Append entries to `STACKS`, add three adapter implementations each. No other changes required.
+
+## Verification
+
+- **Build adapter:** `tests/core/lang/build-adapter.test.ts` — exit-code parsing, stderr capture across 6 stacks.
+- **Coverage adapter:** `tests/core/lang/coverage-adapter.test.ts` — fixture-driven parsing for cobertura/jacoco/coverage-final/coverage.out/tarpaulin formats.
+- **Test runner adapter:** `tests/core/lang/test-runner-adapter.test.ts` — pass/fail/skip count extraction, scope filter command injection.
+- **Stack detection:** `tests/core/lang/detect-stack.test.ts` — 6 baseline + ambiguous-multi-stack fixtures.
+- **End-to-end:** `tests/orchestra/result-evaluator-multi-stack.test.ts` — `scoreTestCoverage` returns non-zero for Python/Go/Rust/Java/C# fixtures.
+
 
 ---
 

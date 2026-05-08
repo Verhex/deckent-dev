@@ -1,0 +1,26 @@
+# Plan — Task 162-030-fix: MCP lifecycle + planning tools READ-ONLY audit
+
+## Mandate
+- READ-ONLY audit. Single allowed write: docs/audits/sprint-162-live/T-162-LIVE-030-mcp-lifecycle-plan.md
+- Scope read: src/mcp/ (focus on 9 lifecycle + planning tool files)
+- Lead questions: ADR-022-V2 parameter schema parity with CLI; error propagation
+
+## Files in audit
+1. src/mcp/tools/init.ts
+2. src/mcp/tools/directives.ts
+3. src/mcp/tools/plan.ts
+4. src/mcp/tools/start.ts
+5. src/mcp/tools/status.ts
+6. src/mcp/tools/kill.ts
+7. src/mcp/tools/cleanup.ts
+8. src/mcp/tools/run.ts
+9. src/mcp/tools/checkpoint.ts
+
+## 10 Dimensions
+Dead code; ADR violations; conflict; drift; type safety; deps; doc pollution; memory v2; config; migration triage.
+
+## Output report sections
+1) Scope 2) Findings (P0/P1/P2/P3) 3) Evidence (file:line) 4) Migration triage 5) Recommendation
+
+## Verify
+- tsc --noEmit + npx vitest run after the markdown write (must remain green; no source change).

@@ -1,0 +1,30 @@
+{
+  "id": "162-012-fix-fix",
+  "title": "Fix: Fix: src/core/ — remaining helpers + bridge",
+  "description": "Priority fix for NO_GO task 162-012-fix.\nOriginal worker notes: Fix iteration of T-162-LIVE-012 READ-ONLY audit. Replaced v1 (446 lines) with v2 (591 lines) at docs/audits/sprint-162-live/T-162-LIVE-012-core-remaining.md.\n\nScope discipline: ZERO source-code changes (READ-ONLY mandate). git diff --stat against scope shows only the single audit report file. ADR-037 RBAC + ADR-039 self-modifying detector should both record 0 violations.\n\nWhat changed v1 → v2:\n1. NEW P1-4: anthropic-http-client.ts (336 LoC) is implemented but NEVER WIRED. Live grep confirms zero\nRubric: correctness=98, test_coverage=100, scope_compliance=100\nExpected scope: docs/audits/sprint-162-live/, src/core/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-012-core-remaining.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-012-fix evaluated as NO_GO; correctness=98; test_coverage=100; scope_compliance=100",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/core/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-012-core-remaining.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "PENDING",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-012-fix",
+  "createdAt": "2026-05-08T15:36:17.388Z"
+}

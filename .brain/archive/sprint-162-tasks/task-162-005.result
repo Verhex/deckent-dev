@@ -1,0 +1,24 @@
+{
+  "taskId": "162-005",
+  "filesChanged": ["docs/audits/sprint-162-live/T-162-LIVE-005-core-routing-engine.md"],
+  "linesAdded": 273,
+  "linesRemoved": 0,
+  "testsPassed": true,
+  "coverage": null,
+  "selfAssessment": "DONE",
+  "notes": "READ-ONLY audit complete. Zero source code changes verified via git status — only the assigned audit report was created. Findings: 1 P0 (ADR-028 V1->V2 migration NOT finished — runtime fallback in sprint-planner.ts:366 + sprint-controller.ts:539 is 'v1', defaultConfig says 'v2'), 2 P1 (taskDNAToRecord strips tags+subIntent making Sprint 148 'test-coverage' tag latent dead; inferIntentsFromKeywords emits 'testing' rules that never match the IntentType union), 3 P2 (routingVersion 'v3' vs 'v2' mismatch between engine return and planner persist; activeAgentIds option never passed by any caller making fallback branch dead; tiebreaker is no-op leftover from V2 stat reform), 5 P3 (stale 'replaces' comment; INTENT_KEYWORDS.implementation includes test/spec/coverage/vitest overlapping Sprint 148 test-coverage tag; inferIntentsFromKeywords return type Map<string,number> instead of IntentType-typed; getDynamicExclusions hardcodes 4 agents bypassing per-agent exclude rules; analyzeWriteScope directories-fallback duplicate-prefix guard loses info). All 3 audited files MIGRATE-PUBLIC after P0-A/P1-A/P1-B/P2-B fixes. tsc --noEmit and vitest run NOT executed — task is READ-ONLY audit (no source change), test/build verification N/A per task spec.",
+  "tokenUsage": {
+    "inputTokens": 38000,
+    "outputTokens": 6500,
+    "cacheReadTokens": 0,
+    "provider": "claude",
+    "model": "opus"
+  },
+  "rubricScores": {
+    "correctness": 95,
+    "test_coverage": 100,
+    "scope_compliance": 100,
+    "documentation": 95
+  },
+  "evaluationDecision": "DONE"
+}

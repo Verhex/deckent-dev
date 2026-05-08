@@ -1,0 +1,100 @@
+{
+  "id": "159-002",
+  "title": "Wire `deckent doctor --refresh-models` flag [CLAUDE]",
+  "description": "Wire `deckent doctor --refresh-models` flag [CLAUDE]\n- Model: sonnet\n- Effort: normal\n- Skills: typescript-expert, api-builder\n- Files: src/cli/commands/doctor.ts, tests/cli/commands/doctor.test.ts\n- Scope: src/cli/commands/, tests/cli/commands/\n\n### Description\n\nSprint 155 `model-registry-refresh.ts` modülünü ekledi (lastRefresh + isStale + refresh fonksiyonları). Ama `deckent doctor --refresh-models` CLI flag'i wire edilmedi. Sprint 159 bunu kapatır:\n\n1. `src/cli/commands/doctor.ts` `.option('--refresh-models', '...')` ekle\n2. Action handler'da: flag varsa `runModelRegistryRefresh()` çağır (doctor-checks.ts'den export var), her provider için pre-fetch dene (API key/subscription varsa, yoksa skip), refresh tarihini `.deckent/model-registry-refresh.json`'a kaydet\n3. Output: \"Refreshed claude (3 models), gemini (4 models, 1 stale-warning), codex (skipped — no auth)\" benzeri tablo\n4. Test: 2+ test (flag detect, mock refresh success, no-auth provider skip)\n\n**Kanıt**: `grep -c \"refresh-models\" src/cli/commands/doctor.ts` ≥ 1; `npx deckent doctor --help` çıktısında `--refresh-models` görünür.\n\n**Test**: 2+ test.\n\n---",
+  "model": "sonnet",
+  "effort": "normal",
+  "priority": "NORMAL",
+  "reason": "Directive (model: sonnet -- user override)",
+  "scope": {
+    "directories": [
+      "src/cli/commands/",
+      "tests/cli/commands/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "src/cli/commands/doctor.ts",
+      "tests/cli/commands/doctor.test.ts",
+      ".option",
+      "doctor-checks.ts",
+      "model-registry-refresh.json"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; `grep -c \"refresh-models\" src/cli/commands/doctor.ts` ≥ 1; `npx deckent doctor --help` çıktısında `--refresh-models` görünür.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-159",
+  "provider": "claude",
+  "forceModel": "sonnet",
+  "forceEffort": "normal",
+  "forceSkills": [
+    "typescript-expert",
+    "api-builder"
+  ],
+  "assignedAgent": "security-auditor",
+  "assignedSkills": [
+    "typescript-expert",
+    "api-builder"
+  ],
+  "createdAt": "2026-05-07T12:43:24.154Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "implementation",
+        "secondary": [
+          "documentation",
+          "security",
+          "config"
+        ],
+        "confidence": 0.95
+      },
+      "subIntent": "config",
+      "tags": [
+        "test-coverage"
+      ],
+      "domains": [
+        {
+          "name": "cli",
+          "weight": 0.57
+        }
+      ],
+      "operations": [
+        {
+          "type": "create",
+          "weight": 0.5
+        },
+        {
+          "type": "test",
+          "weight": 0.25
+        },
+        {
+          "type": "document",
+          "weight": 0.25
+        }
+      ],
+      "complexity": {
+        "fileCount": 5,
+        "moduleCount": 1,
+        "crossCutting": false,
+        "estimatedSize": "medium"
+      },
+      "scope": {
+        "writeRatio": {
+          "src/": 0.2,
+          "tests/": 0.2,
+          "./": 0.6
+        },
+        "primaryWriteTarget": "./",
+        "testWriteRatio": 0.2
+      }
+    },
+    "confidence": "uncertain",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 2440,
+  "updatedAt": "2026-05-07T13:03:30.747Z"
+}

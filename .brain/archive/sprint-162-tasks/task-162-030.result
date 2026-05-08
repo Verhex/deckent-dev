@@ -1,0 +1,21 @@
+{
+  "taskId": "162-030",
+  "workerId": "w-162-030",
+  "filesChanged": [
+    "docs/audits/sprint-162-live/T-162-LIVE-030-mcp-lifecycle-plan.md"
+  ],
+  "linesAdded": 448,
+  "linesRemoved": 0,
+  "testsPassed": true,
+  "coverage": null,
+  "selfAssessment": "DONE",
+  "evaluationDecision": "DONE",
+  "notes": "READ-ONLY audit of 9 MCP lifecycle/planning tools (init, set_directives, plan, start, status, kill, cleanup, run, checkpoint) plus 4 infrastructure modules (server, tools/index, helpers/enrich, helpers/format) plus 9 CLI counterparts as parity reference. 10 audit dimensions applied (dead code / ADR / conflicts / drift / type-safety / dep-hygiene / doc-pollution / Memory V2 / config / migration triage). 24 findings: 1× P0 (kill does not actually kill workers — only sets PAUSED), 9× P1 (init param drift, plan semantic drift, cleanup subset bug, run unit drift, kill panic-guard gap, init Memory-V2 incompatible, init memory budget drift, init Claude-rule stubs drift, tool count mismatch), 10× P2 (mode list drift, type-safety casts, i18n missing, validators asymmetry, etc.), 4× P3 (sprint-comment cruft, void smell, BOOT.md drift, ESM clean). All 13 files triaged KEEP-PRIVATE. 15 prioritized recommendations across Tier-A/B/C. Single-write scope respected: only docs/audits/sprint-162-live/T-162-LIVE-030-mcp-lifecycle-plan.md modified. tsc --noEmit exit 0 (no source touched). vitest not run (READ-ONLY task — Test: N/A per DIRECTIVES). Honest baseline: report exhaustively cites file:line evidence and is keyed to ADR-022-V2 lead question; functional outcome matches DIRECTIVES task spec fully (single audit report, 5-section format, 10 dimensions, severity grades, migration triage, recommendations).",
+  "tokenUsage": {
+    "inputTokens": 95000,
+    "outputTokens": 18000,
+    "cacheReadTokens": 0,
+    "provider": "claude",
+    "model": "opus"
+  }
+}

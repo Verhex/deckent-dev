@@ -1,0 +1,26 @@
+{
+  "taskId": "162-029-fix",
+  "title": "src/cli/ entry + helpers + register* — READ-ONLY audit",
+  "approach": "READ-ONLY audit per Sprint 162 Lane 1 mandate. NO source code changes. NO refactoring. Only writes to docs/audits/sprint-162-live/T-162-LIVE-029-cli-entry-register.md.",
+  "phases": [
+    "1. Enumerate src/cli/ structure — entry.ts, index.ts, helpers/, command registration files",
+    "2. Read entry.ts + index.ts (registration aggregator)",
+    "3. Read all helpers/* files",
+    "4. Read sample of register*() pattern files to verify ADR-012 compliance",
+    "5. Verify ADR-010 single runtime dependency (commander.js) via package.json + import scan",
+    "6. Verify ADR-011 readline/promises usage (no inquirer/prompts)",
+    "7. Apply 10 audit dimensions per file",
+    "8. Write single audit report"
+  ],
+  "scopeBoundary": {
+    "filesRead": ["src/cli/**", "package.json (for ADR-010 verification)"],
+    "filesWrite": ["docs/audits/sprint-162-live/T-162-LIVE-029-cli-entry-register.md"]
+  },
+  "leadQuestions": [
+    "Are 46+ commands all registered?",
+    "Does ADR-010 hold (single runtime dep = commander)?",
+    "Does ADR-011 hold (readline/promises only, no inquirer)?",
+    "Does ADR-012 hold (register<Name>(program) pattern)?",
+    "Drift between IDENTITY.md (46 commands) and actual count?"
+  ]
+}

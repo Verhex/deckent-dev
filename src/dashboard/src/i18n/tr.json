@@ -1,0 +1,10 @@
+{
+  "events.sprint.eval.heartbeat-skip": "Heartbeat canlı — değerlendirme ertelendi",
+  "events.sprint.eval.audit-rubric-applied": "Denetim rubriği uygulandı",
+  "events.sprint.eval.synthetic-timeout": "Worker zaman aşımına uğradı, kısmi iş korundu",
+  "events.sprint.spawn.deadlock-detected": "Spawn döngüsü kilitlenmesi tespit edildi",
+  "events.sprint.recover.state-reset": "Sprint durumu sıfırlandı",
+  "events.sprint.recover.zombie-killed": "Zombi süreç sonlandırıldı",
+  "events.sprint.recover.status-sync": "Durum görüntüsü senkronize edildi",
+  "events.sprint.recover.tmpfile-swept": "Geçici dosyalar temizlendi"
+}

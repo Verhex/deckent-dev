@@ -1,0 +1,27 @@
+# Task 155-003 Execution Plan: Model Registry Remote Refresh
+
+## Files to Create/Modify
+1. src/core/model-registry.ts — Add lastRefresh state + isStale() + setLastRefresh() + getLastRefresh()
+2. src/core/model-registry-refresh.ts (NEW) — Refresh logic, state I/O, API calls, formatRefreshAge
+3. src/cli/commands/doctor-checks.ts — Add checkModelRegistryStale() + runDoctorChecks integration
+4. tests/core/model-registry-refresh.test.ts (NEW) — 8+ tests
+
+## Design Decisions
+- lastRefresh stored as in-memory Partial<Record<RegistryProviderName, number>> in ModelRegistry
+- Persistence: .deckent/model-registry-refresh.json (timestamps only, not model defs)
+- API calls: global fetch (Node 18+ built-in)
+- No API key = graceful skip with hint (never throw)
+- Malformed response = no crash (try/catch wraps all parsing)
+- refreshAllProviders = Promise.all (parallel)
+- doctor.ts --refresh-models: export runModelRegistryRefresh from doctor-checks.ts; 
+  note: doctor.ts option wiring is outside filesWrite scope — exports are ready for wiring
+
+## Test Matrix (8 tests)
+1. loadRefreshState handles missing file → returns zero state
+2. saveRefreshState + loadRefreshState round-trip
+3. ModelRegistry.isStale() with no lastRefresh → true
+4. ModelRegistry.isStale() with recent timestamp → false  
+5. ModelRegistry.isStale() after staleAfterMs → true
+6. refreshProvider no api key → success=false + skippedReason (graceful)
+7. refreshProvider malformed API response → no crash, success=false
+8. refreshAllProviders parallel → all 3 providers resolved

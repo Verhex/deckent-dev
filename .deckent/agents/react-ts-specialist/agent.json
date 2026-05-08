@@ -36,7 +36,7 @@
     "totalUses": 38,
     "successRate": 0.868421052631579,
     "avgCoverage": 0,
-    "lastUsedInSprint": "sprint-153"
+    "lastUsedInSprint": "sprint-162"
   },
   "id": "react-ts-specialist",
   "name": "React TypeScript Specialist",
@@ -54,5 +54,5 @@
     "exclude": [],
     "minScore": 5
   },
-  "_promotedAt": "2026-05-07T07:03:59.617Z"
+  "_promotedAt": "2026-05-08T15:37:26.157Z"
 }

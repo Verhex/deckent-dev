@@ -1,0 +1,1 @@
+{"taskId":"162-039-fix","provider":"claude","model":"opus","backend":"docker","writtenBy":"spawn-backend","writtenAt":"2026-05-08T15:32:33.228Z","note":"Stub written by spawn-backend before provider CLI invocation. Worker may overwrite with structured plan content per prompt-template instructions."}

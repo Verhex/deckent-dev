@@ -1,0 +1,14 @@
+{"type":"metric","name":"wave.start","value":0,"tags":{"wave":"legacy","count":"3","sprintId":"sprint-158"},"timestamp":"2026-05-07T11:58:29.161Z"}
+{"type":"metric","name":"hb.stale","value":1,"tags":{"taskId":"test-docker-994765","sprintId":"sprint-158"},"timestamp":"2026-05-07T12:00:48.182Z"}
+{"type":"metric","name":"hb.stale","value":1,"tags":{"taskId":"test-docker-994765","sprintId":"sprint-158"},"timestamp":"2026-05-07T12:01:15.671Z"}
+{"type":"metric","name":"result.collected","value":1,"tags":{"taskId":"158-001","sprintId":"sprint-158"},"timestamp":"2026-05-07T12:01:22.018Z"}
+{"type":"metric","name":"collect.batch","value":1,"tags":{"duration_ms":"1","sprintId":"sprint-158"},"timestamp":"2026-05-07T12:01:22.019Z"}
+{"type":"metric","name":"hb.stale","value":1,"tags":{"taskId":"test-docker-994765","sprintId":"sprint-158"},"timestamp":"2026-05-07T12:01:43.142Z"}
+{"type":"metric","name":"hb.stale","value":1,"tags":{"taskId":"test-docker-994765","sprintId":"sprint-158"},"timestamp":"2026-05-07T12:02:10.627Z"}
+{"type":"metric","name":"result.collected","value":1,"tags":{"taskId":"158-003","sprintId":"sprint-158"},"timestamp":"2026-05-07T12:14:33.331Z"}
+{"type":"metric","name":"collect.batch","value":1,"tags":{"duration_ms":"2","sprintId":"sprint-158"},"timestamp":"2026-05-07T12:14:33.331Z"}
+{"type":"trace","operation":"wait_results","durationMs":1956790.87,"success":true,"timestamp":"2026-05-07T12:28:33.259Z"}
+{"type":"metric","name":"wave.start","value":0,"tags":{"wave":"legacy","count":"1","sprintId":"sprint-158"},"timestamp":"2026-05-07T12:28:45.091Z"}
+{"type":"metric","name":"result.collected","value":1,"tags":{"taskId":"158-002-fix","sprintId":"sprint-158"},"timestamp":"2026-05-07T12:36:38.060Z"}
+{"type":"metric","name":"collect.batch","value":1,"tags":{"duration_ms":"1","sprintId":"sprint-158"},"timestamp":"2026-05-07T12:36:38.060Z"}
+{"type":"trace","operation":"wait_results","durationMs":513173.24,"success":true,"timestamp":"2026-05-07T12:36:38.060Z"}

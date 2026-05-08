@@ -1,0 +1,24 @@
+{
+  "taskId": "156-001",
+  "filesChanged": ["docs/audits/sprint-156-tr-en-sync-report.md"],
+  "linesAdded": 116,
+  "linesRemoved": 0,
+  "testsPassed": true,
+  "coverage": null,
+  "selfAssessment": "DONE",
+  "notes": "Audit complete. Read all 4 docs (README.md, README-TR.md, BETA-TRACKER.md, BETA-TRACKER-TR.md). Created docs/audits/sprint-156-tr-en-sync-report.md (116 lines, 8.7KB). Found 2 drift categories: (1) README — Node version requirement: TR still says >=18, EN updated to >=20 (Sprint 153 EOL drop). Doctor snippet also drifted. (2) BETA-TRACKER — TR header is massively stale (date 2026-04-20 vs EN 2026-05-07, Sprint 145+ vs 154, 12485+ tests vs 15671, version 0.4.0-beta.1 vs 1.0.0-beta.1). Overview module count drifted (250+ vs 882). Gate #8 shows stale ✅ Sprint 148 in TR while EN reopened it to 🟡 after Sprint 154 revealed spawn-backend-docker.ts was hardcoded to Claude. Sprint 146-155 phase plan entries absent from TR. 10 actionable fix bullets provided. Kanıt: ls docs/audits/sprint-156-tr-en-sync-report.md returns file; table rows > 40 lines. No source files modified — read-only audit as specified.",
+  "tokenUsage": {
+    "inputTokens": 85000,
+    "outputTokens": 3200,
+    "cacheReadTokens": 45000,
+    "provider": "claude",
+    "model": "sonnet"
+  },
+  "rubricScores": {
+    "correctness": 95,
+    "test_coverage": 100,
+    "scope_compliance": 100,
+    "documentation": 90
+  },
+  "evaluationDecision": "DONE"
+}

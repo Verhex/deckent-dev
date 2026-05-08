@@ -1,0 +1,17 @@
+Task 162-027 tamamlandı.
+
+**Teslim:** `docs/audits/sprint-162-live/T-162-LIVE-027-cli-config-lists.md` (453 satır, 26 KB) — `src/cli/commands/{config,sync,agent,skill,mode}.ts` için READ-ONLY god-level audit raporu.
+
+**Özet bulgular (16 madde, 10 boyut):**
+- **3×P1**: agent.ts `loadAgentSprintStats` regex tüm sprint task satırlarını agent'a atfediyor (silent metric corruption); skill.ts `validateManifest` Zod şeması yalnız 3 alanı doğrularken `data is SkillDefinition` type guard tüm tipi narrow ediyor; ADR-010 "tek runtime dep = commander" iddiası 7-dep'li `package.json` (zod, telegraf, better-sqlite3 vs.) ile çelişiyor.
+- **8×P2**: mode.ts parent description'ında `auto` yanlış değer iddiası, `validatePartialConfig` bypass'ı, agent.ts'de kullanılmayan `createHash` re-export (ADR-038 dead code), CLI/MCP file naming asimetrisi (`agent.ts` vs `agent-list.ts`), AgentConfig flat/nested şema drift'i, vd.
+- **5×P3**: silent malformed JSON skip, single-char trigger reddi, `--enable && --disable` mutex eksik, `MEMORY.md` legacy write Memory V2 DB-first ile çelişiyor, sync.ts heading-level edge case.
+
+**Migration triage:** 5/5 dosya KEEP-PRIVATE; agent.ts ve skill.ts tech debt taşıyor (P1 fix öncesi public surface promote edilmemeli).
+
+**Self-assessment:** DONE — 100% scope compliance, sadece tek hedef raporu yazıldı, kaynak kodunda 0 satır değişiklik, ADR-037/039 sınırı korundu.
+
+`★ Insight ─────────────────────────────────────`
+- F01 (sprint stats regex) gerçek bir "silent metric corruption" örneği: kod hata vermez, hatta GO_WITH_TECH_DEBT testlerden geçer; ancak tüm agent'lar aynı sprint dosyasında geçerse herkes sprint'in toplam başarı oranıyla raporlanır. Bu tür bug'lar audit olmadan bulunamaz çünkü `tsc/vitest` tip ve deterministik davranış kontrol eder, atribüsyon mantığını değil.
+- ADR-010 ihlali governance debt'in canlı bir örneği: ADR-014 (`.deck` secret), ADR-031 (`content hash cache`), Memory V2 (better-sqlite3) hepsi yeni dep getirdi ama kimse ADR-010-V2 amendment açmadı — Brain prompt injection kuralı (worker-default.md) bunları "mandatory constraint" olarak yüklemeye devam ediyor.
+`─────────────────────────────────────────────────`

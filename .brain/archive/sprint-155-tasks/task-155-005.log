@@ -1,0 +1,11 @@
+Task 155-005 is complete. Here's a summary of what was done:
+
+**Three files updated:**
+
+1. **`.brain/RETRO.md`** — Replaced stale sprint-153 content with the Sprint 154 retrospective: summary of Faz A–C, gate #8 reclassification (18/20 PASS), agent performance table, and the three canonical learnings detailed with root-cause analysis and recovery steps.
+
+2. **`.brain/exports/memory.md`** — Prepended a new `## Sprint sprint-154 Learnings` section (6 bullet entries) at the top, covering Gemini OAuth+Docker backend delivery and all three playbook lessons (PASS≠live-evidence, UID pollution, bisect debug).
+
+3. **`docs/SPRINT-LOG.md`** — Appended a full Sprint 154 entry including goal, results table, major deliverables with commit hashes, key learnings, and deferred Sprint 155 items.
+
+**Self-assessment: DONE** — all three files contain the Sprint 154 content required by the task spec. No source code was touched (documentation-only scope).

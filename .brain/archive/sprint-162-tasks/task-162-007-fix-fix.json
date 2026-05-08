@@ -1,0 +1,30 @@
+{
+  "id": "162-007-fix-fix",
+  "title": "Fix: Fix: src/core/ — file-lock + event-stream + heartbeat",
+  "description": "Priority fix for NO_GO task 162-007-fix.\nOriginal worker notes: Worker timeout — process exceeded time limit and was killed\nExpected scope: docs/audits/sprint-162-live/, src/core/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-007-core-locks-events.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-007-fix evaluated as NO_GO; tests failed; no files changed",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/core/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-007-core-locks-events.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "PENDING",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-007-fix",
+  "createdAt": "2026-05-08T15:36:17.388Z"
+}

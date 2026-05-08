@@ -1,0 +1,30 @@
+{
+  "id": "162-014-fix-fix",
+  "title": "Fix: Fix: src/orchestra/ — planner + task-builder",
+  "description": "Priority fix for NO_GO task 162-014-fix.\nOriginal worker notes: Sprint 162 Lane 1 READ-ONLY audit fix-pass for src/orchestra/planner.ts (522 LoC) + task-builder.ts (888 LoC). Original 162-014 worker produced a comprehensive 320-line audit report with 16 findings (P0-P3, file:line evidence, all 10 audit dimensions, migration triage, lead-question answers) but lost its .result file (partial-result shows container terminated before provider CLI finalized). Fix-pass action: (1) re-verified the four highest-impact findings against live source — F-01 confirmed via\nRubric: correctness=95, test_coverage=100, scope_compliance=100\nExpected scope: docs/audits/sprint-162-live/, src/orchestra/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-014-orch-planner.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-014-fix evaluated as NO_GO; correctness=95; test_coverage=100; scope_compliance=100",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/orchestra/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-014-orch-planner.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "PENDING",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-014-fix",
+  "createdAt": "2026-05-08T15:36:17.389Z"
+}

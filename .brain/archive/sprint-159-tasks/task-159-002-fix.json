@@ -1,0 +1,36 @@
+{
+  "id": "159-002-fix",
+  "title": "Fix: Wire `deckent doctor --refresh-models` flag [CLAUDE]",
+  "description": "Priority fix for NO_GO task 159-002.\nOriginal worker notes: Wired `deckent doctor --refresh-models` flag:\n1. Added `.option('--refresh-models', '...')` to registerDoctor in doctor.ts\n2. Added handler: calls refreshAllProviders(modelRegistry, { root }), saves state via saveRefreshState, prints per-provider table (success/skipped/failed), returns early\n3. Added imports for refreshAllProviders, loadRefreshState, saveRefreshState, modelRegistry, RefreshResult, RegistryProviderName\n4. Added vi.mock for model-registry-refresh.js and model-registry.js in test f\nRubric: correctness=100, test_coverage=95, scope_compliance=100\nExpected scope: src/cli/commands/, tests/cli/commands/\nFiles that should change: src/cli/commands/doctor.ts, tests/cli/commands/doctor.test.ts, .option, doctor-checks.ts, model-registry-refresh.json",
+  "model": "sonnet",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 159-002 evaluated as NO_GO; correctness=100; test_coverage=95; scope_compliance=100",
+  "scope": {
+    "directories": [
+      "src/cli/commands/",
+      "tests/cli/commands/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "src/cli/commands/doctor.ts",
+      "tests/cli/commands/doctor.test.ts",
+      ".option",
+      "doctor-checks.ts",
+      "model-registry-refresh.json"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; `grep -c \"refresh-models\" src/cli/commands/doctor.ts` ≥ 1; `npx deckent doctor --help` çıktısında `--refresh-models` görünür.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-159",
+  "isPriorityFix": true,
+  "fixForTaskId": "159-002",
+  "createdAt": "2026-05-07T13:03:30.748Z",
+  "estimatedTokens": 103,
+  "updatedAt": "2026-05-07T13:15:09.818Z"
+}

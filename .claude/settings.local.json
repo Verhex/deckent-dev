@@ -251,5 +251,5 @@
       "Bash(awk -F'/' '{print $1}')"
     ]
   },
-  "outputStyle": "Explanatory"
+  "outputStyle": "Learning"
 }

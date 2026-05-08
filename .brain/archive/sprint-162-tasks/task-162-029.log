@@ -1,0 +1,13 @@
+Görev tamamlandı. `★ Insight ─────────────────────────────────────`
+
+**Bu denetimden çıkan üç önemli içgörü:**
+
+1. **Pattern'in başarısı yan etkili dead code yarattı** — ADR-012 (`register<Name>(program)` deseni) o kadar düşük sürtünmeli ki, 56 dosya/47 register oranıyla ~%16 dead-helper biriktirdi. Pattern başarısının kanıtı: yeni komut eklemek bedavaymış gibi geliyor → eski komutlar/yardımcılar silinmeden bırakılıyor. ADR-038 (Dead Code Disposition) dogfood gerektiriyor.
+
+2. **Single-source-of-truth cliffi** — Komut sayısı (47) DECKENT.md'de "46+", IDENTITY'de "55+", README'de "49" olarak görünüyor. `index.ts`'i build-time AST sayımıyla codegen'e bağlamak (mevcut `scripts/generate-cli-docs.ts` zaten var) tek seferlik bir wire fix; sonsuz drift'in panzehiri.
+
+3. **ADR ihlal sessizliği** — ADR-010 ("tek runtime dep") 7 dep eklenirken hiç güncellenmedi. `lint:adr` package.json deps allowlist'ini ADR-010'a karşı diff edebilir — ADR'leri yaşayan sözleşmeye dönüştüren basit kontrol.
+
+`─────────────────────────────────────────────────`
+
+**Özet:** READ-ONLY denetim raporu yazıldı (`docs/audits/sprint-162-live/T-162-LIVE-029-cli-entry-register.md`, 312 satır, 16 bulgu — 3 P1 / 6 P2 / 7 P3). 47 `register*` çağrısı doğrulandı; ADR-010, ADR-011, ADR-012, ADR-022-V2 uyumluluğu denetlendi. `selfAssessment: "DONE"`. Scope sadece tek dosya yazımıyla sınırlı kaldı.

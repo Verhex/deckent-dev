@@ -1,0 +1,19 @@
+Heartbeat docker daemon tarafından sürekli güncelleniyor — onu rahat bırakıyorum. Sonuç dosyası ve audit raporu hazır.
+
+## Özet
+
+**Görev 162-016 tamamlandı (DONE).** 
+
+**Çıktı:** `docs/audits/sprint-162-live/T-162-LIVE-016-orch-router-evolve.md` (674 satır) — `task-router.ts` + `rule-evolver.ts` + `outcome-tracker.ts` üzerinde READ-ONLY audit raporu.
+
+**Bulgular:** 5 P1 (3'ü Sprint 161 + 162a-smoke'tan kalma tekrar bulgu) + 7 P2 + 6 P3. Lead question doğrulamaları:
+
+1. **ADR-015 6-level routing** — ⚠️ KISMÎ. JSDoc 6 seviye iddia ediyor, implementasyon yalnızca 5; level 3 `preferredProvider` lookup'ı yok, sessizce `task.provider` field okunuyor (P1-A).
+2. **Learning bonus correctness** — ✅ DOĞRU (magic-number borç + bir source string drift'i ile). `LearningBonus.bonus` `±LEARNING_BONUS_CAP=3` ile cap'lenmiş; `'learnings'` source literal'i tip docu ile uyuşmuyor (P1-D).
+3. **Synergy matrix** — ✅ DOĞRU (policy belirsizliği ile). Agent+skill kayıtları routing weight'a "informe" eden bir wire yok — kayıp wiring (P2-F).
+
+**Migration triage:** Üç dosya da `MIGRATE-PUBLIC` (pre-merge cleanup şartı ile). Function-level `DELETE-CANDIDATE`: `emitTimeoutEvents` (29 LoC, üç audit'te flag'lenmiş dead code), `TaskRouting.timeoutSeconds`, `RuleEvolver.loadRules`.
+
+**Scope ihlali yok** — yalnızca atanan tek path'e (`docs/audits/sprint-162-live/T-162-LIVE-016-...md`) yazıldı. `tsc`/`vitest` çalıştırılmadı çünkü task spec READ-ONLY audit ("Test: N/A").
+
+**Meta-finding:** P1-A ve P1-B üç sprint üst üste raporlanıyor — audit→remediation pipeline'ında kopukluk var; raporda Brain'e flag'lendi.

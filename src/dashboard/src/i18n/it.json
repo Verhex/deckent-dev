@@ -1,0 +1,10 @@
+{
+  "events.sprint.eval.heartbeat-skip": "Heartbeat attivo — valutazione rinviata",
+  "events.sprint.eval.audit-rubric-applied": "Rubrica di audit applicata",
+  "events.sprint.eval.synthetic-timeout": "Worker scaduto, lavoro parziale preservato",
+  "events.sprint.spawn.deadlock-detected": "Deadlock del ciclo di spawn rilevato",
+  "events.sprint.recover.state-reset": "Stato dello sprint reimpostato",
+  "events.sprint.recover.zombie-killed": "Processo zombie terminato",
+  "events.sprint.recover.status-sync": "Visualizzazione di stato sincronizzata",
+  "events.sprint.recover.tmpfile-swept": "File temporanei rimossi"
+}

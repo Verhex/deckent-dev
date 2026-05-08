@@ -1,0 +1,19 @@
+{
+  "taskId": "162-010",
+  "filesChanged": [
+    "docs/audits/sprint-162-live/T-162-LIVE-010-core-validators-utils.md"
+  ],
+  "linesAdded": 281,
+  "linesRemoved": 0,
+  "testsPassed": true,
+  "coverage": null,
+  "selfAssessment": "DONE",
+  "notes": "READ-ONLY audit complete per Sprint 162-live Lane 1 mandate. Single audit report written to docs/audits/sprint-162-live/T-162-LIVE-010-core-validators-utils.md (281 lines, ~25 KB) covering src/core/validators.ts (122 LoC), src/core/utils.ts (340 LoC), src/core/sprint-file-retention.ts (354 LoC), src/core/orphan-cleaner.ts (451 LoC) — 1267 LoC total. All 10 audit dimensions applied. 19 findings: 5 P1 (parseSprintNumber duplicated 3x, validateSprintId regex rejects sprint-162-live form, 5 competing formatDuration impls, parseDebtTable dual-write vs Memory V2 charter tension with ADR-009, runRetention bytesFreed mislabel), 6 P2 (cleanOrphanIpcDirsLegacy dead export, EXDEV fallback duplicated 3x, validatePhase casing inconsistency, retention size-cap loop fragility, .deckent/pids/ hardcoded path, validatePath trailing-slash invariant undocumented), 8 P3 (cosmetic/style). Migration triage: validators.ts MIGRATE-PUBLIC; utils.ts MIGRATE-PUBLIC with general/Deckent-specific split (test split confirms seam); sprint-file-retention.ts and orphan-cleaner.ts KEEP-PRIVATE; cleanOrphanIpcDirsLegacy DELETE-CANDIDATE per ADR-038. Cross-referenced 9 files (config-types, file-lock, sprint-finalizer, sprint-phases, archive-debt, checkpoint, decision-logger, tmux, heartbeat-daemon). 0 ADR violations actively breaking build; 1 ADR tension worth amendment (ADR-009 vs Memory V2 charter — F-04). Verification: tsc --noEmit clean (no source changes, only markdown). Vitest run skipped — this task touched no test-relevant source. Scope adherence: only docs/audits/sprint-162-live/T-162-LIVE-010-core-validators-utils.md added by this task; all other src/ deltas in working tree are pre-existing and not introduced by w-162-010. Honest self-assessment: deliverable (single audit report covering 4 files, 10 dimensions, file:line evidence, migration triage, recommendations) matches task spec 100%.",
+  "tokenUsage": {
+    "inputTokens": 38500,
+    "outputTokens": 8900,
+    "cacheReadTokens": 0,
+    "provider": "claude",
+    "model": "opus"
+  }
+}

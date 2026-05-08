@@ -1,0 +1,88 @@
+{
+  "id": "162-048",
+  "title": "docs/superpowers/ + docs/development/",
+  "description": "docs/superpowers/ + docs/development/\n- Model: sonnet\n- Effort: normal\n- Skills: documentation-writer\n- Files: docs/audits/sprint-162-live/T-162-LIVE-048-docs-superpowers-dev.md\n- Scope: docs/\n\n### Description\nREAD-ONLY audit of docs/superpowers/specs/, docs/superpowers/plans/,\ndocs/development/. Lead: spec/plan organization, auth-surface-checklist\nfreshness (Sprint 159).\n\n**Kanıt:** Single audit report.\n**Test:** N/A.\n\n---",
+  "model": "sonnet",
+  "effort": "normal",
+  "priority": "NORMAL",
+  "reason": "Directive (model: sonnet -- user override)",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "docs/",
+      "docs/superpowers/specs/",
+      "docs/superpowers/plans/",
+      "docs/development/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-048-docs-superpowers-dev.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "forceModel": "sonnet",
+  "forceEffort": "normal",
+  "forceSkills": [
+    "documentation-writer"
+  ],
+  "assignedAgent": "doc-writer",
+  "assignedSkills": [
+    "documentation-writer"
+  ],
+  "createdAt": "2026-05-08T14:41:19.389Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "documentation",
+        "secondary": [
+          "security"
+        ],
+        "confidence": 0.95
+      },
+      "tags": [],
+      "domains": [
+        {
+          "name": "docs",
+          "weight": 1
+        }
+      ],
+      "operations": [
+        {
+          "type": "test",
+          "weight": 0.4
+        },
+        {
+          "type": "document",
+          "weight": 0.4
+        },
+        {
+          "type": "create",
+          "weight": 0.2
+        }
+      ],
+      "complexity": {
+        "fileCount": 1,
+        "moduleCount": 1,
+        "crossCutting": false,
+        "estimatedSize": "trivial"
+      },
+      "scope": {
+        "writeRatio": {
+          "docs/": 1
+        },
+        "primaryWriteTarget": "docs/",
+        "testWriteRatio": 0
+      }
+    },
+    "confidence": "high",
+    "routingVersion": "v2"
+  },
+  "updatedAt": "2026-05-08T15:22:19.653Z"
+}

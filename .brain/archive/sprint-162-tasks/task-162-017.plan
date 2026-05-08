@@ -1,0 +1,37 @@
+# Task 162-017 Execution Plan
+
+## Scope
+READ-ONLY audit of:
+- src/orchestra/debt-manager.ts (~16.5KB)
+- src/orchestra/sprint-reporter.ts (~3KB — possibly thin re-export after Sprint 134 T-009 4-way split)
+
+## Output
+Single audit report: docs/audits/sprint-162-live/T-162-LIVE-017-orch-debt-reporter.md
+
+## Lead Questions
+1. ADR-009 DEBT.md markdown table format compliance
+2. Sprint 134 T-009 4-way split — sprint-reporter.ts thin shell?
+3. Counter accuracy (DONE/NO_GO/TECH_DEBT counts) — Sprint 160 finding context
+
+## Approach
+1. Read both modules fully
+2. Discover related modules (4-way split components: retro/learnings/agent-perf/skill-perf?)
+3. Apply 10 audit dimensions:
+   - Dead code (unused exports)
+   - ADR violations (44 active ADRs)
+   - Conflicting areas (duplicated logic)
+   - Drift (claims vs reality)
+   - Type safety
+   - Dependency hygiene (.js extensions, circular deps)
+   - Documentation pollution
+   - Memory V2 coherence
+   - Config integrity
+   - Migration triage classification
+4. Cite findings with file:line evidence
+5. Per-file migration triage
+6. Recommendations (NOT code changes)
+
+## Constraints
+- NO source code changes
+- NO file deletions
+- Only writes go to single audit report path

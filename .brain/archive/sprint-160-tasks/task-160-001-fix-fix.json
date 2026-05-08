@@ -1,0 +1,34 @@
+{
+  "id": "160-001-fix-fix",
+  "title": "Fix: Fix: Sweep filter task-prefix-aware (3 path uniform)",
+  "description": "Priority fix for NO_GO task 160-001-fix.\nOriginal worker notes: Re-applied the 3-path sweep filter narrowing per directive 160-001 — original task's source changes were not on disk when this fix-task started (partial-result hint: original docker worker likely OOM/force-stopped before fsync). Edits now persisted: sprint-lifecycle.ts:269 → `.prompt-task-` || `.worker-task-`; sprint-docs-updater.ts:706 → `.prompt-task-`; cleanup.ts:78 → `.prompt-task-`. tsc --noEmit clean (exit 0). git diff --stat shows exactly 3 files / +3/-3 LoC, all in-scope, no boundary vio\nRubric: correctness=100, test_coverage=60, scope_compliance=100\nExpected scope: src/orchestra/, src/cli/commands/\nFiles that should change: src/orchestra/sprint-lifecycle.ts, src/orchestra/sprint-docs-updater.ts, src/cli/commands/cleanup.ts, .prompt-, .prompt-task-",
+  "model": "opus",
+  "effort": "low",
+  "priority": "CRITICAL",
+  "reason": "Task 160-001-fix evaluated as NO_GO; correctness=100; test_coverage=60; scope_compliance=100; tests failed",
+  "scope": {
+    "directories": [
+      "src/orchestra/",
+      "src/cli/commands/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "src/orchestra/sprint-lifecycle.ts",
+      "src/orchestra/sprint-docs-updater.ts",
+      "src/cli/commands/cleanup.ts",
+      ".prompt-",
+      ".prompt-task-"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** `grep -rn \"startsWith('\\\\.prompt-')\" src/ tests/` → src/ tarafında",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "PENDING",
+  "sprintId": "sprint-160",
+  "isPriorityFix": true,
+  "fixForTaskId": "160-001-fix",
+  "createdAt": "2026-05-08T06:30:21.306Z"
+}

@@ -1,0 +1,26 @@
+# Execution Plan: 155-002-fix
+# Task: Fix — Adapter-Side provider_auth.mode Runtime Enforcement
+
+## Baseline Assessment (before this fix task)
+The original task 155-002 produced an implementation that was marked NO_GO.
+Upon inspection, ALL the implementation is already present and correct:
+
+### Files already implemented (from previous 155-002 attempt):
+1. `src/core/provider-auth-resolver.ts` — `resolveAuthMode()` pure function, 76 lines
+2. `src/providers/claude.ts` — added `detectAuthMode()`, `authConfig` enforcement in `spawn()`
+3. `src/providers/gemini.ts` — added `detectNormalizedAuthMode()`, `authConfig` enforcement in `spawn()`
+4. `src/providers/codex.ts` — added `authConfig` enforcement in `spawn()`
+5. `tests/providers/auth-enforcement.test.ts` — 27 tests covering all scenarios
+
+## Verification Steps
+1. `tsc --noEmit` → PASS (no type errors)
+2. `npx vitest run tests/providers/auth-enforcement.test.ts` → PASS (27/27 tests)
+3. `npx vitest run tests/providers/` → PASS (381/381 tests)
+4. `npx vitest run tests/core/` → 1 pre-existing failure in error-handling-unification.test.ts
+   - Cause: `model-registry-refresh.ts` (Task 3 file, `??` untracked) has generic `throw new Error()`
+   - Status: PRE-EXISTING, outside this task's filesWrite scope
+   - This task cannot fix it without violating scope rules
+
+## Conclusion
+Implementation is complete. All task-specific tests pass. Pre-existing failure from Task 3
+is outside this task's scope and cannot be fixed here.

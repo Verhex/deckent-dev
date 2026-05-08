@@ -1,0 +1,93 @@
+{
+  "id": "155-004",
+  "title": "Codex Live Install + Dogfood (BLOCKED on external)",
+  "description": "Codex Live Install + Dogfood (BLOCKED on external)\n- Model: sonnet\n- Effort: low\n- Skills: ci-testing\n- Files: docs/CHANGELOG.md, BETA-TRACKER.md (gate #8 close)\n- Scope: docs/\n\n### Description\n\n**Bu task external dependency tarafından blocked: Codex CLI erişimi henüz Alperen tarafında alınmadı. Brain bu task'ı `BLOCKED` state'inde bırakmalı, otomatik spawn etmemeli.**\n\nErişim geldiğinde manuel adımlar:\n1. `npm i -g @openai/codex && codex login` (subscription) veya `OPENAI_API_KEY` set\n2. `deckent doctor` → \"Codex CLI v0.X — auth: subscription (codex auth status)\" görmeli\n3. `deckent run \"Print one short word in Turkish\" --model gpt-5-mini --timeout 60000` — Docker container'da end-to-end (Faz A.5 routing zaten yazıldı)\n4. Result: DONE bekleniyor; capacity hatası olursa Sprint 155 Task 1'in fallback chain'i devreye girmeli (canlı dogfood for Task 1)\n\n**Kanıt**: BETA-TRACKER gate #8 → 3/3 live; CHANGELOG entry \"Codex live dogfood DONE\".\n\n**Test**: N/A (manuel verification + docs sync).\n\n---",
+  "model": "sonnet",
+  "effort": "low",
+  "priority": "NORMAL",
+  "reason": "Directive (model: sonnet -- user override)",
+  "scope": {
+    "directories": [
+      "docs/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/CHANGELOG.md",
+      "BETA-TRACKER.md (gate #8 close)",
+      "BETA-TRACKER.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; BETA-TRACKER gate #8 → 3/3 live; CHANGELOG entry \"Codex live dogfood DONE\".",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "DONE",
+  "sprintId": "sprint-155",
+  "provider": "claude",
+  "forceModel": "sonnet",
+  "forceEffort": "low",
+  "forceSkills": [
+    "ci-testing"
+  ],
+  "assignedAgent": "doc-writer",
+  "assignedSkills": [
+    "ci-testing"
+  ],
+  "createdAt": "2026-05-07T10:40:43.901Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "documentation",
+        "secondary": [
+          "security"
+        ],
+        "confidence": 0.95
+      },
+      "tags": [],
+      "domains": [
+        {
+          "name": "docs",
+          "weight": 0.5
+        }
+      ],
+      "operations": [
+        {
+          "type": "document",
+          "weight": 0.4
+        },
+        {
+          "type": "modify",
+          "weight": 0.2
+        },
+        {
+          "type": "test",
+          "weight": 0.2
+        },
+        {
+          "type": "create",
+          "weight": 0.2
+        }
+      ],
+      "complexity": {
+        "fileCount": 3,
+        "moduleCount": 1,
+        "crossCutting": false,
+        "estimatedSize": "medium"
+      },
+      "scope": {
+        "writeRatio": {
+          "docs/": 0.33,
+          "./": 0.67
+        },
+        "primaryWriteTarget": "./",
+        "testWriteRatio": 0
+      }
+    },
+    "confidence": "high",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 2138,
+  "updatedAt": "2026-05-07T10:55:48.706Z"
+}

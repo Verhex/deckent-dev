@@ -1,0 +1,40 @@
+{
+  "id": "155-002-fix",
+  "title": "Fix: Adapter-Side provider_auth.mode Runtime Enforcement",
+  "description": "Priority fix for NO_GO task 155-002.\nOriginal worker notes: Implemented adapter-side provider_auth.mode runtime enforcement. Created resolveAuthMode() pure function in src/core/provider-auth-resolver.ts — enforces configured mode (api_key/subscription/auto) against runtime-detected state, throws ProviderError on conflict with doctor hint. All 3 adapters updated: GeminiAdapter adds detectNormalizedAuthMode() (normalizes oauth/vertex/cloud_shell → subscription), CodexAdapter reuses existing detectAuthMode(), ClaudeAdapter adds detectAuthMode() (ANTHROPIC_A\nRubric: correctness=95, test_coverage=95, scope_compliance=100\nExpected scope: src/providers/, src/core/, tests/providers/\nFiles that should change: src/providers/claude.ts, src/providers/gemini.ts, src/providers/codex.ts, src/core/provider-auth-resolver.ts (new), tests/providers/auth-enforcement.test.ts (new), src/core/provider-auth-resolver.ts, tests/providers/auth-enforcement.test.ts, .ts",
+  "model": "sonnet",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 155-002 evaluated as NO_GO; correctness=95; test_coverage=95; scope_compliance=100",
+  "scope": {
+    "directories": [
+      "src/providers/",
+      "src/core/",
+      "tests/providers/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "src/providers/claude.ts",
+      "src/providers/gemini.ts",
+      "src/providers/codex.ts",
+      "src/core/provider-auth-resolver.ts (new)",
+      "tests/providers/auth-enforcement.test.ts (new)",
+      "src/core/provider-auth-resolver.ts",
+      "tests/providers/auth-enforcement.test.ts",
+      ".ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; `grep -n \"resolveAuthMode\" src/providers/*.ts` → 3 adapter çağırıyor; `tests/providers/auth-enforcement.test.ts` config-vs-detect matrisi geçer.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "DONE",
+  "sprintId": "sprint-155",
+  "isPriorityFix": true,
+  "fixForTaskId": "155-002",
+  "createdAt": "2026-05-07T10:55:12.464Z",
+  "estimatedTokens": 103,
+  "updatedAt": "2026-05-07T11:03:56.531Z"
+}

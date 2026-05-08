@@ -1,0 +1,7 @@
+`★ Insight ─────────────────────────────────────`
+- This task revealed a recurring deckent taxonomy pattern: surface audits catalog `providers/` adapter methods (class-level) but miss the parallel `core/provider.ts` module-level functions that feed the same observability pipeline. Both layers must be kept in sync when auth modes change.
+- Surface 8's `codex auth status` subprocess call is deliberately guarded by `!hasApiKey && version !== undefined` — it only runs the CLI probe when there's no API key, avoiding a redundant 3-second spawn for the common API-key path.
+- The Validation Playbook Step 6 added here fills an observability gap: the previous steps (tsc, vitest, doctor --json, dry-run, smoke) verified routing correctness but not the human-visible auth label strings that operators use to diagnose "why isn't this provider being selected?"
+`─────────────────────────────────────────────────`
+
+Task 159-001 is complete. `docs/development/auth-surface-checklist.md` now has 9 numbered surface sections (`grep -c "^### [0-9]"` → 9): Surface 8 documents `detectCodex()` in `src/core/provider.ts` (ChatGPT subscription auth path, commit `7bec80b`), Surface 9 documents `detectGemini()` (OAuth/Cloud Shell/Vertex detection via `~/.gemini/settings.json`), and the Validation Playbook gained a Step 6 for verifying `deckent doctor` auth labels per provider.

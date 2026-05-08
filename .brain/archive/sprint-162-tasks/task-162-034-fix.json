@@ -1,0 +1,31 @@
+{
+  "id": "162-034-fix",
+  "title": "Fix: src/agents/ — worker + adaptive",
+  "description": "Priority fix for NO_GO task 162-034.\nOriginal worker notes: Timeout - no heartbeat, no result\nExpected scope: docs/audits/sprint-162-live/, src/agents/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-034-agents-worker.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-034 evaluated as NO_GO; tests failed; no files changed",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/agents/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-034-agents-worker.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-034",
+  "createdAt": "2026-05-08T15:22:19.642Z",
+  "updatedAt": "2026-05-08T15:36:17.390Z"
+}

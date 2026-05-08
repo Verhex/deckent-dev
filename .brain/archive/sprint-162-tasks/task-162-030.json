@@ -1,0 +1,99 @@
+{
+  "id": "162-030",
+  "title": "src/mcp/ — lifecycle + planning tools",
+  "description": "src/mcp/ — lifecycle + planning tools\n- Model: opus\n- Effort: normal\n- Skills: typescript-expert,api-builder\n- Files: docs/audits/sprint-162-live/T-162-LIVE-030-mcp-lifecycle-plan.md\n- Scope: src/mcp/\n\n### Description\nREAD-ONLY audit of MCP tools: init, set_directives, plan, start, status, kill,\ncleanup, run, checkpoint. Lead: parameter schema parity with CLI (ADR-022-V2),\nerror propagation.\n\n**Kanıt:** Single audit report.\n**Test:** N/A.\n\n---",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "NORMAL",
+  "reason": "Directive (model: opus -- user override)",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/mcp/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-030-mcp-lifecycle-plan.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "forceModel": "opus",
+  "forceEffort": "normal",
+  "forceSkills": [
+    "typescript-expert",
+    "api-builder"
+  ],
+  "assignedAgent": "doc-writer",
+  "assignedSkills": [
+    "typescript-expert",
+    "api-builder"
+  ],
+  "createdAt": "2026-05-08T14:41:19.389Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "documentation",
+        "secondary": [
+          "config"
+        ],
+        "confidence": 0.86
+      },
+      "tags": [],
+      "domains": [
+        {
+          "name": "docs",
+          "weight": 0.67
+        },
+        {
+          "name": "mcp",
+          "weight": 0.33
+        }
+      ],
+      "operations": [
+        {
+          "type": "create",
+          "weight": 0.33
+        },
+        {
+          "type": "delete",
+          "weight": 0.17
+        },
+        {
+          "type": "test",
+          "weight": 0.17
+        },
+        {
+          "type": "document",
+          "weight": 0.17
+        },
+        {
+          "type": "configure",
+          "weight": 0.17
+        }
+      ],
+      "complexity": {
+        "fileCount": 1,
+        "moduleCount": 2,
+        "crossCutting": true,
+        "estimatedSize": "medium"
+      },
+      "scope": {
+        "writeRatio": {
+          "docs/": 1
+        },
+        "primaryWriteTarget": "docs/",
+        "testWriteRatio": 0
+      }
+    },
+    "confidence": "high",
+    "routingVersion": "v2"
+  },
+  "updatedAt": "2026-05-08T15:22:19.639Z"
+}

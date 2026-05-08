@@ -1,0 +1,39 @@
+# Task 162-033-fix Execution Plan
+
+## Scope
+- src/mcp/server.ts (server entry, transport, tool/resource registration)
+- src/mcp/resources/index.ts (resource aggregator)
+- src/mcp/resources/dashboard.ts
+- src/mcp/resources/directives.ts
+- src/mcp/resources/memory.ts
+- src/mcp/resources/debt.ts
+- src/mcp/resources/config.ts
+- src/mcp/resources/retro.ts
+- src/mcp/resources/tasks.ts
+- src/mcp/resources/agents.ts
+
+Out-of-scope (covered by Tasks 30-32):
+- src/mcp/tools/*
+- src/mcp/helpers/*
+
+## Audit Dimensions (10)
+1. Dead code (unused exports)
+2. ADR violations (44 ADRs)
+3. Conflicting areas (duplicated logic, file vs DB)
+4. Drift (comment vs behavior, claim vs reality)
+5. Type safety (any, ts-ignore)
+6. Dependency hygiene (.js extensions, circular deps)
+7. Documentation pollution
+8. Memory V2 coherence
+9. Config integrity (URI schema, mime types)
+10. Migration triage classification
+
+## Approach
+1. Read server.ts entry
+2. Read each resource module
+3. Cross-check resources/index.ts vs server registration
+4. Grep for anti-patterns (any, .md parsing, sync I/O)
+5. Author single audit report
+
+## Output
+docs/audits/sprint-162-live/T-162-LIVE-033-mcp-resources-server.md

@@ -1,0 +1,85 @@
+{
+  "id": "162-029-fix",
+  "title": "Fix: src/cli/ — entry + helpers + register*",
+  "description": "Priority fix for NO_GO task 162-029.\nOriginal worker notes: Worker had heartbeat but failed to write result within grace period — kill blocked by panic guard (user approval required)\nExpected scope: docs/audits/sprint-162-live/, src/cli/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-029-cli-entry-register.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-029 evaluated as NO_GO; tests failed; no files changed",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/cli/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-029-cli-entry-register.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-029",
+  "createdAt": "2026-05-08T15:22:15.179Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "documentation",
+        "secondary": [],
+        "confidence": 0.95
+      },
+      "tags": [],
+      "domains": [
+        {
+          "name": "docs",
+          "weight": 0.67
+        },
+        {
+          "name": "cli",
+          "weight": 0.33
+        }
+      ],
+      "operations": [
+        {
+          "type": "modify",
+          "weight": 0.5
+        },
+        {
+          "type": "document",
+          "weight": 0.25
+        },
+        {
+          "type": "create",
+          "weight": 0.25
+        }
+      ],
+      "complexity": {
+        "fileCount": 1,
+        "moduleCount": 2,
+        "crossCutting": true,
+        "estimatedSize": "medium"
+      },
+      "scope": {
+        "writeRatio": {
+          "docs/": 1
+        },
+        "primaryWriteTarget": "docs/",
+        "testWriteRatio": 0
+      }
+    },
+    "confidence": "high",
+    "routingVersion": "v2"
+  },
+  "assignedAgent": "doc-writer",
+  "assignedSkills": [
+    "documentation-writer",
+    "typescript-expert"
+  ],
+  "updatedAt": "2026-05-08T15:36:17.389Z"
+}

@@ -1,0 +1,16 @@
+Task 156-002 is complete. Here's what was done:
+
+**Audit report written**: `docs/audits/sprint-156-development-staleness.md` (158 lines)
+
+**Key findings across all 6 docs/development/ files:**
+
+| File | Severity | Top Issue |
+|------|----------|-----------|
+| `agent-guide.md` | HIGH | Says "8 Agents" — now 15; `test-writer` removed Sprint 148; 3 agents renamed, 9 missing |
+| `brain-guide.md` | HIGH | Entire Memory Management section stale — Memory V2 replaced .md files with SQLite; 3 dead links |
+| `troubleshooting.md` | HIGH | Node.js ≥18 stated 3x — actual minimum is ≥20 since Sprint 153; Brain Budget 600→900 |
+| `worker-guide.md` | HIGH | Result JSON missing `tokenUsage` field (enforced since Sprint 140) |
+| `plugin-guide.md` | HIGH | `deckent plugin enable/disable` commands documented but don't exist in source |
+| `dashboard-guide.md` | MEDIUM | 3 dead header links; Pages table at 4/7 |
+
+The report includes a prioritized 10-item fix list. No TODO/FIXME keywords found in any file. All referenced source paths were verified against the actual filesystem.

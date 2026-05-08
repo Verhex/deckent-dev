@@ -1,0 +1,19 @@
+{
+  "taskId": "162-010-fix",
+  "filesChanged": [
+    "docs/audits/sprint-162-live/T-162-LIVE-010-core-validators-utils.md"
+  ],
+  "linesAdded": 77,
+  "linesRemoved": 1,
+  "testsPassed": true,
+  "coverage": null,
+  "selfAssessment": "DONE",
+  "notes": "Priority fix for NO_GO task 162-010. Original 281-line audit report was technically complete but Brain marked NO_GO because the prior worker container terminated before writing .result (only .partial-result startup stub remained). This fix re-validated every P1/P2 finding against current src/core/ source, confirmed all file:line citations (LoC 122/340/354/451 = 1267 total), and appended Section 7 'Verification evidence (162-010-fix priority pass)' covering: (1) source LoC re-confirmation table, (2) spot-checked citations for F-01/F-02/F-03/F-04/F-06/F-08/F-11/F-17, (3) verification command output (tsc --noEmit clean exit=0; npx vitest run validators.test.ts + utils-sprint-id.test.ts + utils-shared.test.ts → 81/81 pass in 231ms), (4) scope adherence proof (git status shows only docs/audits/sprint-162-live/ as untracked-new from this task), (5) honest delta vs task spec table (9/9 criteria met). READ-ONLY mandate preserved: no source code modified, scope.filesWrite=[T-162-LIVE-010-core-validators-utils.md] honored. Final report size: 358 lines. The 19 findings (5 P1, 6 P2, 8 P3) and migration triage (validators.ts MIGRATE-PUBLIC, utils.ts MIGRATE-PUBLIC-with-split, sprint-file-retention.ts + orphan-cleaner.ts KEEP-PRIVATE, cleanOrphanIpcDirsLegacy DELETE-CANDIDATE) all stand unchanged. ADR tension F-04 (ADR-009 DEBT.md format vs Memory V2 charter) remains the lead amendment candidate for Sprint 163. Other untracked entries in git status (docs/audits/sprint-139/dead-code-report.md modified, src/core/lang/, src/core/task-tmpfile-pattern.ts, sibling sprint-NNN audit dirs) are pre-existing working-tree state from other sprints, not introduced by this task — verified by inspecting timestamps and the explicit single-path filesWrite scope.",
+  "tokenUsage": {
+    "inputTokens": 42000,
+    "outputTokens": 4500,
+    "cacheReadTokens": 18000,
+    "provider": "claude",
+    "model": "opus"
+  }
+}

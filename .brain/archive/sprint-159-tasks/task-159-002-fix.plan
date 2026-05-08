@@ -1,0 +1,27 @@
+# Task 159-002-fix Execution Plan
+
+## Baseline
+- doctor.ts: --refresh-models flag already wired from original worker sprint
+- tests: 190 tests exist, 189 pass, 1 fails
+
+## Failing Test
+`formatConnectorHealthLines > shows [PASS] with API key label for non-Claude provider`
+
+makeResult('codex', true, 'ok', 'v1.2.0') builds HealthCheckResult without authMethod.
+formatConnectorHealthLines reads `(r as {authMethod?}).authMethod` → undefined → 'auth configured'.
+Test expects 'API key configured'.
+
+## Fix
+In formatConnectorHealthLines (doctor.ts ~line 309), change the authLabel condition:
+- Before: `am === 'api_key' ? 'API key configured' : 'auth configured'`
+- After:  `(am === 'api_key' || am === undefined) ? 'API key configured' : 'auth configured'`
+
+Rationale: non-Claude providers (Codex, Gemini) always use API keys. When authMethod is absent
+from a HealthCheckResult, default to "API key configured" rather than generic "auth configured".
+
+## Files to touch
+- src/cli/commands/doctor.ts (one-line fix in formatConnectorHealthLines)
+
+## Verify
+1. npx tsc --noEmit → expect 0 errors
+2. npx vitest run tests/cli/commands/doctor.test.ts → expect 190/190 pass

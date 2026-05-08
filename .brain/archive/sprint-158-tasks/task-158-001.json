@@ -1,0 +1,89 @@
+{
+  "id": "158-001",
+  "title": "README.md vs README-TR.md Drift Fix Proposal",
+  "description": "README.md vs README-TR.md Drift Fix Proposal\n- Model: gemini-2.5-flash\n- Effort: low\n- Skills: documentation-writer\n- Files: docs/audits/sprint-158-readme-drift-fix.md\n- Scope: docs/audits/\n\n### Description\n\n`docs/audits/sprint-156-tr-en-sync-report.md` (Sprint 156 deliverable) drift'leri tespit etmişti — şimdi her drift için **somut fix önerisi** yaz. Mevcut audit raporunu oku, her finding için Finding/Source/Drift/Recommended fix/Rationale formatında 5–10 finding kapsamı yaz.\n\nSalt-yazı task — README.md veya README-TR.md'yi DEĞİŞTİRME, sadece audit rapor + fix önerisi.\n\n**Kanıt:** `ls docs/audits/sprint-158-readme-drift-fix.md` → dosya var; `grep -c \"## Finding\" docs/audits/sprint-158-readme-drift-fix.md` ≥ 5.\n\n**Test:** N/A (documentation-only).\n\n---",
+  "model": "gemini-2.5-flash",
+  "effort": "low",
+  "priority": "NORMAL",
+  "reason": "Directive (model: gemini-2.5-flash -- user override)",
+  "scope": {
+    "directories": [
+      "docs/audits/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-158-readme-drift-fix.md",
+      "docs/audits/sprint-156-tr-en-sync-report.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** `ls docs/audits/sprint-158-readme-drift-fix.md` → dosya var; `grep -c \"## Finding\" docs/audits/sprint-158-readme-drift-fix.md` ≥ 5.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "DONE",
+  "sprintId": "sprint-158",
+  "provider": "claude",
+  "forceModel": "gemini-2.5-flash",
+  "forceEffort": "low",
+  "forceSkills": [
+    "documentation-writer"
+  ],
+  "assignedAgent": "doc-writer",
+  "assignedSkills": [
+    "documentation-writer"
+  ],
+  "createdAt": "2026-05-07T11:57:27.714Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "documentation",
+        "secondary": [],
+        "confidence": 0.95
+      },
+      "tags": [],
+      "domains": [
+        {
+          "name": "docs",
+          "weight": 1
+        }
+      ],
+      "operations": [
+        {
+          "type": "document",
+          "weight": 0.5
+        },
+        {
+          "type": "modify",
+          "weight": 0.17
+        },
+        {
+          "type": "test",
+          "weight": 0.17
+        },
+        {
+          "type": "create",
+          "weight": 0.17
+        }
+      ],
+      "complexity": {
+        "fileCount": 2,
+        "moduleCount": 1,
+        "crossCutting": false,
+        "estimatedSize": "small"
+      },
+      "scope": {
+        "writeRatio": {
+          "docs/": 1
+        },
+        "primaryWriteTarget": "docs/",
+        "testWriteRatio": 0
+      }
+    },
+    "confidence": "high",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 1672,
+  "updatedAt": "2026-05-07T12:28:39.149Z"
+}

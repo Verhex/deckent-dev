@@ -12,6 +12,7 @@ import {
   TMUX_SESSION_NAME, PROJECT_CONFIG_PATH,
 } from '../../core/constants.js';
 import { MemoryStore } from '../../core/memory-store.js';
+import { isTaskTmpfile, selectPreservedPlants } from '../../core/task-tmpfile-pattern.js';
 import { cleanup, runDecay } from '../../orchestra/brain.js';
 import { print, printError } from '../helpers/output.js';
 import { resolveProjectRoot } from '../helpers/process.js';
@@ -75,17 +76,25 @@ export function registerCleanup(program: Command): void {
         // A) Single readdirSync pass — eliminates double scan
         const allTaskFiles = existsSync(tasksDir) ? (readdirSync(tasksDir) as string[]) : [];
         const taskFiles = allTaskFiles.filter(f => /\.(json|plan|hb|result|paused|log|timeout)$/.test(f));
-        const promptFiles = allTaskFiles.filter(f => f.startsWith('.prompt-'));
+        // Bug R5 (Sprint 162A): converged on isTaskTmpfile classifier
+        const tmpFiles = allTaskFiles.filter(isTaskTmpfile);
+        const preservedPlants = selectPreservedPlants(allTaskFiles);
+        // Backward-compat: legacy `.prompt-task-` literal filter (kept for
+        // existing tests until Sprint 162B converges all sites).
+        const promptFilesLegacy = allTaskFiles.filter(f => f.startsWith('.prompt-'));
         const lockFiles = existsSync(locksDir) ? (readdirSync(locksDir) as string[]) : [];
 
         print('[dry-run] Would archive:');
-        for (const f of promptFiles) print(`  prompt → archive: ${f}`);
+        for (const f of tmpFiles) print(`  tmpfile → archive: ${f}`);
+        for (const f of preservedPlants) print(`  plant preserved: ${f}`);
+        for (const f of promptFilesLegacy) print(`  prompt → archive: ${f}`);
         print('[dry-run] Would delete:');
         for (const f of taskFiles) print(`  task: ${f}`);
         for (const f of lockFiles) print(`  lock: ${f}`);
         print(`  ${taskFiles.length} task file(s) (includes .log, .timeout artifacts)`);
         print(`  ${lockFiles.length} lock file(s)`);
-        print(`  ${promptFiles.length} prompt file(s) → archived to .tasks/archive/`);
+        print(`  ${tmpFiles.length} tmpfile(s) → archived to .tasks/archive/  (${preservedPlants.length} plant(s) preserved)`);
+        print(`  ${promptFilesLegacy.length} prompt file(s) → archived to .tasks/archive/`);
         print('  tmux session: deckent-orchestra');
         print('  .tasks/archive/ retention policy will be applied');
         print('\nRun without --dry-run to execute.');

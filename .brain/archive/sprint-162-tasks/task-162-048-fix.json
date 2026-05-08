@@ -1,0 +1,34 @@
+{
+  "id": "162-048-fix",
+  "title": "Fix: docs/superpowers/ + docs/development/",
+  "description": "Priority fix for NO_GO task 162-048.\nOriginal worker notes: Timeout - no heartbeat, no result\nExpected scope: docs/audits/sprint-162-live/, docs/, docs/superpowers/specs/, docs/superpowers/plans/, docs/development/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-048-docs-superpowers-dev.md",
+  "model": "sonnet",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-048 evaluated as NO_GO; tests failed; no files changed",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "docs/",
+      "docs/superpowers/specs/",
+      "docs/superpowers/plans/",
+      "docs/development/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-048-docs-superpowers-dev.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-048",
+  "createdAt": "2026-05-08T15:22:19.653Z",
+  "updatedAt": "2026-05-08T15:36:17.392Z"
+}

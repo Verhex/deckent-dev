@@ -1,0 +1,11 @@
+`★ Insight ─────────────────────────────────────`
+The project enforces `DeckentError` over generic `Error` in `src/core/` via a lint script (`check-error-handling.mjs`) that is itself tested in `tests/core/error-handling-unification.test.ts`. This creates a virtuous cycle: new code in `src/core/` that violates the convention is caught automatically in CI, not just during code review. The `throw new DeckentError('E_PROVIDER_HTTP_ERROR', ...)` calls here are caught internally by the `try/catch` in `refreshProvider()` and converted to a `RefreshResult.error` string — meaning they never escape to the caller as typed errors, but the convention still applies because the lint rule covers all `throw new Error` in the directory.
+`─────────────────────────────────────────────────`
+
+Task 155-003-fix is **DONE**. Two fixes were made:
+
+1. **`src/core/model-registry-refresh.ts`** — Replaced 3 generic `throw new Error(...)` calls with `throw new DeckentError('E_PROVIDER_HTTP_ERROR', ...)` and added the import. This unblocked `tests/core/error-handling-unification.test.ts` (160 tests now pass).
+
+2. **`tests/cli/commands/doctor.test.ts:642`** — Updated the stale check count comment and expectation from `/17/` to `/18/` since `checkModelRegistryStale` was added in Sprint 155. This unblocked the i18n integration test (187 tests now pass).
+
+Result: went from 9 failing tests → 7 failing (all 7 are pre-existing, unrelated to this work). TypeScript is clean.

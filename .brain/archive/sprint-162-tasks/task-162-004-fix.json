@@ -1,0 +1,32 @@
+{
+  "id": "162-004-fix",
+  "title": "Fix: src/core/ — provider + routing core",
+  "description": "Priority fix for NO_GO task 162-004.\nOriginal worker notes: READ-ONLY god-level audit of src/core/ provider + routing core: provider.ts (656 LoC), routing-types.ts (213 LoC), manifest-migrator.ts (63 LoC), condition-evaluator.ts (160 LoC). Total 1092 LoC + 17 cross-reference files read. 9 findings: 1 P1 (manifest-migrator.ts dead-wired — reverified Sprint 161/162a-smoke escalation chain; 39/39 on-disk built-in manifests already v2; routing-engine.ts:527,536 bypasses wrappers; recommend DELETE-CANDIDATE), 3 P2 (routingVersion 'v3' ADR-028 drift; evaluateC\nExpected scope: docs/audits/sprint-162-live/, src/core/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-004-core-provider-routing.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-004 evaluated as NO_GO",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/core/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-004-core-provider-routing.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-004",
+  "createdAt": "2026-05-08T15:17:26.926Z",
+  "estimatedTokens": 103,
+  "updatedAt": "2026-05-08T15:36:17.387Z"
+}

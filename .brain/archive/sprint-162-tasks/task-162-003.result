@@ -1,0 +1,26 @@
+{
+  "taskId": "162-003",
+  "filesChanged": [
+    "docs/audits/sprint-162-live/T-162-LIVE-003-core-agent-skill-pool.md"
+  ],
+  "linesAdded": 450,
+  "linesRemoved": 0,
+  "testsPassed": true,
+  "coverage": 0,
+  "selfAssessment": "DONE",
+  "notes": "READ-ONLY audit complete per Sprint 162-Live Lane 1 mandate. Single output file at docs/audits/sprint-162-live/T-162-LIVE-003-core-agent-skill-pool.md (450 LoC). Audited primary scope: src/core/agent-pool.ts (491 LoC), src/core/skill-pool.ts (306 LoC), src/core/skill-registry.ts (134 LoC) — total 931 LoC, well within 2000 LoC budget. Peripheral context: agent-types.ts, skill-types.ts, agent-cache.ts, agent-selector.ts, marketplace/skill-sandbox.ts, .deckent/agents/, .deckent/skills/, src/core/builtins/. Applied all 10 audit dimensions (dead code, ADR, conflicts, drift, type safety, dep hygiene, doc pollution, memory v2, config, migration triage). Findings: 16 total (3 P1, 6 P2, 7 P3). Lead-question verifications: (1) 15 built-in agents claim — confirmed at src/core/builtins/agents/ but DECKENT.md conflates with 19-dir runtime state. (2) 21 built-in skills claim — exact match. (3) LRU eviction — terminology drift: agent-pool has TWO different policies (in-memory truncation by sprint number + on-disk TTL) both labeled 'LRU'; only agent-cache.ts is true LRU. (4) AST sandbox — does NOT run in SkillPoolManager.loadSkills; only triggers from skill-marketplace CLI + plugin-loader (claim drift in CLAUDE.md/DECKENT.md). Key reconfirmed findings: F1 (SkillRegistry dead code, 3rd consecutive audit reconfirming, ADR-038 violation), F2 (AST wire gap), F3 (BUILTIN_TRUSTED_SKILLS stale — 4/5 IDs misaligned with actual builtins). Migration triage: skill-registry.ts → DELETE-CANDIDATE, agent-types.ts/skill-types.ts → MIGRATE-PUBLIC candidate, others KEEP-PRIVATE. Boundary compliance: scope.filesWrite (single path) honored; git status shows only docs/audits/sprint-162-live/ added. ADR-037 RBAC compliant; ADR-039 self-modifying detector should not flag (audit-only output). No source code modified, no deletes, no test changes. Ran no tsc/vitest verify since this is a read-only audit task with no code change.",
+  "tokenUsage": {
+    "inputTokens": 38000,
+    "outputTokens": 9500,
+    "cacheReadTokens": 0,
+    "provider": "claude",
+    "model": "opus"
+  },
+  "rubricScores": {
+    "correctness": 95,
+    "test_coverage": 100,
+    "scope_compliance": 100,
+    "documentation": 95
+  },
+  "evaluationDecision": "DONE"
+}

@@ -1,0 +1,100 @@
+{
+  "id": "160-002",
+  "title": "E2E plant-survival regression test suite",
+  "description": "E2E plant-survival regression test suite\n- Model: opus\n- Effort: normal\n- Skills: testing-expert\n- Files: tests/e2e/cleanup-plant-survival.test.ts\n- Scope: tests/e2e/\n\n### Description\nSprint 158 e1a47a1 (Docker per-task) + Sprint 160 T-001 (sprint-end uniform)\nfix'lerinin regression koruması. Üç sweep path'inin her biri için ayrı test:\n\n**Setup (her test öncesi):**\n1. `mkdtempSync` ile izole sandbox proje root'u oluştur\n2. `.tasks/` dizini hazırla\n3. Plant: `.tasks/.prompt-TEST-PLANT.txt`, `.tasks/.worker-TEST-PLANT.sh`\n4. Synthetic gerçek task artifact: `.tasks/.prompt-task-160-001.txt`,\n   `.tasks/.worker-task-160-001.sh`, `.tasks/task-160-001.json` (DONE status)\n\n**Test 1: `archiveOrphanTasks` plant survival**\n- `archiveOrphanTasks(root, 'sprint-160')` çağır\n- Assert plant dosyalar `.tasks/`'da hâlâ mevcut (`existsSync` true)\n- Assert task artifact'ler `.brain/archive/sprint-160-tasks/` altına taşındı\n- Assert plant content değişmemiş (read + compare)\n\n**Test 2: `cleanupSprintTmpfiles` (sprint-lifecycle) plant survival**\n- İlgili cleanup fonksiyonunu çağır (export edilmemişse direct require veya\n  controlled invocation pattern'i ile)\n- Aynı 3 assertion\n\n**Test 3: `deckent cleanup` CLI plant survival**\n- `execFileSync('node', ['dist/cli.js', 'cleanup'], { cwd: root })` ile\n  subprocess çalıştır (build artifact'i kullan)\n- Aynı 3 assertion\n\n**Cleanup (her test sonrası):**\n- `rmSync(root, { recursive: true, force: true })` ile sandbox sil\n\n**Kanıt:** `npx vitest run tests/e2e/cleanup-plant-survival.test.ts` →\n3 passing, 0 failing. Yapay olarak T-001 değişiklikleri revert edilirse\n(`.prompt-task-` → `.prompt-`) testler kırılır — koruma kanıtı.\n\n**Test:** 3+ test (her path için bir tane), `it()` başlıkları açık ve regression\nkaynağına gönderme yapar (örn. `'archiveOrphanTasks preserves user-planted .prompt-TEST-* (Sprint 160 tag-naming filter)'`).\n\n---\n\n## Sprint 160 başarı kriteri\n- T-001 ve T-002 ikisi de DONE → sprint **GO**\n- T-001 DONE + T-002 GO_WITH_TECH_DEBT (test eksik veya flaky) → sprint\n  **GO_WITH_TECH_DEBT**, debt: \"Sprint 161'de e2e suite'i tamamla\"\n- T-001 NO_GO veya scope dışı dosya değişimi → sprint **NO_GO**, FIX phase\n\n## Beklenen davranış değişimi\n- Sprint-end finalize sonrası `cleanup_delay_ms=180000` window aynen\n- 180s sonra çalışan sweep sadece `.prompt-task-*` ve `.worker-task-*.sh`\n  hedefler — kullanıcı plant'ları (`.prompt-TEST-*`, `.worker-MANUAL-*`) korunur\n- Cross-sprint orphan'lar yine `core/orphan-cleaner.ts` pre-flight pass'ında\n  temizlenir (mevcut davranış değişmez)",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "NORMAL",
+  "reason": "Directive (model: opus -- user override)",
+  "scope": {
+    "directories": [
+      "tests/e2e/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "tests/e2e/cleanup-plant-survival.test.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** `npx vitest run tests/e2e/cleanup-plant-survival.test.ts` →",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-160",
+  "provider": "claude",
+  "forceModel": "opus",
+  "forceEffort": "normal",
+  "forceSkills": [
+    "testing-expert"
+  ],
+  "assignedAgent": "react-ts-specialist",
+  "assignedSkills": [
+    "testing-expert"
+  ],
+  "createdAt": "2026-05-08T06:12:57.385Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "implementation",
+        "secondary": [
+          "documentation"
+        ],
+        "confidence": 0.9
+      },
+      "tags": [
+        "test-coverage"
+      ],
+      "domains": [
+        {
+          "name": "e2e",
+          "weight": 1
+        }
+      ],
+      "operations": [
+        {
+          "type": "create",
+          "weight": 0.25
+        },
+        {
+          "type": "test",
+          "weight": 0.25
+        },
+        {
+          "type": "modify",
+          "weight": 0.13
+        },
+        {
+          "type": "delete",
+          "weight": 0.13
+        },
+        {
+          "type": "document",
+          "weight": 0.13
+        },
+        {
+          "type": "configure",
+          "weight": 0.13
+        }
+      ],
+      "complexity": {
+        "fileCount": 1,
+        "moduleCount": 1,
+        "crossCutting": false,
+        "estimatedSize": "trivial"
+      },
+      "scope": {
+        "writeRatio": {
+          "tests/": 1
+        },
+        "primaryWriteTarget": "tests/",
+        "testWriteRatio": 1
+      }
+    },
+    "confidence": "uncertain",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 1150,
+  "updatedAt": "2026-05-08T06:24:58.556Z"
+}

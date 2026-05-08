@@ -5,7 +5,8 @@
 // No side effects, no file writes — evaluation logic only.
 
 import { readFile, readdir, stat } from 'node:fs/promises';
-import { join } from 'node:path';
+import { readFileSync, existsSync } from 'node:fs';
+import { join, isAbsolute } from 'node:path';
 import type { Task, TaskResult, EvaluationRubric, RubricScore, EvaluationResult } from '../core/types.js';
 import type { ProviderName } from '../core/task-types.js';
 import { TaskEvaluation } from '../core/types.js';
@@ -14,6 +15,12 @@ import { debugLog } from '../core/utils.js';
 import { validateWorkerCoverage } from './coverage-validator.js';
 import { reconcileSpuriousNoGo } from './mid-sprint-adapter.js';
 import { decideFallbackRetry } from '../core/provider-fallback.js';
+import {
+  detectStack,
+  getCoverageAdapter,
+  type StackId,
+} from '../core/lang/index.js';
+import { writeEvent, getCurrentSprintId } from './event-stream.js';
 
 // ─── Source code directory detection ──────────────────────────────────
 
@@ -546,6 +553,330 @@ export const DEFAULT_RUBRIC: EvaluationRubric = {
   maxRetries: 0,
 };
 
+// ─── Audit Rubric (Sprint 162A Bug B fix) ────────────────────────────
+//
+// Dedicated rubric for READ-ONLY audit tasks. Default rubric scorers
+// (correctness/test_coverage/scope_compliance/documentation) systematically
+// produce ~38 totalScore for audit tasks because they encode TS+vitest
+// assumptions: coverage=0 (no vitest run), scope_compliance partial credit
+// (audit reports treated as auxiliary), correctness capped at 60 without
+// actual code changes. Result: legitimate Sprint 161 audits → NO_GO.
+//
+// AUDIT_RUBRIC weights (sum=1.0):
+//   audit_completeness 0.40 — markdown structure (headings/bullets/tables)
+//   finding_count       0.30 — Finding/Bug/Risk/Issue/Drift markers
+//   citation_density    0.20 — file:line evidence references
+//   migration_triage    0.10 — P0/P1/P2/blocking/deferrable distinct labels
+//
+// SECURITY (ADR — Section 10.1 of fix-spec): weights are constants and
+// must NOT be exposed to user config.evaluation_rubric overrides — a user
+// could otherwise tilt migration_triage to dominate and game audit DONE.
+
+/** Audit-task rubric. Used when isAuditTask() returns true. */
+export const AUDIT_RUBRIC: EvaluationRubric = {
+  criteria: [
+    { name: 'audit_completeness', weight: 0.4, threshold: 60, evaluator: 'pattern' },
+    { name: 'finding_count',      weight: 0.3, threshold: 50, evaluator: 'metric'  },
+    { name: 'citation_density',   weight: 0.2, threshold: 50, evaluator: 'pattern' },
+    { name: 'migration_triage',   weight: 0.1, threshold: 30, evaluator: 'pattern' },
+  ],
+  passingScore: 70,
+  maxRetries: 0,
+};
+
+/**
+ * Detect READ-ONLY audit tasks via scope-shape heuristic.
+ *
+ * Heuristic:
+ *   - exactly one filesWrite entry
+ *   - that entry begins with `docs/audits/` and ends with `.md`
+ *   - no source-code directory (`src/`, `tests/`, `lib/`) in scope.directories
+ *
+ * Why scope-shape and not regex on description: description-based heuristics
+ * (existing isVerificationTask) are language-fragile (English regexes miss
+ * Turkish task titles); scope shape is a structural signal authored by Brain
+ * in PLAN phase — deterministic and i18n-neutral. Workers cannot self-classify
+ * as audit because they don't author task.scope.
+ */
+export function isAuditTask(task: Task): boolean {
+  const writeFiles = task.scope?.filesWrite ?? [];
+  if (writeFiles.length !== 1) return false;
+  const target = writeFiles[0]!;
+  if (!target.startsWith('docs/audits/')) return false;
+  if (!target.endsWith('.md')) return false;
+  const dirs = task.scope?.directories ?? [];
+  if (dirs.some(d => isSourceCodeDir(d))) return false;
+  return true;
+}
+
+// ─── Audit Event Emitter (swappable for tests) ─────────────────────────
+
+/** Payload for the `sprint.eval.audit-rubric-applied` observability event. */
+export interface AuditRubricAppliedPayload {
+  taskId: string;
+  rubricType: 'audit';
+  score: number;
+  decision: 'DONE' | 'GO_WITH_TECH_DEBT' | 'NO_GO';
+  detectedStack: StackId | null;
+}
+
+/** Channel name for the audit rubric event. Exported for test introspection. */
+export const AUDIT_RUBRIC_APPLIED_CHANNEL = 'sprint.eval.audit-rubric-applied' as const;
+
+type AuditEventEmitter = (payload: AuditRubricAppliedPayload) => void;
+
+/**
+ * Default emitter — best-effort write to .deckent/<sprintId>-events.jsonl
+ * via writeEvent. If sprint-state.json or DECKENT_DIR is missing (tests, CLI
+ * invocations, finalize without active sprint), emit silently no-ops.
+ */
+let auditEventEmitter: AuditEventEmitter = (payload: AuditRubricAppliedPayload) => {
+  try {
+    const projectRoot = process.cwd();
+    const sprintId = getCurrentSprintId(projectRoot);
+    if (!sprintId) return;
+    writeEvent(projectRoot, sprintId, 'brain', '*', AUDIT_RUBRIC_APPLIED_CHANNEL, payload);
+  } catch (e) {
+    debugLog('audit-event-emitter:default', e);
+  }
+};
+
+/**
+ * Override the audit event emitter. Used by tests to spy on emission;
+ * production callers should not invoke this directly.
+ *
+ * Returns the previous emitter so tests can restore it.
+ */
+export function setAuditEventEmitter(emitter: AuditEventEmitter): AuditEventEmitter {
+  const previous = auditEventEmitter;
+  auditEventEmitter = emitter;
+  return previous;
+}
+
+function emitAuditRubricApplied(payload: AuditRubricAppliedPayload): void {
+  try {
+    auditEventEmitter(payload);
+  } catch (e) {
+    debugLog('emitAuditRubricApplied', e);
+  }
+}
+
+// ─── Audit Criterion Scorers ───────────────────────────────────────────
+
+/**
+ * Read the audit markdown file content. Best-effort — returns empty string
+ * when the file isn't on disk (e.g. test fixtures pass content via notes).
+ *
+ * Resolution order:
+ *  1. result.filesChanged[0] if it ends with .md
+ *  2. task.scope.filesWrite[0]
+ *  3. result.notes — final fallback (allows in-memory testing without disk I/O)
+ */
+function readAuditContent(result: TaskResult, task: Task, projectRoot?: string): string {
+  const candidates: string[] = [];
+  const firstChanged = result.filesChanged?.[0];
+  if (firstChanged && firstChanged.endsWith('.md')) candidates.push(firstChanged);
+  const writeTarget = task.scope?.filesWrite?.[0];
+  if (writeTarget && writeTarget.endsWith('.md') && !candidates.includes(writeTarget)) {
+    candidates.push(writeTarget);
+  }
+
+  for (const rel of candidates) {
+    const abs = isAbsolute(rel) ? rel : (projectRoot ? join(projectRoot, rel) : rel);
+    try {
+      if (existsSync(abs)) {
+        return readFileSync(abs, 'utf-8');
+      }
+    } catch (e) {
+      debugLog('readAuditContent:readFileSync', e);
+    }
+  }
+  // Fallback: notes (used by tests + when worker bundles content into result)
+  return result.notes ?? '';
+}
+
+/**
+ * Score audit completeness via markdown structure: headings, bullets, table rows.
+ * Heuristic (additive, capped at 100):
+ *   sectionCount * 10 (cap 60) — top-level + sub-section coverage
+ *   bulletCount  * 2  (cap 30) — list density
+ *   tableRows    * 5  (cap 10) — comparative analysis presence
+ */
+function scoreAuditCompleteness(result: TaskResult, task: Task, projectRoot?: string): RubricScore {
+  const content = readAuditContent(result, task, projectRoot);
+  const headings = (content.match(/^#{1,6}\s+\S/gm) ?? []).length;
+  const bullets  = (content.match(/^\s*[-*+]\s+\S/gm) ?? []).length;
+  const tableRows = (content.match(/^\s*\|[^|]+\|/gm) ?? []).length;
+
+  const sectionScore = Math.min(headings * 10, 60);
+  const bulletScore  = Math.min(bullets * 2, 30);
+  const tableScore   = Math.min(tableRows * 5, 10);
+  const score = Math.min(sectionScore + bulletScore + tableScore, 100);
+
+  return {
+    criterion: 'audit_completeness',
+    score,
+    passed: score >= 60,
+    reason: `headings=${headings}, bullets=${bullets}, tableRows=${tableRows} → ${score}`,
+  };
+}
+
+/** Patterns that mark a finding/issue in audit reports. */
+const AUDIT_FINDING_PATTERNS: readonly RegExp[] = [
+  /\bFinding\s*[:#]/gi,
+  /\bBug\s*[:#]/gi,
+  /\bRisk\s*[:#]/gi,
+  /\bIssue\s*[:#]/gi,
+  /\bDrift\s*[:#]/gi,
+];
+
+/** Score finding count. 100 if ≥10 findings; linear below. */
+function scoreFindingCount(result: TaskResult, task: Task, projectRoot?: string): RubricScore {
+  const content = readAuditContent(result, task, projectRoot) + '\n' + (result.notes ?? '');
+  let total = 0;
+  for (const pattern of AUDIT_FINDING_PATTERNS) {
+    const matches = content.match(pattern);
+    if (matches) total += matches.length;
+  }
+  // Linear scale: 0 findings = 0, 10+ findings = 100
+  const score = Math.min(total * 10, 100);
+  return {
+    criterion: 'finding_count',
+    score,
+    passed: score >= 50,
+    reason: `${total} finding marker(s) detected → ${score}`,
+  };
+}
+
+/**
+ * Score citation density — file:line references like `src/foo.ts:123`.
+ * Forces evidence-backed audits. 100 if ≥10 references; scaled linearly below.
+ */
+function scoreCitationDensity(result: TaskResult, task: Task, projectRoot?: string): RubricScore {
+  const content = readAuditContent(result, task, projectRoot);
+  // Match path/to/file.ext:NNN — common audit citation format.
+  // Allow common code extensions + .md; exclude markdown image refs.
+  const citations = content.match(/[A-Za-z0-9_./-]+\.[A-Za-z0-9]{1,8}:\d+/g) ?? [];
+  const total = citations.length;
+  const score = Math.min(total * 10, 100);
+  return {
+    criterion: 'citation_density',
+    score,
+    passed: score >= 50,
+    reason: `${total} file:line citation(s) → ${score}`,
+  };
+}
+
+/** Triage labels — distinct count drives score. */
+const TRIAGE_LABELS: readonly RegExp[] = [
+  /\bP0\b/g,
+  /\bP1\b/g,
+  /\bP2\b/g,
+  /\bblocking\b/gi,
+  /\bdeferrable\b/gi,
+];
+
+/** Score migration triage. 100 if ≥3 distinct labels; scaled below. */
+function scoreMigrationTriage(result: TaskResult, task: Task, projectRoot?: string): RubricScore {
+  const content = readAuditContent(result, task, projectRoot);
+  let distinct = 0;
+  const present: string[] = [];
+  for (const pattern of TRIAGE_LABELS) {
+    if (pattern.test(content)) {
+      distinct++;
+      present.push(pattern.source);
+    }
+    pattern.lastIndex = 0; // reset between calls (global flag)
+  }
+  // 0 distinct = 0; 3+ distinct = 100; linear in between
+  const score = Math.min(Math.round((distinct / 3) * 100), 100);
+  return {
+    criterion: 'migration_triage',
+    score,
+    passed: score >= 30,
+    reason: `${distinct} distinct triage label(s) [${present.join(', ')}] → ${score}`,
+  };
+}
+
+/** Dispatch scoring for an audit-rubric criterion. */
+function scoreAuditCriterion(name: string, result: TaskResult, task: Task, projectRoot?: string): RubricScore {
+  switch (name) {
+    case 'audit_completeness': return scoreAuditCompleteness(result, task, projectRoot);
+    case 'finding_count':      return scoreFindingCount(result, task, projectRoot);
+    case 'citation_density':   return scoreCitationDensity(result, task, projectRoot);
+    case 'migration_triage':   return scoreMigrationTriage(result, task, projectRoot);
+    default:
+      return { criterion: name, score: 0, passed: false, reason: `unknown audit criterion: ${name}` };
+  }
+}
+
+/**
+ * Evaluate a READ-ONLY audit task using AUDIT_RUBRIC instead of DEFAULT_RUBRIC.
+ *
+ * Schema validation runs first — even audits must produce valid result files.
+ * Emits `sprint.eval.audit-rubric-applied` event on completion (observability).
+ */
+export function evaluateAuditTask(
+  result: TaskResult,
+  task: Task,
+  projectRoot?: string,
+): EvaluationResult {
+  // Schema check — even audits must produce valid results
+  const schemaCheck = validateResultSchema(result);
+  if (!schemaCheck.valid) {
+    return {
+      decision: 'NO_GO',
+      totalScore: 0,
+      rubricScores: [{
+        criterion: 'schema_validation',
+        score: 0,
+        passed: false,
+        reason: schemaCheck.reason,
+      }],
+      retryCount: 0,
+    };
+  }
+
+  const rubricScores: RubricScore[] = [];
+  let totalScore = 0;
+  for (const criterion of AUDIT_RUBRIC.criteria) {
+    const scored = scoreAuditCriterion(criterion.name, result, task, projectRoot);
+    scored.passed = scored.score >= criterion.threshold;
+    rubricScores.push(scored);
+    totalScore += scored.score * criterion.weight;
+  }
+  totalScore = Math.round(totalScore * 100) / 100;
+
+  let decision: 'DONE' | 'GO_WITH_TECH_DEBT' | 'NO_GO';
+  if (totalScore >= AUDIT_RUBRIC.passingScore) {
+    decision = 'DONE';
+  } else if (totalScore >= AUDIT_RUBRIC.passingScore * 0.7) {
+    decision = 'GO_WITH_TECH_DEBT';
+  } else {
+    decision = 'NO_GO';
+  }
+
+  // Stack detection is best-effort — only enrich the event when projectRoot was supplied
+  let detectedStack: StackId | null = null;
+  if (projectRoot) {
+    try {
+      detectedStack = detectStack(projectRoot);
+    } catch (e) {
+      debugLog('evaluateAuditTask:detectStack', e);
+    }
+  }
+
+  emitAuditRubricApplied({
+    taskId: task.id,
+    rubricType: 'audit',
+    score: totalScore,
+    decision,
+    detectedStack,
+  });
+
+  return { decision, totalScore, rubricScores, retryCount: 0 };
+}
+
 /** Score correctness based on testsPassed and selfAssessment */
 export function scoreCorrectness(result: TaskResult): RubricScore {
   let score = 0;
@@ -705,12 +1036,29 @@ function scoreCriterion(name: string, result: TaskResult, task: Task): RubricSco
  * - totalScore >= passingScore → DONE
  * - totalScore >= passingScore * 0.7 → GO_WITH_TECH_DEBT
  * - totalScore < passingScore * 0.7 → NO_GO
+ *
+ * Sprint 162A Bug B fix:
+ *  - When `rubric` is undefined AND `isAuditTask(task)` is true, evaluation is
+ *    delegated to `evaluateAuditTask` which uses AUDIT_RUBRIC.
+ *  - When `rubric` is supplied (explicit override), the audit branch is skipped —
+ *    the caller's intent wins.
+ *  - Optional `projectRoot` enables best-effort multi-language coverage fallback
+ *    via `src/core/lang/` adapters when `result.coverage` is missing for
+ *    non-audit code tasks. Falls back silently to the existing path if stack
+ *    detection fails — backward-compatible with all current call sites.
  */
 export function evaluateWithRubric(
   result: TaskResult,
   task: Task,
   rubric?: Partial<EvaluationRubric>,
+  projectRoot?: string,
 ): EvaluationResult {
+  // ── Sprint 162A Bug B: audit task fast-path with dedicated rubric ─────
+  // Only fires when caller did not supply an explicit rubric override.
+  if (rubric === undefined && isAuditTask(task)) {
+    return evaluateAuditTask(result, task, projectRoot);
+  }
+
   // D-2: Schema validation — reject results with missing required fields
   const schemaCheck = validateResultSchema(result);
   if (!schemaCheck.valid) {
@@ -749,11 +1097,45 @@ export function evaluateWithRubric(
     maxRetries: Math.min(rubric?.maxRetries ?? DEFAULT_RUBRIC.maxRetries, 3),
   };
 
+  // Best-effort multi-language coverage fallback (Sprint 162A):
+  //   For non-audit code tasks, if result.coverage is missing/zero AND we have
+  //   a projectRoot, try the stack-specific coverage adapter to read the
+  //   on-disk report. Default to the existing path if anything fails.
+  //   We mutate a shallow copy of result rather than the original.
+  let evalResult = result;
+  if (projectRoot && (result.coverage === undefined || result.coverage === 0)) {
+    try {
+      const stack = detectStack(projectRoot);
+      if (stack) {
+        const adapter = getCoverageAdapter(stack);
+        for (const glob of adapter.reportGlobs()) {
+          // We only support exact paths in best-effort mode (no glob expansion).
+          if (glob.includes('*')) continue;
+          const reportPath = isAbsolute(glob) ? glob : join(projectRoot, glob);
+          if (existsSync(reportPath)) {
+            try {
+              const content = readFileSync(reportPath, 'utf-8');
+              const outcome = adapter.parse(content, reportPath);
+              if (outcome && outcome.lineCoverage > 0) {
+                evalResult = { ...result, coverage: outcome.lineCoverage };
+                break;
+              }
+            } catch (e) {
+              debugLog('evaluateWithRubric:coverageAdapter:read', e);
+            }
+          }
+        }
+      }
+    } catch (e) {
+      debugLog('evaluateWithRubric:coverageAdapter', e);
+    }
+  }
+
   const rubricScores: RubricScore[] = [];
   let totalScore = 0;
 
   for (const criterion of merged.criteria) {
-    const scored = scoreCriterion(criterion.name, result, task);
+    const scored = scoreCriterion(criterion.name, evalResult, task);
     // Override passed based on per-criterion threshold
     scored.passed = scored.score >= criterion.threshold;
     rubricScores.push(scored);

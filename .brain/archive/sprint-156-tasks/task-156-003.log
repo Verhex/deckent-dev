@@ -1,0 +1,9 @@
+`★ Insight ─────────────────────────────────────`
+The JSDoc enhancement strategy here follows TypeDoc conventions: `@example` blocks inside JSDoc are type-safe pseudo-code (not executed), so they can show both the function call and the expected `// →` comment-style result — a common pattern in library documentation that is more readable than assertion-style examples.
+`─────────────────────────────────────────────────`
+
+Task 156-003 is complete. Here's the summary:
+
+**What changed:** `src/core/provider-fallback.ts` — expanded JSDoc on all 6 public exports (`MAX_FALLBACK_RETRIES`, `CapacityErrorDetection`, `detectCapacityError`, `selectFallbackProvider`, `FallbackRetryDecision`, `decideFallbackRetry`) with `@param`, `@returns`, `@example` (6 blocks total, ≥4 required), and `@see` cross-references. Real production error strings from Sprint 154 are used in examples.
+
+**Verification:** `tsc --noEmit` → 0 errors; `vitest run tests/orchestra/fallback-chain.test.ts` → 29/29 pass. No logic was touched.

@@ -1,0 +1,114 @@
+{
+  "id": "155-003",
+  "title": "Model Registry Remote Refresh",
+  "description": "Model Registry Remote Refresh\n- Model: sonnet\n- Effort: normal\n- Skills: typescript-expert, api-builder, anthropic-sdk\n- Files: src/core/model-registry.ts, src/core/model-registry-refresh.ts (new), src/cli/commands/doctor-checks.ts, tests/core/model-registry-refresh.test.ts (new)\n- Scope: src/core/, src/cli/commands/, tests/core/\n\n### Description\n\n`BUILTIN_MODELS` 13 model olarak hardcoded — provider yeni model çıkardığında deckent fark etmiyor (`gpt-4o → gpt-4.1` migration tipik örnek). Stale-while-revalidate cache pattern'i ekle:\n\n**Dizayn**:\n1. **`src/core/model-registry-refresh.ts`** — Provider başına async refresh: Anthropic `GET /v1/models`, OpenAI `GET /v1/models`, Gemini `GET /v1beta/models?key=...`. Subscription-only kullanıcı için fallback: `claude config get models` / `codex models list` / `gemini --list-models` CLI komutları (varsa).\n2. ModelRegistry'ye `lastRefresh: Record<ProviderName, number>` + `staleAfterMs = 7 * 24 * 60 * 60 * 1000`. `isStale(provider): boolean`.\n3. CLI komut: `deckent doctor --refresh-models` — manuel refresh trigger.\n4. Doctor entegrasyonu: `Model registry: codex models last refreshed X days ago` warning (>7d).\n\n**Kanıt**: `deckent doctor --refresh-models` 3 provider için canlı API çağrısı yapar (key/sub varsa), success → `last refreshed Just now`. Stale check unit test.\n\n**Test**: 5+ test (refresh updates timestamp, stale check returns true after staleAfter, no api key → graceful skip with hint, malformed response → no crash, all 3 providers parallel refresh).\n\n---",
+  "model": "sonnet",
+  "effort": "normal",
+  "priority": "NORMAL",
+  "reason": "Directive (model: sonnet -- user override)",
+  "scope": {
+    "directories": [
+      "src/core/",
+      "src/cli/commands/",
+      "tests/core/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "src/core/model-registry.ts",
+      "src/core/model-registry-refresh.ts (new)",
+      "src/cli/commands/doctor-checks.ts",
+      "tests/core/model-registry-refresh.test.ts (new)",
+      "src/core/model-registry-refresh.ts",
+      "tests/core/model-registry-refresh.test.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; `deckent doctor --refresh-models` 3 provider için canlı API çağrısı yapar (key/sub varsa), success → `last refreshed Just now`. Stale check unit test.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-155",
+  "provider": "claude",
+  "forceModel": "sonnet",
+  "forceEffort": "normal",
+  "forceSkills": [
+    "typescript-expert",
+    "api-builder",
+    "anthropic-sdk"
+  ],
+  "assignedAgent": "architect",
+  "assignedSkills": [
+    "typescript-expert",
+    "api-builder",
+    "anthropic-sdk"
+  ],
+  "createdAt": "2026-05-07T10:40:43.901Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "implementation",
+        "secondary": [
+          "documentation",
+          "config"
+        ],
+        "confidence": 0.95
+      },
+      "subIntent": "config",
+      "tags": [
+        "test-coverage"
+      ],
+      "domains": [
+        {
+          "name": "core",
+          "weight": 0.78
+        },
+        {
+          "name": "cli",
+          "weight": 0.22
+        }
+      ],
+      "operations": [
+        {
+          "type": "create",
+          "weight": 0.38
+        },
+        {
+          "type": "test",
+          "weight": 0.25
+        },
+        {
+          "type": "modify",
+          "weight": 0.13
+        },
+        {
+          "type": "document",
+          "weight": 0.13
+        },
+        {
+          "type": "configure",
+          "weight": 0.13
+        }
+      ],
+      "complexity": {
+        "fileCount": 6,
+        "moduleCount": 2,
+        "crossCutting": true,
+        "estimatedSize": "large"
+      },
+      "scope": {
+        "writeRatio": {
+          "src/": 0.67,
+          "tests/": 0.33
+        },
+        "primaryWriteTarget": "src/",
+        "testWriteRatio": 0.33
+      }
+    },
+    "confidence": "medium",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 3333,
+  "updatedAt": "2026-05-07T10:55:42.692Z"
+}

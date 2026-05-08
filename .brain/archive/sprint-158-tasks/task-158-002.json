@@ -1,0 +1,103 @@
+{
+  "id": "158-002",
+  "title": "Auth Surface Checklist Validation Run",
+  "description": "Auth Surface Checklist Validation Run\n- Model: gemini-2.5-flash\n- Effort: low\n- Skills: documentation-writer, code-reviewer\n- Files: docs/audits/sprint-158-auth-surface-validation.md\n- Scope: docs/audits/\n\n### Description\n\n`docs/development/auth-surface-checklist.md` 7 auth surface'ı listeliyor. Her surface için **mevcut kod state'inin checklist ile uyumlu olduğunu doğrula** — claude.ts, gemini.ts, codex.ts, doctor-checks.ts, model-selector.ts, sprint-planner.ts, spawn-backend-docker.ts.\n\nFormat: surface başına ✓ veya ⚠️ işareti, line ref, kısa not. 7 surface + bonus surface (Docker cred mounts) için bu format. Eksiklik bulursan flag et ama tamir etme — bu task audit, fix'i ayrı sprint task'ı.\n\n**Kanıt:** `ls docs/audits/sprint-158-auth-surface-validation.md` → dosya var; her 7 surface için ✓ veya ⚠️ işareti.\n\n**Test:** N/A.\n\n---",
+  "model": "gemini-2.5-flash",
+  "effort": "low",
+  "priority": "NORMAL",
+  "reason": "Directive (model: gemini-2.5-flash -- user override)",
+  "scope": {
+    "directories": [
+      "docs/audits/",
+      "docs/development/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-158-auth-surface-validation.md",
+      "docs/development/auth-surface-checklist.md",
+      "claude.ts",
+      "gemini.ts",
+      "codex.ts",
+      "doctor-checks.ts",
+      "model-selector.ts",
+      "sprint-planner.ts",
+      "spawn-backend-docker.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** `ls docs/audits/sprint-158-auth-surface-validation.md` → dosya var; her 7 surface için ✓ veya ⚠️ işareti.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-158",
+  "provider": "claude",
+  "forceModel": "gemini-2.5-flash",
+  "forceEffort": "low",
+  "forceSkills": [
+    "documentation-writer",
+    "code-reviewer"
+  ],
+  "assignedAgent": "architect",
+  "assignedSkills": [
+    "documentation-writer",
+    "code-reviewer"
+  ],
+  "createdAt": "2026-05-07T11:57:27.714Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "documentation",
+        "secondary": [
+          "security",
+          "config"
+        ],
+        "confidence": 0.95
+      },
+      "tags": [],
+      "domains": [
+        {
+          "name": "docs",
+          "weight": 0.36
+        }
+      ],
+      "operations": [
+        {
+          "type": "document",
+          "weight": 0.4
+        },
+        {
+          "type": "modify",
+          "weight": 0.2
+        },
+        {
+          "type": "test",
+          "weight": 0.2
+        },
+        {
+          "type": "create",
+          "weight": 0.2
+        }
+      ],
+      "complexity": {
+        "fileCount": 9,
+        "moduleCount": 1,
+        "crossCutting": false,
+        "estimatedSize": "large"
+      },
+      "scope": {
+        "writeRatio": {
+          "docs/": 0.22,
+          "./": 0.78
+        },
+        "primaryWriteTarget": "./",
+        "testWriteRatio": 0
+      }
+    },
+    "confidence": "uncertain",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 2055,
+  "updatedAt": "2026-05-07T12:28:39.178Z"
+}

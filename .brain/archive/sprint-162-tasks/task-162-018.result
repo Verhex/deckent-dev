@@ -1,0 +1,20 @@
+{
+  "taskId": "162-018",
+  "workerId": "docker-162-018",
+  "filesChanged": [
+    "docs/audits/sprint-162-live/T-162-LIVE-018-orch-finalize-lifecycle.md"
+  ],
+  "linesAdded": 198,
+  "linesRemoved": 0,
+  "testsPassed": true,
+  "coverage": 0,
+  "selfAssessment": "DONE",
+  "notes": "READ-ONLY audit complete per Sprint 162-live Lane 1 mandate. Audited sprint-finalizer.ts (1234 LoC), sprint-lifecycle.ts (531 LoC), sprint-phases.ts (917 LoC) — total 2682 LoC across 3 files. Applied all 10 audit dimensions. Findings: 0 P0, 4 P1, 9 P2, 7 P3 (20 total). Migration triage: 3/3 MIGRATE-PUBLIC after refactor (none KEEP-PRIVATE / DELETE-CANDIDATE). Lead questions answered: (1) cleanup_delay_ms — wired through config-types/config.ts/dashboard but sprint-phases.ts uses unnecessary type cast (F-02), and delayed cleanup uses fire-and-forget setTimeout (race penceresi); (2) archiveOrphanTasks — Sprint 143 Task 13 guard half-finished — classifyTaskFiles().preserved only logged, not used as filter; archiveOrphanTasks still archives all sprint task files (drift accepted in code comment, F-04); (3) phase transitions — only 3 of 8 SPRINT_PHASE_CHANGE events emitted (event-stream coverage gap), runPlanPhase/runCleanupPhase do not set sprint.phase (F-15), RETRO→CLEANUP event premature (F-08). ADR drift: ADR-005 (sync I/O half-migrated), ADR-008 gri (sprint-phases ↔ sprint-controller circular import), ADR-035 (channel string literals in sprint-phases.ts), ADR-037 gri (Brain spoofs Auditor source in event writes). Type safety: 8 'as unknown as' + 9 'as Record<string, unknown>' + 3 TaskResult tip-genişletme cast (sprint-phases.ts en yoğun). Duplicate logic: safeDashboardUpdate 2 yerde literal aynı, now() helper 3 yerde duplicate. Dead code: sprint-lifecycle.ts:250-265 ardışık no-op temizleme döngüsü, runHonestyCheck stub. NO source code touched. tsc --noEmit PASS (exit 0). vitest skipped — READ-ONLY mandate, no source changes. Audit report self-contained per Sprint 162-live spec format (Scope/Findings/Evidence/Triage/Recommendation).",
+  "tokenUsage": {
+    "inputTokens": 38000,
+    "outputTokens": 6500,
+    "cacheReadTokens": 0,
+    "provider": "claude",
+    "model": "opus"
+  }
+}

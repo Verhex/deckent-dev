@@ -1,0 +1,26 @@
+{
+  "taskId": "162-014",
+  "filesChanged": [
+    "docs/audits/sprint-162-live/T-162-LIVE-014-orch-planner.md"
+  ],
+  "linesAdded": 257,
+  "linesRemoved": 0,
+  "testsPassed": true,
+  "coverage": null,
+  "selfAssessment": "DONE",
+  "evaluationDecision": "DONE",
+  "rubricScores": {
+    "correctness": 95,
+    "test_coverage": 100,
+    "scope_compliance": 100,
+    "documentation": 95
+  },
+  "notes": "READ-ONLY audit task per Sprint 162 Lane 1 mandate. Audited src/orchestra/planner.ts (522 LoC) and src/orchestra/task-builder.ts (888 LoC). Produced single audit report at docs/audits/sprint-162-live/T-162-LIVE-014-orch-planner.md covering all 10 audit dimensions. 16 findings logged with severity P0-P3 and file:line citations. Lead questions answered: (1) structured vs ai mode parity — F-01 documents that PlannerTaskSchema silently drops forceAgent/forceSkills/excludeAgent/excludeSkills (P0); (2) directive parser correctness — F-02 shows excludeAgent never populated by parsers, F-04 hardcoded directory allow-list creates structured/ai asymmetry; (3) override resolution — F-13 traces the partial flow. Migration triage: both files KEEP-PRIVATE. tsc --noEmit and vitest run NOT executed because task is read-only audit (no code changed); only docs/audits/sprint-162-live/T-162-LIVE-014-orch-planner.md was written within scope. Boundary-violation count: 0. ADR-039 self-modifying detector flag count: 0.",
+  "tokenUsage": {
+    "inputTokens": 38000,
+    "outputTokens": 6500,
+    "cacheReadTokens": 0,
+    "provider": "claude",
+    "model": "opus"
+  }
+}

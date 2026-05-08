@@ -1,0 +1,30 @@
+{
+  "taskId": "155-002",
+  "filesChanged": [
+    "src/core/provider-auth-resolver.ts",
+    "src/providers/claude.ts",
+    "src/providers/gemini.ts",
+    "src/providers/codex.ts",
+    "tests/providers/auth-enforcement.test.ts"
+  ],
+  "linesAdded": 195,
+  "linesRemoved": 14,
+  "testsPassed": true,
+  "coverage": null,
+  "selfAssessment": "DONE",
+  "notes": "Implemented adapter-side provider_auth.mode runtime enforcement. Created resolveAuthMode() pure function in src/core/provider-auth-resolver.ts — enforces configured mode (api_key/subscription/auto) against runtime-detected state, throws ProviderError on conflict with doctor hint. All 3 adapters updated: GeminiAdapter adds detectNormalizedAuthMode() (normalizes oauth/vertex/cloud_shell → subscription), CodexAdapter reuses existing detectAuthMode(), ClaudeAdapter adds detectAuthMode() (ANTHROPIC_API_KEY → api_key, else → subscription). Enforcement is gated on authConfig !== undefined for full backward compatibility — 381 existing provider tests pass unchanged. New tests: 27/27 pass covering all 6 required scenarios plus edge cases. tsc --noEmit clean. Remaining test failures (9 across 5 test files) are pre-existing or caused by other sprint-155 tasks (Task 3's model-registry-refresh.ts violates error-handling-unification test, doctor-checks count changed by Task 3). Proof: grep -n resolveAuthMode src/providers/*.ts → 3 adapters calling it.",
+  "tokenUsage": {
+    "inputTokens": 95000,
+    "outputTokens": 8500,
+    "cacheReadTokens": 45000,
+    "provider": "claude",
+    "model": "sonnet"
+  },
+  "rubricScores": {
+    "correctness": 95,
+    "test_coverage": 95,
+    "scope_compliance": 100,
+    "documentation": 85
+  },
+  "evaluationDecision": "DONE"
+}

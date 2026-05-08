@@ -1,0 +1,31 @@
+{
+  "id": "162-020-fix",
+  "title": "Fix: src/orchestra/ — spawn-backend-subprocess + spawn helpers",
+  "description": "Priority fix for NO_GO task 162-020.\nOriginal worker notes: READ-ONLY audit of src/orchestra/spawn-backend.ts, spawn-backend-mock.ts, connector.ts, sprint-runner-entry.ts, sprint-pid-manager.ts and (cross-ref) src/providers/subprocess.ts and src/orchestra/spawn-backend-docker.ts. Single audit report written to docs/audits/sprint-162-live/T-162-LIVE-020-orch-subprocess.md. 19 findings: 0 P0, 3 P1 (parity gaps with Docker — atomic-write/fsync, fallback tokenUsage missing, no graceful shutdown), 4 P2 (drift in JSDoc, perf in isDockerAvailable, design in get\nExpected scope: docs/audits/sprint-162-live/, src/orchestra/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-020-orch-subprocess.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-020 evaluated as NO_GO",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/orchestra/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-020-orch-subprocess.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-020",
+  "createdAt": "2026-05-08T15:18:30.598Z",
+  "updatedAt": "2026-05-08T15:36:17.389Z"
+}

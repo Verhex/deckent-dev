@@ -4,8 +4,200 @@
 **Status:** CANONICAL — Sprint 149-200 anchor document
 **Vision:** OpenClaw'ın god-level üstün hali — developer-first + life-assistant dual platform
 **Brainstorming:** Alperen onayları 12+ karar, 5 paralel agent kod tabanı analizi
-**Last update:** 2026-05-07 (yenilenmiş, akşam) — Sprint 154→159 multi-provider stack TAMAMLANDI (Sprint 154 Hot Fix Day + 5 hidden routing/labeling bug + 3 file-lifecycle bug = 8/9 KAPATILDI; Sprint 159 plan'da: ilk **mixed Claude+Gemini production sprint**)
-**Next audit:** A1+A2 Telegram/Discord smoke (Pazar token ~2026-05-10) + Sprint 159 mixed-provider production stress test (fallback chain ilk gerçek 429 dogfood) + Bug 4 (.prompt mid-sprint deletion mystery) empirical validation Sprint 159 sonrası
+**Last update:** 2026-05-08 (akşam) — Sprint 162A Hot Fix Day — 8 orchestration bug closed (A/B/C/R2-R5/Stall) + 6-stack multi-language adapter pattern (ADR-047) + 3 ADR V2 amendment + 12-lang i18n + ARIA dashboard + per-change security review. ~305 yeni test, 69 file +2703/-801 LoC. **PARTIAL SUCCESS — live verification Bug X discovered**: dual-evaluator stale-state path race triggers fix-spawn cascade ~30min mark despite worker DONE. Sprint 162B = Bug X close + 5 R5-deferred sites + fix_phase_timeout gating. Sprint 161 baseline 87.5% false-NO_GO → Sprint 162 LIVE %0 internal mismatch + %16 external Bug X residual.
+**Next audit:** Sprint 162B Bug X Hot Patch Wave + fixture digit-prefix migration + ADR-043 sub-agent loop discipline amendment + Sprint 162C documentation coherence + Sprint 162D library/security + Sprint 162E public-flip prep.
+
+---
+
+## ⚡ 2026-05-08 (akşam) Session Kapanış — Sprint 162A T4 Hot Fix Day + Bug X Discovery
+
+### Sprint 162A — 8 bug closure + multi-language adapter (T4 god-level, ~20h wall-clock)
+
+**Durum:** Sprint 161'in 8 orchestration bug'ı (A/B/C/R2-R5/Stall) Sprint 162A T4 hot fix bundle ile kapatıldı. Live verification (sprint-162-failed-build-race + sprint-162-live) PARTIAL SUCCESS: Sprint 161 deadlock + 87.5% false-NO_GO pattern'i kırıldı, AMA **yeni Bug X keşfedildi** (dual-evaluator stale-state path race ~30min mark trigger). Sprint completion'a doğal CLEANUP'a kadar gitti vs Sprint 161 stall.
+
+### ADR-043 Hot Fix Pattern 4. uygulaması — Subagent-Driven Development scale up
+
+13 CC subagent dispatch (8 paralel investigation + 5 sequential/paralel implementer):
+- **Phase 1**: 8 paralel investigation subagent → 8 fix-spec markdown (~5248 LoC, ~261KB)
+- **Phase 2 Wave 1** (orchestration + multi-lang): sprint-phases A+C+Stall (3 bug 1 file) + result-evaluator B + multi-lang adapter (6 stack) — 129 tests
+- **Phase 2 Wave 2** (recovery): R2+R3+R4+R5 4-bug coherent integration — 41 tests + 4 event channels + MCP parity
+- **Phase 2 Wave 3** (cross-cutting): 4 paralel subagent (event verify+ADR / 12-lang i18n / ARIA / security review) — 135+ tests
+- **Phase 3** smoke: live verification Sprint 161 56-task replicate
+
+### Bug X — yeni keşfedilen 9. bug (Sprint 162B P0)
+
+**Live forensic**: 11 stable smoking-gun cases at ~30min mark in sprint-162-live. `task-NNN.result` shows `evaluationDecision=DONE` AND `task-NNN-fix.json` shows `reason="evaluated as NO_GO"` — paralel iki evaluator path race condition. Cost penalty: 84 fix.json final cascade triggered API quota exhaustion at 15:36Z (Sprint 162 ~10-12M token vs ~5M baseline = 2x cost).
+
+### Multi-Language Adapter Pattern (ADR-047 NEW)
+
+`src/core/lang/{types,stack-detector,test-runner-adapter,coverage-adapter,build-adapter,index}.ts` — 6 baseline stacks (TypeScript vitest, Python pytest+mypy/ruff, Go go-test, Rust cargo-test, Java junit, C#/.NET xunit). Coverage parsers per format (vitest JSON, coverage.py XML, go cover txt, tarpaulin XML, jacoco XML, opencover XML). Static `STACKS` registry + `assertSpawnSafe(bin, args[])` whitelist + ADR-006 spawnSync pattern preserved + SH_C_ALLOWED regex hardened beyond spec (rejects append-injection). Future stacks (Ruby, PHP, Elixir, Kotlin, Swift) extensible via STACKS append.
+
+### Cross-cutting deliverables
+
+- **ADR amendments (3 V2 + 1 NEW)**: ADR-035 V2 (synthetic result + spawn-liveness mandate), ADR-037 V2 (recover RBAC bounds + cache invalidation), ADR-039 V2 (cleanup discipline + plant preservation), ADR-047 NEW (multi-lang adapter contract). All in `.brain/memory.db`; `.brain/exports/decisions.md` regenerated.
+- **8 yeni event-stream channel**: sprint.eval.heartbeat-skip / audit-rubric-applied / synthetic-timeout, BRAIN→AUDITOR:SPAWN_DEADLOCK_DETECTED, DECKENT→*:SPRINT_RECOVER_{STATE_RESET,ZOMBIE_KILLED,STATUS_SYNC,TMPFILE_SWEPT}
+- **12-lang i18n**: en, tr, de, fr, es, it, pt, ru, ja, ko, zh, ar (66 tests, fingerprint regex enforces native content)
+- **ARIA dashboard component** `OrchestrationEvent.tsx` (WCAG 2.1 AA, 18 tests; severity → role+aria-live mapping)
+- **Per-change security review** `docs/security/sprint-162a-review.md` (632 words, 8 bugs + adapter)
+
+### Live Verification — sprint-162-live (PARTIAL, quota-exhausted)
+
+| Iteration | Result | Fix.json | Smoking gun | Active workers |
+|-----------|-------:|---------:|------------:|---------------:|
+| Iter 1 (15:05Z) | 17 | 0 | 0 | 6 |
+| Iter 3 (15:13Z) | 25 | 8 | 8 | 6 |
+| Iter 5 (15:21Z) | ~38 | 14 | 11 | 6 |
+| Iter 6 (15:30Z) | 40 | 42 | 11 | 6 |
+| Iter 7 (15:36Z post-quota) | ~44 | **84** | 11 stable | 0 (API fail) |
+
+Sprint completed naturally to CLEANUP (Sprint 161'de bu mümkün değildi — deadlock'a düşüyordu). Smoking-gun count 11'de stable = Bug X single-shot batch trigger; 84 final = quota cascade fix-of-fix wave.
+
+### Sprint 162B P0 backlog
+
+1. **Bug X dual-evaluator stale-state path race** close
+2. **fix_phase_timeout condition gating** (only-on-real-NO_GO)
+3. **Subagent loop discipline ADR-043 amendment** (controller-side dispatch pattern, not sub-agent loop)
+4. **Build-after-spawn race protection** (Brain pre-flight dist mtime check)
+5. **5 R5-deferred sites** (mcp/tools/cleanup, archivePromptFiles, providers/claude, kill.ts, prompt-linter)
+6. **4 fixture digit-prefix migration** (sprint-docs-cleanup × 2, brain-provider × 2)
+
+### Beta GA Gate Durumu (2026-05-08 akşam — Sprint 162A sonrası)
+
+| Gate | Sprint 161 audit | Sprint 162A |
+|------|------------------|-------------|
+| #11 Documentation sync | ⚠️ REGRESSION | (Sprint 162C target — Bug X close sonrası) |
+| Pipeline Health (implicit) | ⚠️ REGRESSION | 🟡 **PARTIAL** — sprint completes naturally but Bug X cost penalty 2x |
+| All other gates (#1-10, #12-20) | ✅ | ✅ |
+
+**Beta GA blocker**: Bug X cost cascade. Sprint 162B fix → re-smoke → public-flip prep (Sprint 162C/D/E).
+
+### Meta-Dogfood Kanıtları (Sprint 162A — yeni kayıt 8+)
+
+1. **Subagent paralel pattern Sprint 154 10-agent'tan 1.3x ölçek** — 8 paralel investigation tek mesaj dispatch
+2. **Build-after-spawn race ilk RCA**: dist mtime > sprint-state.json mtime + 22 saniye = Brain old code load (CLAUDE.md gotcha #1 yansıması Brain process'e)
+3. **Bug X live discovery during smoke** — 30min batch trigger, single-shot, fingerprint stable (11 cases). Sprint 162A self-discovered next bug.
+4. **Subagent loop architectural limit confirmed** — Lane 2 Sprint 161 + W1/W2/W3 Sprint 162-live aynı pattern (delegate + exit). Loop must be controller-side.
+5. **Cost penalty per-bug quantified**: Bug X = 2x token consumption. Hidden cost behind "kalite" debt — token bleed eklenmeli ROI analysis'a.
+6. **Org monthly usage limit hit live during dogfood** — 15:36Z'de Anthropic API quota tükendi, sprint mid-cascade. Bu kalıcı kayıt: Sprint 162B re-smoke için aylık reset bekle.
+7. **ADR-047 (multi-lang adapter) introduce'da SH_C_ALLOWED regex spec hardening** — subagent'ı kendi spec'i daha sıkı hale getirdi (append-injection bloke). Spec contract reality-tightened canlı.
+8. **Sprint 162-live finalize cleanup wiped `.tasks/` data** — Brain's CLEANUP phase aggressively deleted; archive empty. Sprint 162B P1: cleanup discipline preserve forensic at finalize.
+
+### Audit Deliverables (Sprint 162A)
+
+- `docs/superpowers/specs/2026-05-08-sprint-162a-orchestration-repair-design.md` — design spec (T4 god-level)
+- `docs/superpowers/plans/2026-05-08-sprint-162a-orchestration-repair-execution.md` — execution plan
+- `docs/superpowers/specs/2026-05-08-sprint-162a-bug-{a,b,c,r2,r3,r4,r5,stall}-fix-spec.md` — 8 fix-spec
+- `docs/superpowers/retros/sprint-162a-retro.md` — bu retro
+- `docs/security/sprint-162a-review.md` — per-change security review
+- 4 ADR (035 V2 / 037 V2 / 039 V2 / 047 NEW) in `.brain/memory.db`
+
+---
+
+## ⚡ 2026-05-08 (sabah) Session Kapanış — Sprint 161 God-Audit + Orchestration Discovery Day
+
+### Sprint 161 — 56-Task Three-Lane God-Audit + Live Brain Break (~4h 20m)
+
+**Durum:** Sprint 161 pre-beta-GA architectural audit olarak planlandı. Üç paralel lane çalıştı; **Lane 1 28/56 task tamamladı** (worker tarafından), **Lane 2 (3 monitor) ve Lane 3 (10 deep-dive) tamamlandı**. Sprint 161 kendisi ise **mid-flight FAILED** — Brain orchestration broke (false NO_GO synthesis + recover failures + spawn loop deadlock). Audit verisi tam yakalandı; Sprint 162 hot fix gerekli.
+
+**Üç-lane mimari (yeni god-audit pattern, Sprint 154'ten daha geniş):**
+- **Lane 1 — 28 deckent worker audit raporu** (T-161-001..028): src/core, src/orchestra, src/cli granular slices. **READ-ONLY** sınırı %100 korundu (A2/A3 monitor doğruladı; sıfır kaynak ihlali).
+- **Lane 2 — 3 CC monitor raporu** (A1/A2/A3): live sprint sırasında Brain rubric, worker honesty, auditor authority izlendi. A2 nihai snapshot 28 finalized, **0 P0 dishonest, 11 P2 minor format gap**. A3 phase transitions clean (SPAWN→EXECUTE→FIX gözlemlendi).
+- **Lane 3 — 10 CC deep-dive raporu** (D1-D9 + D5b): node_modules deps, dist/src drift, ADR cross-reference, library version (context7), doc pollution, public-repo migration triage, fixture references, Memory V2, .deckent/.brain/ structural, security surface.
+
+### Bulgu sayıları (toplam ~356 finding, kabaca P0/P1/P2/P3 dağılımı)
+
+- **P0:** ~20 (orchestration repair + recover + ADR-038 dormant + ADR-005 sync I/O contradiction + ADR-010 1-vs-7 deps + identity drift + deckent-hub misplacement + jobs/ leak + generator-asymmetry + sprint-stall)
+- **P1:** ~88 (high — Sprint 162 hot fix + library migration + Memory V2 fixes + sprint-controller regrowth + dual evaluateResult)
+- **P2:** ~142 (medium — drift, dead exports, type asymmetry)
+- **P3:** ~106 (low — hygiene, naming, doc style)
+
+### Mimari Sürprizler (Sprint 161 audit tarafından keşfedildi)
+
+1. **Brain Orchestration BROKE Live (NEW Sprint 154-class regression)** — 87.5% false NO_GO rate (49/56 tasks Failed by Brain when worker self-assessment was DONE for all 28 finalized). Üç ayrı bug:
+   - **Bug A** (`sprint-phases.ts:492-525`): premature evaluate sentezler NO_GO heartbeat-blind
+   - **Bug B** (`quality-assessor.ts` + `result-evaluator.ts`): rubric mismatch READ-ONLY audit task'larını code-writing rubric'iyle skorluyor
+   - **Bug C** (`sprint-phases.ts:492-525`): synthetic result selfAssessment NO_GO yerine TIMEOUT_WITH_WORK olmalı (ADR-035 verification protocol)
+
+2. **`deckent recover` All-Four-Assertions Failed** — Sprint 161 kill sırasında recover komutu dört kritik kontrolde başarısız (R1 archive-claim ghost düzeltildi: aslında `.tasks/archive/sprint-161/`'e archive ediyor, sadece path yanlış lookup'tı; yine de R2/R3/R4 geçerli):
+   - **Bug R2**: sprint-state.json reset edilmedi (hâlâ EXECUTE/ACTIVE; manual `deckent cleanup` sonrası temizlendi)
+   - **Bug R3**: zombie Brain pid (286601) öldürülmedi (bash exit ile self-cleared, ayrı bir tedbir gerekli değil ama recover bunu garanti etmemeli)
+   - **Bug R4**: `deckent status` display lag (0/49 gösterdi recover sonrası)
+   - **Bug R5 (yeni)**: recover task-NNN.* artifacts'leri archive eder ama `.worker-*.sh` + `.prompt-*` tmpfiles **sweep ETMEZ** (Sprint 160 cleanup discipline asymmetry'sinin recover path'inde tekrarı; manuel `rm` gerekti)
+
+3. **Bug Sprint-Stall** (`sprint-controller.ts`/`sprint-spawner.ts`/`result-collector.ts`): FIX phase transition sonrası 41 fix task queue'da, **>1 saat sıfır worker spawn**. docker ps boş, tmux ls boş. Spawn loop sessizce deadlock'landı.
+
+4. **D5a — 701 .md drift universe** — `docs/ROADMAP-GOD-LEVEL.md` Block E "388 .md review" claim, gerçek 701 working / 1,261 incl. analysis archives. 7 P0 contradictions: CLI count 46/48/55+, MCP tools 31/27, sprint pointer 4-5 stale, MCP resources 8/6, ADR injection 42/45 (5 active ADR worker prompt'lara enjekte EDİLMİYOR), root vs docs CHANGELOG drift, root CoC vs docs/launch CoC. **Sprint 154 T-010 archival 7 sprint geç** (NEXT-SESSION-PROMPT.md, SYSTEM-MIGRATION-2026-04-22.md, DECKENT-TEST-REPORT.md hâlâ root'ta).
+
+5. **D6 — Sprint 160 Generator-Consumer Asymmetry SILENTLY NO-OP** — Sprint 160 T-001 fix consumer'ları `.prompt-task-*`/`.worker-task-*` literal'a daralttı; **generator'lar bu prefix'i HİÇ ÜRETMİYOR** (Docker `.prompt-${taskId}-${hash}.txt`, `.worker-${taskId}.sh`; tmux `.prompt-${randomHex}.txt`). Live evidence: `.tasks/.worker-161-001.sh`. Plant-survival testleri pass çünkü BOTH plants AND real task files atlanıyor — Sprint 160 fix sadece "şanslıca" plant koruyor, gerçek task sweep'i kırık. Plus `mcp/tools/cleanup.ts` Sprint 160 ile birlikte güncellenmedi → CLI/MCP parity violation (ADR-022-V2).
+
+6. **D3 — ADR Dormancy 22 Sprint Overdue** — ADR-038 Kademe 2 mandate (`@deprecated` + DEFERRED-marker) `handoff-protocol.ts` (152 LoC) + `brain-context.ts` (268 LoC) için **EXECUTE EDİLMEDİ**. Her iki dosya 0 importer ile diskte; Sprint 145 reassessment deadline 16 sprint geç. Plus ADR-005 deprecated ama 804 sync I/O site hâlâ aktif; ADR-010 "tek dependency: commander" claim, gerçek 7 prod dep; ADR-022-V2 sayım `19/19` claim, gerçek 28/56; ADR-035 backward-compat Sprint 142 milestone 19 sprint geç; ADR-042 status `proposed` ama Sprint 149/150'de shipped.
+
+7. **D4 — Library Migration Debt** — Zod v3/v4 split (5 file v3, çoğunluk v4); `feature-query.ts:7` MCP boundary risk; `task-builder.ts:67` deprecated `result.error.format()`; React 19 `forwardRef` 3 dashboard primitive'inde soft-deprecated; `@modelcontextprotocol/sdk@1.27.1 -> 1.29.0` patch-bump 5 P2 advisory'yi kapatır; `happy-dom@20.8.4` 2 high CVE (CVSS 7.5+8.8) — wanted 20.9.0 patch.
+
+8. **D9 F13 HIGH — Shell Injection Surface in Worker-Verify** — `worker-verify.ts:127,254` ve `mid-sprint-adapter.ts:228,258,284` template-literal ile shell command oluşturuyor. `.tasks/` poison'lanırsa scope.directories üzerinden metacharacter injection mümkün. Migration: shell-string template literal'dan `(bin, args[])` form'a (shell parsing bypass) — ADR-006 ruhuna align.
+
+9. **D7 — Memory V2 Decay Dead** — `decay_after_sprints=20`, current=160 ⇒ <140 entries decay-eligible. Bulgu: 11 entry decay-eligible ama deleted_at=NULL (mem-132..139 + sprint-log-136..139). **Decay never ran on memory/sprint types**. ADR/identity exempt korundu — yani exempt-flag wiring çalışıyor ama active-decay path hiç tetiklenmemiş. Bonus: `mem-134` missing (132, 133, 135 var) — Sprint 134 retro extensively referenced in ADR-008 → muhtemelen veri kaybı.
+
+10. **D8 — Identity Drift Across 5 Files** — CLAUDE.md / DECKENT.md / `.deckent/workspace/IDENTITY.md` / `.brain/PROJECT-IDENTITY.md` / `.deckent/config.json` **HİÇBİRİ AYNI METRİĞE SAHİP DEĞİL**. Sprint number 5 farklı yer 5 farklı sayı (155 / 155 / 155 / 160 / 161). Agent count 15/15/15+3/16/18. MCP tools 31/31/27/22/N. Bonus P0: `ci-baseline.json` `testFailed=24, coverage=0` — Sprint 161 yellow-flag review olmadan başlamamalıydı.
+
+### Yeni ADR'lar (45→47 önerilen)
+
+- **ADR-045 (önerilen Sprint 162)** "Minimal-but-justified Runtime Dependencies" — ADR-010 supersede. 7 prod dep + per-dep rationale + gating policy.
+- **ADR-046 (önerilen Sprint 162)** durum: ADR-035'in dual-state alternative path'i (file-based + event stream both kanonik) açıklaması.
+
+### Sprint 162 Hot Fix Theme
+
+Sprint 162 = **Sprint 161 audit hot fix wave + public-flip prep** (Sprint 154 pattern devamı, 3rd uygulama). 24 task projeksiyon:
+- 8 task **Theme 1+2** kritik path (orchestration + recover repair) — opus tier
+- 5 task **Theme 4** doc pollution P0 (D5a fix)
+- 4 task **Theme 5** Memory V2 fixes (D7 + D8)
+- 5 task **Theme 3** ADR amendments (010/038/005/042/035)
+- 4 task **Theme 6** library migration (zod, MCP SDK patch, React forwardRef, happy-dom)
+- 1 task **Theme 7** D9 F13 HIGH security migration
+- 1 task **Theme 8** dist/test-marker cleanup (D2-F5)
+- 3 task **Theme 9** .gitignore extensions (D5b P0 — `.test-e2e-sprint-*/`, `deckent-hub/`, `.deckent/jobs|sprint-*-*/`)
+- 1 task **Theme 10** D6 generator naming alignment (Plan A — generator + 5 consumer site + linter + doc)
+
+**Tahmini effort:** 6 high-opus + 12 normal-sonnet + 6 low-haiku. ~12-16 saat worker zamanı + ~2-4 saat operator review. Theme 1+2 önce (performance mode), sonra 4+5+9 (balanced mode), en son 6+8+10 (economic mode).
+
+### Beta GA Gate Durumu (2026-05-08 Sprint 161 sonrası)
+
+| # | Gate | Sprint 154 sonu | Sprint 161 audit sonrası |
+|---|------|------------------|---------------------------|
+| #1-12 | Build/test/MCP/CLI/Memory etc. | ✅ | ✅ (audit window'da regression yok) |
+| #11 Documentation sync | ✅ Sprint 154 T3 | ⚠️ **REGRESSION** — D5a 7 yeni P0 contradiction; auto-regen script henüz yok |
+| #13 Messaging trio smoke | 🟡 token bekleniyor | 🟡 (eternal — Pazar) |
+| #14 Dockerfile USER non-root | ✅ | ✅ (D9 F2 doğruladı; Dockerfile.worker Sprint 162 audit pending) |
+| #15 DeckentHub 20 seed signed | ✅ | ✅ |
+| #16-20 | ✅ | ✅ |
+| Implicit: Pipeline Health | ✅ Sprint 154 LIVE dogfood | ⚠️ **REGRESSION** — Sprint 161 mid-flight broke (Bug A/B/C/R2-R5/Stall); Sprint 162 hot fix sonrası re-test gerekli |
+
+**Sprint 161 sonrası Beta GA için kalan gate:** Sprint 162 hot fix wave (orchestration repair + recover repair + identity-drift cleanup) **BLOCKER**. Sprint 162 sonrası kontrollü smoke sprint ile pipeline-health re-validation, sonra public-flip.
+
+### Sprint 161 Marked FAILED (orchestration broke mid-flight)
+
+Sprint 161 **FAILED** olarak işaretlendi — Brain controller mid-flight broke (yukarıdaki Bug A/B/C/R2-R5/Stall canlı kanıt). **Audit verisi (28/56 worker raporu + 3 monitor + 10 deep-dive) tam yakalandı**, retro yazılmadı (sprint normal `RETRO -> DECAY -> CLEANUP` akışını tamamlayamadı). Sprint 162 hot fix wave'i bu boşluğu kapatacak ve Sprint 161 ile kullanılan 3-lane god-audit pattern'i resmi olarak ADR-044'e ek (`Sprint 161 Three-Lane Pattern`) olarak eklenecek.
+
+### Meta-Dogfood Kanıtları (Sprint 161 — yeni kayıt 7+)
+
+1. **Üç-lane paralel audit pattern Sprint 154 10-agent pattern'in 3.8x'i** (28 worker + 3 monitor + 10 deep-dive = 41 raporu eşzamanlı yakalama)
+2. **READ-ONLY discipline %100 korundu** (A2/A3 monitor + Lane 1 worker self-assessment + post-audit git diff cross-validation üçü de doğruladı)
+3. **Lane 2 monitor'lar Brain bug'ını LIVE yakaladı** (A2 28 finalized DONE vs Brain 49 Failed = 87.5% false NO_GO; sprint-bug döngüsünün **dogfood evidence kaynağı**)
+4. **D6 deep-dive Sprint 160 fix'in NO-OP olduğunu kanıtladı** (live filesystem evidence: `.tasks/.worker-161-001.sh` matches generator output, NOT consumer literal `.worker-task-*`)
+5. **D3 cross-reference 5 dormant ADR + 4 status drift** (Sprint 154'ün ADR-038/039 wire-fix'i intact ama Kademe 2 disposition gap 22 sprint overdue)
+6. **D8 5-file identity disagreement** (proje hakkındaki en temel sayılar bile reproducible source-of-truth'tan değil → manual sync failing → automation kaçınılmaz)
+7. **In-flight discovery: kendi pipeline'ı kırıldı sprint çalışırken** — Sprint 161 audit pre-beta-GA validate edecekti, validate ederken broke → audit veri yine kullanılabilir → meta-resilience kanıtı (audit-tarafı survive etti, orchestration-tarafı düştü)
+
+### Audit Deliverables (Sprint 161 consolidator output)
+
+- `docs/audits/sprint-161/EXECUTIVE-SUMMARY.md` — top-down + 30 P0 master table (379 satır, 27.8 KB)
+- `docs/audits/sprint-161/MIGRATION-TRIAGE-MATRIX.md` — file-class triage (~735 MIGRATE / ~1,265 KEEP-PRIVATE / ~205 DELETE / ~17 UNCERTAIN)
+- `docs/audits/sprint-161/PUBLIC-REPO-MIGRATION-PLAN.md` — Sprint 162+ public-flip ordered manifest (5-phase + 14-step validation)
+- `docs/audits/sprint-161/SPRINT-162-DIRECTIVES-DRAFT.md` — 24-task DIRECTIVES.md draft (655 satır)
+- `docs/audits/sprint-161/ROADMAP-PATCH.md` — patch source (bu içerik buradan uygulandı)
+- `docs/audits/sprint-161/T-161-001..028-*.md` — 28 worker audit reports
+- `docs/audits/sprint-161/cc-monitor/{A1,A2,A3}-*.md` — 3 monitor reports
+- `docs/audits/sprint-161/cc-deepdive/D{1,2,3,4,5a,5b,6,7,8,9}-*.md` — 10 deep-dive reports
 
 ---
 

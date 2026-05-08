@@ -1,0 +1,9 @@
+Görev tamamlandı.
+
+**Özet:**
+- `docs/audits/sprint-162-live/T-162-LIVE-022-orch-promote-temp.md` (142 satır) yazıldı — `promotion-pipeline.ts` (291 LoC) + `temp-skill-generator.ts` (391 LoC) için tam READ-ONLY denetim raporu.
+- 11 bulgu: **4 P1** (asimetrik Sprint 153 D3 fix, ESM içinde `require('fs')` ADR-001/002 ihlali, ölü `unusedSprints` config, substring eşleşmesi), **5 P2** (orphan `generateDataDrivenSkills`, skill tarafında eksik persistent pool, `_generatedContent` side-channel, kullanılmayan `depHint`, kırılgan framework='none' guard), **2 P3**. P0 yok.
+- ADR uyum: ADR-001/002/038 ihlali bulundu; ADR-006/008/037/041 OK.
+- Triage: her iki dosya da KEEP-PRIVATE (Brain iç modülü).
+- Doğrulama: `tsc --noEmit` exit 0, kaynak kod değiştirilmedi (`git diff src/orchestra/promotion-pipeline.ts src/orchestra/temp-skill-generator.ts` boş).
+- Result `selfAssessment=DONE` ile yazıldı, tokenUsage tüm dört alanıyla dolduruldu.

@@ -1,0 +1,7 @@
+`★ Insight ─────────────────────────────────────`
+- **ADR-028 V1→V2 migration tamamlanmamış** — `defaultConfig()` v2 derken, `sprint-planner.ts:366` ve `sprint-controller.ts:539` runtime fallback'leri `?? 'v1'` diyor. ADR `accepted` statüsünde olmasına rağmen V1 kodu hâlâ üretimde çağrılıyor. Bu drift, "kabul edildi" damgası ile "wire'landı" arasındaki klasik boşluk.
+- **Sprint 148 `test-coverage` tag mekanizması yarım**: Layer 1 (intent-classifier) tag'i üretiyor ama Layer 2 (`taskDNAToRecord` activation-engine.ts:215-227) `tags` ve `subIntent` field'larını stripliyor, dolayısıyla activation rules path-based olarak `tags.$contains: 'test-coverage'` ile filtreleyemiyor — sadece hardcoded `getIntentPriorityBonus()` kullanıyor. Reform yarım kaldı.
+- **Tip güvensizliği (`Map<string, number>`) silently dead code üretiyor**: `inferIntentsFromKeywords` 7 keyword'ü `'testing'` intent'e map'liyor, ama `IntentType` union'da `'testing'` yok — TS hata vermiyor çünkü return type generic `string`. `Map<IntentType, number>`'a sıkmak P1-B bug'ını derleme zamanında yakalardı.
+`─────────────────────────────────────────────────`
+
+**Özet:** Sprint 162-live Task 5 audit tamamlandı. Üç dosya (routing-engine 625 + activation-engine 320 + intent-classifier 466 = 1411 LoC) READ-ONLY incelendi. 11 bulgu (1 P0 + 2 P1 + 3 P2 + 5 P3), `docs/audits/sprint-162-live/T-162-LIVE-005-core-routing-engine.md` dosyasına yazıldı. `git status` ile doğrulandı: sadece audit raporu eklendi; kaynak kod (3 audit edilen dosya dahil) değiştirilmedi. Result `selfAssessment: DONE`.

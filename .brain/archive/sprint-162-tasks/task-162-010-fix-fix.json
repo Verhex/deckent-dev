@@ -1,0 +1,30 @@
+{
+  "id": "162-010-fix-fix",
+  "title": "Fix: Fix: src/core/ — validators + utilities",
+  "description": "Priority fix for NO_GO task 162-010-fix.\nOriginal worker notes: Priority fix for NO_GO task 162-010. Original 281-line audit report was technically complete but Brain marked NO_GO because the prior worker container terminated before writing .result (only .partial-result startup stub remained). This fix re-validated every P1/P2 finding against current src/core/ source, confirmed all file:line citations (LoC 122/340/354/451 = 1267 total), and appended Section 7 'Verification evidence (162-010-fix priority pass)' covering: (1) source LoC re-confirmation table, \nExpected scope: docs/audits/sprint-162-live/, src/core/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-010-core-validators-utils.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-010-fix evaluated as NO_GO",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/core/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-010-core-validators-utils.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "PENDING",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-010-fix",
+  "createdAt": "2026-05-08T15:36:17.388Z"
+}

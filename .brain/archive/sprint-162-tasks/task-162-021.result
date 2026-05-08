@@ -1,0 +1,27 @@
+{
+  "taskId": "162-021",
+  "workerId": "docker-162-021",
+  "filesChanged": [
+    "docs/audits/sprint-162-live/T-162-LIVE-021-orch-adapt-collect.md"
+  ],
+  "linesAdded": 407,
+  "linesRemoved": 0,
+  "testsPassed": true,
+  "coverage": 0,
+  "selfAssessment": "DONE",
+  "notes": "READ-ONLY audit complete per Sprint 162 Lane 1 mandate. Single output: docs/audits/sprint-162-live/T-162-LIVE-021-orch-adapt-collect.md (407 lines, 27 KB). Audited mid-sprint-adapter.ts (440 LoC) and result-collector.ts (409 LoC) across all 10 dimensions per DIRECTIVES. 13 findings: 0 P0, 2 P1, 5 P2, 6 P3. Lead-question answers: (1) Rerouting wired live in sprint-phases.ts:735-760 [v2 guard]; (2) IPC registry / Sprint 135 T-004 architecturally clean — checkWorkerQuestions/handleWorkerQuestion correctly migrated to ipc-registry.ts with backward-compat re-export; (3) fs.watch + IPC dual-channel race uses Promise.race with pending-flag guard, mostly correct (one minor ipcWakeup.resolve dummy initial; final sweep closes timeout window). KEY P1 FINDINGS: F1 — result-collector.ts:255 still emits selfAssessment: 'NO_GO' on .timeout marker path, while sprint-phases.ts:614 was already upgraded to 'TIMEOUT_WITH_WORK' as Sprint 161 Bug C remediation. .timeout markers are written by spawn-backend-docker.ts:398/703 and tmux.ts:120, so this is live production drift. F2 — Two waitForResults implementations exist: real one in result-collector.ts:190 (production), dead twin in result-evaluator.ts:248 with @internal comment that is factually false — zero importers across src/ and tests/. brain.ts:5 still mentions the dead twin. ~135 LoC dead code, ADR-038 candidate. RECOMMENDATIONS: R1 align timeout-marker label (P1), R2 delete waitForResults dead twin (P1), R3 dual-reconcile cost analysis (P2), R4 add fix_phase_timeout to ResolvedConfig (P2), R5 collapse archaeological comments to memory.db pattern (P3), R6 telemetry on estimateTokenUsage unknown-model path (P3), R7 document SKILL.md path asymmetry (P3). ADR cross-check: ADR-001/002/006/007/008/015/024/026/027/028/035/037/038 all evaluated; no strict violations; F1 is partial regression-of-spirit against Sprint 161 fix. Migration triage: both files KEEP-PRIVATE; result-evaluator.ts:188-323 (out-of-scope) flagged DELETE-CANDIDATE. tsc/vitest N/A per DIRECTIVES (READ-ONLY mandate, no source modified). Scope compliance: 100% — only the assigned audit report file was written.",
+  "rubricScores": {
+    "correctness": 95,
+    "test_coverage": 0,
+    "scope_compliance": 100,
+    "documentation": 95
+  },
+  "evaluationDecision": "DONE",
+  "tokenUsage": {
+    "inputTokens": 85000,
+    "outputTokens": 9500,
+    "cacheReadTokens": 150000,
+    "provider": "claude",
+    "model": "opus"
+  }
+}

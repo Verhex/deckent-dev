@@ -1,5 +1,49 @@
 # Sprint Learnings (auto-generated)
 
+## Sprint sprint-162 Learnings
+- Sprint sprint-162 Learnings: ## Sprint sprint-162 Learnings
+- src/core/ — Memory V2: NO_GO — READ-ONLY audit complete. Audited 6 files (memory-store.ts, memory-query.ts, memory-normalize.ts, memory-types.ts, memor
+- src/core/ — provider + routing core: NO_GO — READ-ONLY god-level audit of src/core/ provider + routing core: provider.ts (656 LoC), routing-types.ts (213 LoC), manif
+- src/core/ — routing engine + activation: NO_GO — READ-ONLY audit complete. Zero source code changes verified via git status — only the assigned audit report was created.
+- src/core/ — model-registry + mode-presets: NO_GO — READ-ONLY audit complete per Sprint 162 Lane 1 mandate. Audited src/core/model-registry.ts (335 LoC) + src/core/mode-pre
+- src/core/ — file-lock + event-stream + heartbeat: NO_GO — READ-ONLY audit per Sprint 162-live Lane 1 mandate completed. Inspected file-lock.ts (src/core/), heartbeat-types.ts (sr
+- src/core/ — credentials + deck-file + global-config: NO_GO — READ-ONLY god-level security audit of src/core/credentials.ts (265 LoC), deck-file.ts (198), global-config.ts (73), sign
+- src/core/ — marketplace (sandbox + registry): NO_GO — READ-ONLY audit of src/core/marketplace/ (5 files, ~1211 LoC) complete. 28 findings: 3 P0 (dependency-resolver dead, rat
+- src/core/ — validators + utilities: NO_GO — READ-ONLY audit complete per Sprint 162-live Lane 1 mandate. Single audit report written to docs/audits/sprint-162-live/
+- src/core/ — notification + nervous types: NO_GO — READ-ONLY audit complete per Sprint 162-live Task 11. Audited 5 files (734 LoC): notification-dispatcher.ts (199), notif
+- src/core/ — remaining helpers + bridge: NO_GO — READ-ONLY audit of remaining src/core/ files NOT covered by Tasks 1-11. Single audit report written to docs/audits/sprin
+
+## Sprint sprint-161 Learnings
+- Sprint sprint-161 Learnings: ## Sprint sprint-161 Learnings
+- src/core/ — config + types: NO_GO — READ-ONLY audit complete per Sprint 161 Lane 1 ABSOLUTE RULES. Single artifact written: docs/audits/sprint-161/T-161-001
+- src/core/ — Memory V2: NO_GO — READ-ONLY audit of Memory V2 layer (6 files, 1780 LoC). Single audit report written. Findings: 0 P0, 5 P1 (case-sensitiv
+- src/core/ — provider + routing core: NO_GO — READ-ONLY audit complete. Single output file written: docs/audits/sprint-161/T-161-004-core-provider-routing.md (~244 Lo
+- src/core/ — routing engine + activation: NO_GO — READ-ONLY audit completed per Sprint 161 Lane 1 mandate. Single audit report written to docs/audits/sprint-161/T-161-005
+- src/core/ — model-registry + mode-presets: NO_GO — READ-ONLY Sprint 161 Lane 1 audit of src/core/model-registry.ts (335 LoC) and src/core/mode-presets.ts (112 LoC). Single
+- src/core/ — file-lock + event-stream + heartbeat: NO_GO — READ-ONLY audit completed for src/core/file-lock.ts (299 LoC), src/core/heartbeat-types.ts (38 LoC), src/orchestra/event
+- src/core/ — credentials + deck-file + global-config: NO_GO — READ-ONLY audit complete. 4 target files (credentials.ts, deck-file.ts, global-config.ts, signature.ts) plus 1 cross-ref
+- src/core/ — marketplace (sandbox + registry): NO_GO — READ-ONLY audit of src/core/marketplace/ (5 files, 1,206 LoC) complete. Single audit report written to docs/audits/sprin
+- src/core/ — validators + utilities: NO_GO — READ-ONLY audit complete per Sprint 161 Lane 1 mandate. Single audit report at docs/audits/sprint-161/T-161-010-core-val
+- src/core/ — notification + nervous types: NO_GO — READ-ONLY audit complete for src/core/notification-dispatcher.ts (199 LoC), src/core/notify-adapters/{cli,file,mcp}-adap
+
+## Sprint sprint-160 Learnings
+- Sprint sprint-160 Learnings: ## Sprint sprint-160 Learnings
+- Sweep filter task-prefix-aware (3 path uniform): NO_GO — Source-code change complete and correct per spec: all three sweep paths now use `.prompt-task-` / `.worker-task-` prefix
+- E2E plant-survival regression test suite: NO_GO — Added tests/e2e/cleanup-plant-survival.test.ts (266 LoC) with 4 regression tests covering all three sweep paths affected
+
+## Sprint sprint-159 Learnings
+- Sprint sprint-159 Learnings: ## Sprint sprint-159 Learnings
+- Auth Surface Checklist 7→9 surface güncelle [CLAUDE]: GO_WITH_TECH_DEBT — Added Surface 8 (detectCodex) and Surface 9 (detectGemini) to docs/development/auth-surface-checklist.md. Both document 
+- Wire `deckent doctor --refresh-models` flag [CLAUDE]: NO_GO — Wired `deckent doctor --refresh-models` flag:
+1. Added `.option('--refresh-models', '...')` to registerDoctor in doctor.
+- docs/CHANGELOG.md TR/EN normalize [GEMINI]: GO_WITH_TECH_DEBT — Worker timeout/killed (exitCode=0) — HIT WORKER_TIMEOUT (task exceeded its timeout budget; re-run with longer --timeout 
+
+## Sprint sprint-158 Learnings
+- Sprint sprint-158 Learnings: ## Sprint sprint-158 Learnings
+- README.md vs README-TR.md Drift Fix Proposal: GO_WITH_TECH_DEBT — Generated the drift fix proposal as per the instructions, including 10 findings with the specified format.
+- Auth Surface Checklist Validation Run: NO_GO
+- CHANGELOG Language Consistency Audit: GO_WITH_TECH_DEBT — Generated a language consistency audit report for CHANGELOG.md, classifying entries as TR or EN and marking them as cons
+
 ## Sprint sprint-156 Learnings
 - Sprint sprint-156 Learnings: ## Sprint sprint-156 Learnings
 - README + BETA-TRACKER TR/EN Senk Audit: GO_WITH_TECH_DEBT — Audit complete. Read all 4 docs (README.md, README-TR.md, BETA-TRACKER.md, BETA-TRACKER-TR.md). Created docs/audits/spri

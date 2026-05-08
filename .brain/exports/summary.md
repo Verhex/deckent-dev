@@ -48,10 +48,21 @@
 | adr-042 | Hybrid Mode Architecture — Sprint + Task Dual Modes | proposed |
 | adr-043 | Hot Fix with Claude Subagents — Pipeline-Bypass Repair Pattern | accepted |
 | adr-044 | Sprint 154 Comprehensive Audit — 10-Agent Parallel Pass + Pipeline Wire Validation | accepted |
+| adr-047 | Multi-Language TestRunner / Coverage / Build Adapter Pattern | accepted |
 | user-1778150182657 | ADR-045: Multi-Provider Docker Backend Parity | active |
 | user-1778154724426 | ADR-046: Auth Surface Atomicity — Symmetric Refactor Discipline | active |
 
 ## Recent Learnings
+- **Sprint sprint-162 Learnings** (sprint-162): ## Sprint sprint-162 Learnings
+- src/core/ — Memory V2: NO_GO — READ-ONLY audit complete. Audited 6 files (memory-sto...
+- **Sprint sprint-161 Learnings** (sprint-161): ## Sprint sprint-161 Learnings
+- src/core/ — config + types: NO_GO — READ-ONLY audit complete per Sprint 161 Lane 1 A...
+- **Sprint sprint-160 Learnings** (sprint-160): ## Sprint sprint-160 Learnings
+- Sweep filter task-prefix-aware (3 path uniform): NO_GO — Source-code change complete...
+- **Sprint sprint-159 Learnings** (sprint-159): ## Sprint sprint-159 Learnings
+- Auth Surface Checklist 7→9 surface güncelle [CLAUDE]: GO_WITH_TECH_DEBT — Added Surf...
+- **Sprint sprint-158 Learnings** (sprint-158): ## Sprint sprint-158 Learnings
+- README.md vs README-TR.md Drift Fix Proposal: GO_WITH_TECH_DEBT — Generated the drif...
 - **Sprint sprint-156 Learnings** (sprint-156): ## Sprint sprint-156 Learnings
 - README + BETA-TRACKER TR/EN Senk Audit: GO_WITH_TECH_DEBT — Audit complete. Read all...
 - **Sprint sprint-155 Learnings** (sprint-155): ## Sprint sprint-155 Learnings
@@ -62,15 +73,6 @@
 - `deckent doctor` Derin Audit: NO_GO — READ-ONLY audit task per Sprint 152 DIRECTIVES...
 - **Sprint sprint-151 Learnings** (sprint-151): ## Sprint sprint-151 Learnings
 - Public Repo Flip — VerhexIO/deckent-dev → VerhexIO/deckent: GO_WITH_TECH_DEBT — DURU...
-- **Sprint sprint-150 Learnings** (sprint-150): ## Sprint sprint-150 Learnings
-- Docker Worker Exit Pattern Final Fix (Sprint 146+148 Debt): GO_WITH_TECH_DEBT — Dock...
-- **Sprint sprint-149 Learnings** (sprint-149): ## Sprint sprint-149 Learnings
-- `deckent mode` CLI Command: GO_WITH_TECH_DEBT — Created `deckent mode` CLI command w...
-- **Sprint sprint-148 Learnings** (sprint-148): ## Sprint sprint-148 Learnings
-- Vitest Triage — 135 Fail → < 50 Fail: NO_GO — Docker worker exited without writing r...
-- **Sprint sprint-147 Learnings** (sprint-147): ## Sprint sprint-147 Learnings
-- **Sprint sprint-146 Learnings** (sprint-146): ## Sprint sprint-146 Learnings
-- Agent Truncation Bug Fix: GO_WITH_TECH_DEBT — Root cause: task-builder.ts:761 had `a...
 
 ## Active Technical Debt
 _No active technical debt._
@@ -78,4 +80,4 @@ _No active technical debt._
 ## Active Patterns
 _No active patterns._
 
-_Total entries: 188 | Generated: 2026-05-07_
+_Total entries: 208 | Generated: 2026-05-08_

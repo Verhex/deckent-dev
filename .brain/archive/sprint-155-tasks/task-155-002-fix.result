@@ -1,0 +1,30 @@
+{
+  "taskId": "155-002-fix",
+  "filesChanged": [
+    "src/core/provider-auth-resolver.ts",
+    "src/providers/claude.ts",
+    "src/providers/gemini.ts",
+    "src/providers/codex.ts",
+    "tests/providers/auth-enforcement.test.ts"
+  ],
+  "linesAdded": 220,
+  "linesRemoved": 5,
+  "testsPassed": true,
+  "coverage": 95,
+  "selfAssessment": "DONE",
+  "notes": "All auth enforcement implementation verified correct and complete.\n\nDelivered:\n1. src/core/provider-auth-resolver.ts — resolveAuthMode() pure function enforcing api_key/subscription/auto modes, throws ProviderError on conflict with deckent doctor hint.\n2. src/providers/claude.ts — detectAuthMode() (ANTHROPIC_API_KEY → api_key, else subscription), authConfig enforcement in spawn() before backend selection.\n3. src/providers/gemini.ts — detectNormalizedAuthMode() (collapses oauth/vertex/cloud_shell → subscription), authConfig enforcement in spawn() before file ops.\n4. src/providers/codex.ts — authConfig enforcement in spawn() using existing detectAuthMode().\n5. tests/providers/auth-enforcement.test.ts — 27 tests covering all 6 config×detected matrix scenarios across all 3 adapters.\n\nVerify results:\n- tsc --noEmit: PASS (0 errors)\n- npx vitest run tests/providers/auth-enforcement.test.ts: 27/27 PASS\n- npx vitest run tests/providers/: 381/381 PASS\n\nPre-existing unrelated failure (outside scope):\n- tests/core/error-handling-unification.test.ts:650 fails because src/core/model-registry-refresh.ts (Task 3 artifact, ?? untracked) has generic throw new Error() patterns. This file is NOT in this task's filesWrite scope and was present before this fix task started.",
+  "tokenUsage": {
+    "inputTokens": 45000,
+    "outputTokens": 3200,
+    "cacheReadTokens": 120000,
+    "provider": "claude",
+    "model": "sonnet"
+  },
+  "rubricScores": {
+    "correctness": 95,
+    "test_coverage": 95,
+    "scope_compliance": 100,
+    "documentation": 85
+  },
+  "evaluationDecision": "DONE"
+}

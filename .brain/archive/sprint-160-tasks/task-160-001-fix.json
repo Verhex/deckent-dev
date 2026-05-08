@@ -1,0 +1,36 @@
+{
+  "id": "160-001-fix",
+  "title": "Fix: Sweep filter task-prefix-aware (3 path uniform)",
+  "description": "Priority fix for NO_GO task 160-001.\nOriginal worker notes: Source-code change complete and correct per spec: all three sweep paths now use `.prompt-task-` / `.worker-task-` prefix narrowing instead of generic `.prompt-` / `.worker-`. Verified: `grep -n \"startsWith('\\\\.prompt-task-')\" src/` returns exactly 3 hits in the three target files (sprint-lifecycle.ts:270, sprint-docs-updater.ts:707, cleanup.ts:79). `tsc --noEmit` is clean (exit 0).\n\nTECH_DEBT (out of filesWrite scope — defer to tests/ follow-up): 4 existing unit tests fail because their fixtures\nRubric: correctness=100, test_coverage=60, scope_compliance=100\nExpected scope: src/orchestra/, src/cli/commands/\nFiles that should change: src/orchestra/sprint-lifecycle.ts, src/orchestra/sprint-docs-updater.ts, src/cli/commands/cleanup.ts, .prompt-, .prompt-task-",
+  "model": "opus",
+  "effort": "low",
+  "priority": "CRITICAL",
+  "reason": "Task 160-001 evaluated as NO_GO; correctness=100; test_coverage=60; scope_compliance=100; tests failed",
+  "scope": {
+    "directories": [
+      "src/orchestra/",
+      "src/cli/commands/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "src/orchestra/sprint-lifecycle.ts",
+      "src/orchestra/sprint-docs-updater.ts",
+      "src/cli/commands/cleanup.ts",
+      ".prompt-",
+      ".prompt-task-"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** `grep -rn \"startsWith('\\\\.prompt-')\" src/ tests/` → src/ tarafında",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-160",
+  "isPriorityFix": true,
+  "fixForTaskId": "160-001",
+  "createdAt": "2026-05-08T06:24:58.551Z",
+  "estimatedTokens": 122,
+  "updatedAt": "2026-05-08T06:30:21.306Z"
+}

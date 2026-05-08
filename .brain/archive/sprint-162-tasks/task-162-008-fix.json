@@ -1,0 +1,32 @@
+{
+  "id": "162-008-fix",
+  "title": "Fix: src/core/ — credentials + deck-file + global-config",
+  "description": "Priority fix for NO_GO task 162-008.\nOriginal worker notes: READ-ONLY god-level security audit of src/core/credentials.ts (265 LoC), deck-file.ts (198), global-config.ts (73), signature.ts (158). credential-encryption.ts (139) read transitively because credentials.ts delegates AES-256-GCM there — lead question cannot be answered without it. 833 LoC audited total. Findings: 4 P1 (plaintext credential fallback silent; decryption errors swallowed; signature.ts missing chmodSync belt-and-suspenders; mergeWithProjectConfig double-merge fragile), 8 P2 (KEYRING\nExpected scope: docs/audits/sprint-162-live/, src/core/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-008-core-credentials-deck.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-008 evaluated as NO_GO",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/core/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-008-core-credentials-deck.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-008",
+  "createdAt": "2026-05-08T15:17:26.942Z",
+  "estimatedTokens": 98,
+  "updatedAt": "2026-05-08T15:36:17.388Z"
+}

@@ -1,0 +1,10 @@
+{
+  "events.sprint.eval.heartbeat-skip": "Heartbeat alive — evaluation deferred",
+  "events.sprint.eval.audit-rubric-applied": "Audit rubric applied",
+  "events.sprint.eval.synthetic-timeout": "Worker timed out, partial work preserved",
+  "events.sprint.spawn.deadlock-detected": "Spawn loop deadlock detected",
+  "events.sprint.recover.state-reset": "Sprint state reset",
+  "events.sprint.recover.zombie-killed": "Zombie process terminated",
+  "events.sprint.recover.status-sync": "Status display synchronized",
+  "events.sprint.recover.tmpfile-swept": "Temporary files swept"
+}

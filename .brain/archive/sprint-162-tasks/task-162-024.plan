@@ -1,0 +1,36 @@
+# Task 162-024 Execution Plan
+
+## Goal
+READ-ONLY audit of `src/cli/commands/` lifecycle commands:
+- start.ts, status.ts, kill.ts, cleanup.ts, checkpoint.ts, run.ts
+
+## Lead Questions
+1. ADR-022-V2 CLI/MCP parity — do MCP tool parameters mirror CLI flags?
+2. --dry-run consistency — same semantics across commands?
+3. kill confirmation — destructive action guard rails?
+
+## 10 Audit Dimensions
+1. Dead code (unused exports / params)
+2. ADR violations (ADR-010 single dep, ADR-022-V2 parity, ADR-025 graceful shutdown,
+   ADR-037 RBAC kill scope)
+3. Conflicting areas (duplicate logic across lifecycle commands)
+4. Drift (help text vs behavior, claims vs reality)
+5. Type safety (any, ts-ignore, as unknown as)
+6. Dependency hygiene (.js extensions, circular deps)
+7. Documentation pollution (orphan/outdated)
+8. Memory V2 coherence (where applicable)
+9. Config integrity (--root, --json, --dry-run uniform handling)
+10. Migration triage classification
+
+## Steps
+1. Read all 6 lifecycle command files
+2. Read MCP tool counterparts (start, status, kill, cleanup, checkpoint, run)
+3. Compare CLI flags ↔ MCP zod schemas for parity
+4. Find boundary violations / dead code / drift
+5. Write single audit report to docs/audits/sprint-162-live/T-162-LIVE-024-cli-lifecycle.md
+6. Write result file
+
+## Constraints
+- READ-ONLY: do NOT modify any src/* file
+- scope.filesWrite single path: docs/audits/sprint-162-live/T-162-LIVE-024-cli-lifecycle.md
+- ADR-037 RBAC enforced

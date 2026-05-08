@@ -1,0 +1,10 @@
+{
+  "events.sprint.eval.heartbeat-skip": "心跳存活 — 评估已延后",
+  "events.sprint.eval.audit-rubric-applied": "已应用审计评分标准",
+  "events.sprint.eval.synthetic-timeout": "工作进程超时,已保留部分工作",
+  "events.sprint.spawn.deadlock-detected": "检测到生成循环死锁",
+  "events.sprint.recover.state-reset": "冲刺状态已重置",
+  "events.sprint.recover.zombie-killed": "僵尸进程已终止",
+  "events.sprint.recover.status-sync": "状态显示已同步",
+  "events.sprint.recover.tmpfile-swept": "临时文件已清理"
+}

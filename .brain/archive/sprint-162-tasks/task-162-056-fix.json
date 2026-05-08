@@ -1,0 +1,31 @@
+{
+  "id": "162-056-fix",
+  "title": "Fix: Hidden config — .github/ + IDE configs",
+  "description": "Priority fix for NO_GO task 162-056.\nOriginal worker notes: Timeout - no heartbeat, no result\nExpected scope: docs/audits/sprint-162-live/, ./\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-056-config-github-ide.md",
+  "model": "sonnet",
+  "effort": "low",
+  "priority": "CRITICAL",
+  "reason": "Task 162-056 evaluated as NO_GO; tests failed; no files changed",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "./"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-056-config-github-ide.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-056",
+  "createdAt": "2026-05-08T15:22:19.659Z",
+  "updatedAt": "2026-05-08T15:36:17.393Z"
+}

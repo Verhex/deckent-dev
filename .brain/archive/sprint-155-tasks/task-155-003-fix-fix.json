@@ -1,0 +1,36 @@
+{
+  "id": "155-003-fix-fix",
+  "title": "Fix: Fix: Model Registry Remote Refresh",
+  "description": "Priority fix for NO_GO task 155-003-fix.\nOriginal worker notes: Fixed both issues that caused task 155-003 to be evaluated as NO_GO:\n\n1. DeckentError convention violation: src/core/model-registry-refresh.ts had 3 `throw new Error(\\`HTTP ${res.status}\\`)` calls (lines 95, 145, 191 — one per provider fetch function). Replaced with `throw new DeckentError('E_PROVIDER_HTTP_ERROR', ...)`. Added DeckentError import. This fixed tests/core/error-handling-unification.test.ts which scans src/core/ for generic Error throws.\n\n2. Stale test count: tests/cli/commands/doct\nRubric: correctness=100, test_coverage=98, scope_compliance=95\nExpected scope: src/core/, src/cli/commands/, tests/core/\nFiles that should change: src/core/model-registry.ts, src/core/model-registry-refresh.ts (new), src/cli/commands/doctor-checks.ts, tests/core/model-registry-refresh.test.ts (new), src/core/model-registry-refresh.ts, tests/core/model-registry-refresh.test.ts",
+  "model": "sonnet",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 155-003-fix evaluated as NO_GO; correctness=100; test_coverage=98; scope_compliance=95",
+  "scope": {
+    "directories": [
+      "src/core/",
+      "src/cli/commands/",
+      "tests/core/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "src/core/model-registry.ts",
+      "src/core/model-registry-refresh.ts (new)",
+      "src/cli/commands/doctor-checks.ts",
+      "tests/core/model-registry-refresh.test.ts (new)",
+      "src/core/model-registry-refresh.ts",
+      "tests/core/model-registry-refresh.test.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; `deckent doctor --refresh-models` 3 provider için canlı API çağrısı yapar (key/sub varsa), success → `last refreshed Just now`. Stale check unit test.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "PENDING",
+  "sprintId": "sprint-155",
+  "isPriorityFix": true,
+  "fixForTaskId": "155-003-fix",
+  "createdAt": "2026-05-07T11:03:56.532Z"
+}

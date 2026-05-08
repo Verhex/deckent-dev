@@ -1,0 +1,24 @@
+{
+  "taskId": "162-009-fix",
+  "filesChanged": ["docs/audits/sprint-162-live/T-162-LIVE-009-core-marketplace.md"],
+  "linesAdded": 49,
+  "linesRemoved": 8,
+  "testsPassed": true,
+  "coverage": null,
+  "selfAssessment": "DONE",
+  "notes": "READ-ONLY audit fix complete. The previous 162-009 worker was OOM-killed by Docker mid-write; the audit body was preserved on disk. 162-009-fix verified the report's 28 findings (3 P0 / 7 P1 / 8 P2 / 10 P3) are intact, corrected the LoC table from 1211→1206 (trailing-newline overcount, verified via `wc -l`), and appended a verification log (Section 8) with: cross-reference re-check confirming P0-1 (DependencyResolver dead) and P0-2 (RatingSystem dead); a non-blocking optional hardening note about validateManifest semver regex divergence between skill-sandbox.ts:308 and skill-marketplace.ts:50. Migration triage stands: 2× KEEP-PRIVATE (skill-sandbox, registry-client), 1× MIGRATE-PUBLIC after fix (marketplace-auth), 2× DELETE-CANDIDATE (dependency-resolver, rating-system). ADR-014 plaintext-token violation P0 remains the headline security item. Verification: scope.filesWrite single-path honoured (only docs/audits/sprint-162-live/T-162-LIVE-009-core-marketplace.md modified); ADR-037 RBAC + ADR-039 self-modifying detector compliant; `tsc --noEmit` ran clean. No src/ files were touched. Final audit length: 305 lines.",
+  "tokenUsage": {
+    "inputTokens": 28000,
+    "outputTokens": 4500,
+    "cacheReadTokens": 12000,
+    "provider": "claude",
+    "model": "opus"
+  },
+  "rubricScores": {
+    "correctness": 95,
+    "test_coverage": 100,
+    "scope_compliance": 100,
+    "documentation": 95
+  },
+  "evaluationDecision": "DONE"
+}

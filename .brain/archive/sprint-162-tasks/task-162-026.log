@@ -1,0 +1,13 @@
+Task 162-026 tamamlandı.
+
+`★ Insight ─────────────────────────────────────`
+- Audit READ-ONLY: tek satır kaynak kod değiştirilmedi, yalnızca `docs/audits/sprint-162-live/T-162-LIVE-026-cli-introspection.md` (556 satır) yazıldı — ADR-037 RBAC ve ADR-039 self-modifying detector için temiz.
+- Doctor DECISIONS.md FAIL bug Sprint 160'tan beri açık: tek satırlık fix (`requiredFiles`'tan üç legacy dosya çıkarılması) ama henüz dokunulmamış — Memory V2 migration'ın yarım kalan kuyruğu.
+- En değerli mimari öneri: `parseRetroToRichSummary` shared helper olarak çıkarılmalı — `history.ts` ile `retro.ts` aynı dosyaları farklı tolerance'larla parse ediyor, bu CLI tutarsızlık kaynağı.
+`─────────────────────────────────────────────────`
+
+**Özet:**
+- 8 dosya, ~3,567 LoC incelendi (history, retro, explain, help, doctor, doctor-checks, doctor-format, watch).
+- 18 bulgu: **2 P0** (Sprint 160 DECISIONS.md FAIL bug aktif), **6 P1**, **5 P2**, **5 P3**.
+- Tüm bulgular `file:line` kanıtlı; her dosya için migration triage (KEEP-PRIVATE / DELETE-CANDIDATE) ve Sprint 162+ öneri seti.
+- selfAssessment: **DONE** — boundary temiz, `.result` yazıldı.

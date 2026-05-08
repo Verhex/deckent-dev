@@ -1,0 +1,29 @@
+{
+  "taskId": "160-001",
+  "provider": "claude",
+  "model": "opus",
+  "approach": "Three single-line edits — narrow .prompt- / .worker- generic prefix to .prompt-task- / .worker-task- prefix in three sweep paths.",
+  "files": [
+    {
+      "path": "src/orchestra/sprint-lifecycle.ts",
+      "line": 269,
+      "change": "file.startsWith('.prompt-') || (file.startsWith('.worker-') && ...) → file.startsWith('.prompt-task-') || (file.startsWith('.worker-task-') && ...)"
+    },
+    {
+      "path": "src/orchestra/sprint-docs-updater.ts",
+      "line": 706,
+      "change": "allFiles.filter(f => f.startsWith('.prompt-')) → allFiles.filter(f => f.startsWith('.prompt-task-'))"
+    },
+    {
+      "path": "src/cli/commands/cleanup.ts",
+      "line": 81,
+      "change": "allTaskFiles.filter(f => f.startsWith('.prompt-')) → allTaskFiles.filter(f => f.startsWith('.prompt-task-'))"
+    }
+  ],
+  "verify": [
+    "grep src/ for startsWith('.prompt-') → 0 hits",
+    "grep src/ for startsWith('.prompt-task-') → 3 hits",
+    "tsc --noEmit clean",
+    "vitest related suites pass (no test edits in this task — Task 2 covers regression)"
+  ]
+}

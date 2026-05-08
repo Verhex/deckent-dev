@@ -1,0 +1,104 @@
+{
+  "id": "160-001",
+  "title": "Sweep filter task-prefix-aware (3 path uniform)",
+  "description": "Sweep filter task-prefix-aware (3 path uniform)\n- Model: opus\n- Effort: low\n- Skills: typescript-expert\n- Files: src/orchestra/sprint-lifecycle.ts, src/orchestra/sprint-docs-updater.ts, src/cli/commands/cleanup.ts\n- Scope: src/orchestra/, src/cli/commands/\n\n### Description\nÜç sweep path'inde generic prefix match'i task-prefix gerektirecek şekilde daralt:\n\n**1. `src/orchestra/sprint-lifecycle.ts:269`** — Brain CLEANUP fazı tmpfile sweep\n- Eski: `file.startsWith('.prompt-') || (file.startsWith('.worker-') && file.endsWith('.sh'))`\n- Yeni: `file.startsWith('.prompt-task-') || (file.startsWith('.worker-task-') && file.endsWith('.sh'))`\n\n**2. `src/orchestra/sprint-docs-updater.ts:706`** — `archiveOrphanTasks()` içindeki ek `.prompt-*` filtresi\n- Eski: `allFiles.filter(f => f.startsWith('.prompt-'))`\n- Yeni: `allFiles.filter(f => f.startsWith('.prompt-task-'))`\n- Not: Aynı fonksiyondaki `taskFiles` filtresi (satır 700-704) zaten `task-${sprintNum}-` prefix'i kullanıyor — bu task o disiplini `.prompt-` filtresine de yayar.\n\n**3. `src/cli/commands/cleanup.ts:81`** — Standalone CLI `deckent cleanup` dry-run + execute path\n- Eski: `allTaskFiles.filter(f => f.startsWith('.prompt-'))`\n- Yeni: `allTaskFiles.filter(f => f.startsWith('.prompt-task-'))`\n\nDisiplin: `.tasks/` altına manuel plant edilmiş kullanıcı/forensic dosyaları\n(`.prompt-TEST-*`, `.worker-MANUAL-*` vb.) kuralın gündeminden çıkar — silmeme\nkorumasıyla değil, eşleşmedikleri için.\n\n**Kanıt:** `grep -rn \"startsWith('\\\\.prompt-')\" src/ tests/` → src/ tarafında\n0 hit (tests/ altında varsa OK), `grep -rn \"startsWith('\\\\.prompt-task-')\" src/`\n→ 3 hit (üç path).\n\n**Test:** Task 2'deki E2E suite — bu task tek başına test eklemiyor, davranış\ndeğişimini Task 2 koruyor. Mevcut unit test'ler kırılırsa düzeltilir.\n\n---",
+  "model": "opus",
+  "effort": "low",
+  "priority": "NORMAL",
+  "reason": "Directive (model: opus -- user override)",
+  "scope": {
+    "directories": [
+      "src/orchestra/",
+      "src/cli/commands/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "src/orchestra/sprint-lifecycle.ts",
+      "src/orchestra/sprint-docs-updater.ts",
+      "src/cli/commands/cleanup.ts",
+      ".prompt-",
+      ".prompt-task-"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** `grep -rn \"startsWith('\\\\.prompt-')\" src/ tests/` → src/ tarafında",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-160",
+  "provider": "claude",
+  "forceModel": "opus",
+  "forceEffort": "low",
+  "forceSkills": [
+    "typescript-expert"
+  ],
+  "assignedAgent": "react-ts-specialist",
+  "assignedSkills": [
+    "typescript-expert"
+  ],
+  "createdAt": "2026-05-08T06:12:57.385Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "implementation",
+        "secondary": [
+          "documentation"
+        ],
+        "confidence": 0.95
+      },
+      "tags": [],
+      "domains": [
+        {
+          "name": "orchestra",
+          "weight": 0.43
+        },
+        {
+          "name": "cli",
+          "weight": 0.29
+        }
+      ],
+      "operations": [
+        {
+          "type": "modify",
+          "weight": 0.33
+        },
+        {
+          "type": "delete",
+          "weight": 0.17
+        },
+        {
+          "type": "test",
+          "weight": 0.17
+        },
+        {
+          "type": "document",
+          "weight": 0.17
+        },
+        {
+          "type": "create",
+          "weight": 0.17
+        }
+      ],
+      "complexity": {
+        "fileCount": 5,
+        "moduleCount": 2,
+        "crossCutting": true,
+        "estimatedSize": "medium"
+      },
+      "scope": {
+        "writeRatio": {
+          "src/": 0.6,
+          "./": 0.4
+        },
+        "primaryWriteTarget": "src/",
+        "testWriteRatio": 0
+      }
+    },
+    "confidence": "uncertain",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 837,
+  "updatedAt": "2026-05-08T06:24:58.551Z"
+}

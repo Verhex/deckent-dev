@@ -1,0 +1,90 @@
+{
+  "id": "158-003",
+  "title": "CHANGELOG Language Consistency Audit",
+  "description": "CHANGELOG Language Consistency Audit\n- Model: gemini-2.5-flash\n- Effort: low\n- Skills: documentation-writer\n- Files: docs/audits/sprint-158-changelog-drift.md\n- Scope: docs/audits/\n\n### Description\n\n`docs/CHANGELOG.md` header'ında `<!-- Dil: TR | Teknik terimler EN -->` var ama bazı entry'ler EN, bazıları TR. Mevcut entry'leri tarayıp dil tutarlılığını markdown table'da raporla, recommended canonical direction (TR per header) belirt.\n\n**Kanıt:** `ls docs/audits/sprint-158-changelog-drift.md` → dosya var; en az 5 entry sınıflandırılmış.\n\n**Test:** N/A.\n\n---\n\n## Sprint 158 Notları (planlama meta)\n\n- **Tüm task'lar Gemini routing'te çalışmalı** — Sprint 157 fix'leri sayesinde planner artık `Model: gemini-2.5-flash` directive'ini honor etmeli. Manuel JSON edit GEREKMEZ.\n- **Empirical validation kriteri**: `cat .tasks/task-158-*.result | jq '.tokenUsage.provider'` çıktısında **en az bir tanesi `\"gemini\"` olmalı**. Hiçbiri gemini değilse, bilinmeyen 4. routing bug var demektir → bug-fix sprint'i tetiklenmeli.\n- **Codex Live Onboarding (CONDITIONAL)**: Sprint 158 çalıştırılırken Codex CLI erişimi gelmişse, Sprint 156 Task 4 backlog'undan Codex live install + dogfood task'ı bu sprint'e ekleyebiliriz. Şimdilik DIRECTIVES'e dahil etmiyoruz — runtime'da eklenebilir.\n- **No regression budget**: Mevcut 6088+ test geçmeye devam etmeli. Sprint 158 task'ları source'a dokunmadığı için risk minimal.\n- **Quota optimizasyonu**: Tüm 3 task `gemini-2.5-flash` (Code Assist free tier en cömert quota) — `gemini-2.5-pro` \"No capacity\" sıkıntısından kaçındık.",
+  "model": "gemini-2.5-flash",
+  "effort": "low",
+  "priority": "NORMAL",
+  "reason": "Directive (model: gemini-2.5-flash -- user override)",
+  "scope": {
+    "directories": [
+      "docs/audits/",
+      "docs/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-158-changelog-drift.md",
+      "docs/CHANGELOG.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** `ls docs/audits/sprint-158-changelog-drift.md` → dosya var; en az 5 entry sınıflandırılmış.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "DONE",
+  "sprintId": "sprint-158",
+  "provider": "claude",
+  "forceModel": "gemini-2.5-flash",
+  "forceEffort": "low",
+  "forceSkills": [
+    "documentation-writer"
+  ],
+  "assignedAgent": "doc-writer",
+  "assignedSkills": [
+    "documentation-writer"
+  ],
+  "createdAt": "2026-05-07T11:57:27.714Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "documentation",
+        "secondary": [],
+        "confidence": 0.95
+      },
+      "tags": [],
+      "domains": [
+        {
+          "name": "docs",
+          "weight": 1
+        }
+      ],
+      "operations": [
+        {
+          "type": "document",
+          "weight": 0.43
+        },
+        {
+          "type": "modify",
+          "weight": 0.29
+        },
+        {
+          "type": "test",
+          "weight": 0.14
+        },
+        {
+          "type": "create",
+          "weight": 0.14
+        }
+      ],
+      "complexity": {
+        "fileCount": 2,
+        "moduleCount": 1,
+        "crossCutting": false,
+        "estimatedSize": "small"
+      },
+      "scope": {
+        "writeRatio": {
+          "docs/": 1
+        },
+        "primaryWriteTarget": "docs/",
+        "testWriteRatio": 0
+      }
+    },
+    "confidence": "high",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 1821,
+  "updatedAt": "2026-05-07T12:28:45.053Z"
+}

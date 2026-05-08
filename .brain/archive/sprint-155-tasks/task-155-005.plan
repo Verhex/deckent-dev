@@ -1,0 +1,36 @@
+# Task 155-005 Execution Plan — Sprint 154 Retro + Memory Sync
+
+## Approach
+
+Documentation-only task. No source code changes. Three files to update:
+
+1. **`.brain/RETRO.md`** — Replace with Sprint 154 retrospective (the file is
+   overwritten each sprint, not appended). Sprint 153 content is stale.
+
+2. **`.brain/exports/memory.md`** — Prepend a new "Sprint sprint-154 Learnings"
+   section at the top (after the header). The file accumulates newest-first.
+
+3. **`docs/SPRINT-LOG.md`** — Append a Sprint 154 section at the end (after
+   Sprint 153 entry).
+
+## Sprint 154 Summary (from git log)
+
+- **da7c93f** — Gemini OAuth + multi-provider Docker backend (Faz A + A.5)
+- **fe5c3a4** — Provider auth schema (Faz B) + effort translator (Faz C) + doctor dedup
+- **b388d7d** — Audit deliverables + ADR-043/044 + memory exports
+- **a285961** — CHANGELOG + BETA-TRACKER + DIRECTIVES Sprint 155
+
+## Three Key Learnings (from DIRECTIVES.md Task 5 spec)
+
+1. "PASS" claim ≠ live evidence (gate #8 unit-test-based pass → Docker E2E reveals hardcoded-claude bug)
+2. Mount UID pollution playbook (docker run --rm alpine rm -rf)
+3. Bisect playbook (kademeli debug: --skip-trust → RW mount → provider-aware cmd → UID cleanup)
+
+## Files Changed
+- .brain/RETRO.md (replace)
+- .brain/exports/memory.md (prepend new section)
+- docs/SPRINT-LOG.md (append)
+
+## Verify
+N/A (documentation only — tsc/vitest not applicable to .md files)
+Self-assessment: DONE if all three files are updated with sprint-154 content.

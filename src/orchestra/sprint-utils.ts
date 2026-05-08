@@ -4,7 +4,7 @@
 
 import {
   readFileSync, existsSync, writeFileSync,
-  mkdirSync, unlinkSync, statSync,
+  mkdirSync, unlinkSync, statSync, renameSync,
 } from 'node:fs';
 import { join } from 'node:path';
 
@@ -260,6 +260,102 @@ export function clearSprintState(projectRoot: string): void {
   } catch (e) {
     debugLog('clearSprintState:unlinkSync', e);
   }
+}
+
+// ═══ Recovery Helper (Sprint 162A — Bug R2) ══════════════════════════
+
+/**
+ * Delta describing the result of a successful resetSprintStateOnRecover()
+ * call. Returned by the helper so callers can emit telemetry events.
+ */
+export interface SprintStateResetDelta {
+  sprintId: string;
+  oldPhase: string;
+  oldStatus: string;
+  newPhase: string;
+  newStatus: string;
+  updatedAt: string;
+}
+
+/**
+ * Atomically reset sprint-state.json to a terminal state after
+ * `deckent recover`.
+ *
+ * Unlike clearSprintState (which deletes) or writeSprintState (which
+ * requires a full Sprint object), this writer mutates ONLY four fields
+ * on the existing state file:
+ *   - phase       → COMPLETE
+ *   - status      → ABORTED  (terminal, recovered-from-crash; NOT 'FAILED'
+ *                            — 'FAILED' is not a SprintStatus enum member)
+ *   - updatedAt   → fresh ISO timestamp
+ *   - completedAt → fresh ISO timestamp (added; signals terminal write)
+ *
+ * Atomicity: writes to `<path>.recover-tmp`, then renameSync — POSIX
+ * rename(2) is atomic on the same filesystem. Failure leaves the
+ * original file untouched (preferable to clearSprintState's unlink()
+ * which loses audit trail on partial failure).
+ *
+ * Returns the {oldPhase, oldStatus, newPhase, newStatus} delta for
+ * telemetry. Returns null if no existing state file (nothing to reset)
+ * or if the file is malformed (best-effort, no throw).
+ *
+ * ADR-037 V2 §7 RBAC: this helper is intended to be called ONLY from
+ * `cli/commands/recover.ts` (Brain-tier surface). It is NOT exposed via
+ * Auditor or Worker code paths.
+ */
+export function resetSprintStateOnRecover(
+  projectRoot: string,
+): SprintStateResetDelta | null {
+  const statePath = join(projectRoot, SPRINT_STATE_FILE);
+  if (!existsSync(statePath)) {
+    return null;
+  }
+
+  let existing: SprintState;
+  try {
+    existing = JSON.parse(readFileSync(statePath, 'utf-8')) as SprintState;
+  } catch (e) {
+    debugLog('resetSprintStateOnRecover:parseExisting', e);
+    return null;
+  }
+
+  const oldPhase = String(existing.phase ?? 'UNKNOWN');
+  const oldStatus = String(existing.status ?? 'UNKNOWN');
+  const updatedAt = now();
+
+  const next: SprintState & { completedAt?: string } = {
+    sprintId: existing.sprintId,
+    phase: 'COMPLETE' as import('../core/types.js').SprintPhase,
+    status: 'ABORTED',
+    startedAt: existing.startedAt ?? updatedAt,
+    updatedAt,
+    taskIds: Array.isArray(existing.taskIds) ? existing.taskIds : [],
+    completedAt: updatedAt,
+  };
+
+  // Atomic temp+rename
+  const tmpPath = `${statePath}.recover-tmp`;
+  try {
+    mkdirSync(join(projectRoot, '.deckent'), { recursive: true });
+    writeFileSync(tmpPath, JSON.stringify(next, null, 2), 'utf-8');
+    renameSync(tmpPath, statePath);
+  } catch (e) {
+    debugLog('resetSprintStateOnRecover:atomicWrite', e);
+    // Best-effort cleanup of temp file
+    try {
+      if (existsSync(tmpPath)) unlinkSync(tmpPath);
+    } catch { /* swallow */ }
+    return null;
+  }
+
+  return {
+    sprintId: existing.sprintId,
+    oldPhase,
+    oldStatus,
+    newPhase: 'COMPLETE',
+    newStatus: 'ABORTED',
+    updatedAt,
+  };
 }
 
 

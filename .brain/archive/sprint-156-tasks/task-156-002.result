@@ -1,0 +1,27 @@
+{
+  "taskId": "156-002",
+  "workerId": "w-156-002",
+  "filesChanged": [
+    "docs/audits/sprint-156-development-staleness.md"
+  ],
+  "linesAdded": 158,
+  "linesRemoved": 0,
+  "testsPassed": true,
+  "coverage": 0,
+  "selfAssessment": "DONE",
+  "notes": "Audit complete. Read all 6 files in docs/development/ (agent-guide, brain-guide, dashboard-guide, plugin-guide, troubleshooting, worker-guide). Found 28 distinct stale references or dead links across all files. Key findings:\n\n1. agent-guide.md: Section 2 says '8 Agents' but there are 15; test-writer removed Sprint 148; 3 agents renamed; 9 agents missing entirely.\n2. brain-guide.md: 3 dead cross-links (ARCHITECTURE.md, CONFIG-REFERENCE.md, wrong DECKENT-MASTER-BLUEPRINT.md path); entire Memory Management section replaced by Memory V2 SQLite DB-first; brain_model → brain_tier.\n3. dashboard-guide.md: 3 dead links; Pages table shows 4 pages, actual is 7.\n4. worker-guide.md: Missing tokenUsage in result JSON example (enforced since Sprint 140 — HIGH risk for workers).\n5. plugin-guide.md: deckent plugin enable/disable commands documented but don't exist in source.\n6. troubleshooting.md: Last updated Sprint 065; Node ≥18 stated 3x but requirement is ≥20 since Sprint 153; Brain Budget says 600 lines but actual is 900.\n\nNo source code was modified. No TODO/FIXME/deprecated keywords found in files. All source paths verified via filesystem. Report at docs/audits/sprint-156-development-staleness.md (158 lines, 10+ stale reference rows as required).",
+  "completedAt": "2026-05-07T11:20:00.000Z",
+  "tokenUsage": {
+    "inputTokens": 28500,
+    "outputTokens": 4200,
+    "cacheReadTokens": 0,
+    "provider": "claude",
+    "model": "sonnet"
+  },
+  "rubricScores": {
+    "correctness": 100,
+    "test_coverage": 100,
+    "scope_compliance": 100,
+    "documentation": 95
+  }
+}

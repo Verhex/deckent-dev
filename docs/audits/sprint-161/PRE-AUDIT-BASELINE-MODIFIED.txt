@@ -1,0 +1,7 @@
+DIRECTIVES.md
+docs/CHANGELOG.md
+docs/SPRINT-LOG.md
+docs/audits/sprint-139/dead-code-report.md
+src/cli/commands/cleanup.ts
+src/orchestra/sprint-docs-updater.ts
+src/orchestra/sprint-lifecycle.ts

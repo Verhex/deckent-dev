@@ -1,0 +1,20 @@
+# Plan — Task 162-030: src/mcp/ — lifecycle + planning tools (READ-ONLY audit)
+
+## Scope
+- Read-only audit of 9 MCP tools: init, set_directives, plan, start, status, kill, cleanup, run, checkpoint
+- Contextual reads: src/mcp/server.ts, src/mcp/tools/index.ts, src/mcp/helpers/
+- Cross-reference with src/cli/commands/ counterparts for ADR-022-V2 parity
+- Single output file: docs/audits/sprint-162-live/T-162-LIVE-030-mcp-lifecycle-plan.md
+
+## Approach
+1. Parallel read: 9 MCP tool files + tools/index.ts + server.ts + helpers
+2. Parallel read: 9 corresponding CLI command files for parity comparison
+3. Apply 10 audit dimensions per file
+4. Lead questions: parameter schema parity (ADR-022-V2), error propagation, read-only flag correctness
+5. Triage each file: KEEP-PRIVATE | MIGRATE-PUBLIC | DELETE-CANDIDATE | UNCERTAIN
+6. Severity levels: P0/P1/P2/P3
+7. Recommendations for Sprint 162+ (no code changes)
+
+## Verify
+- N/A (read-only audit)
+- `tsc --noEmit` only as guard rail (no source code touched)

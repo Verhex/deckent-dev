@@ -1,0 +1,15 @@
+Here's a summary of what was implemented for task 155-003:
+
+---
+
+**Model Registry Remote Refresh — Implemented**
+
+**Files changed:**
+- `src/core/model-registry.ts` — Added `_lastRefresh` state, `staleAfterMs = 7d`, and methods: `setLastRefresh()`, `getLastRefresh()`, `getLastRefreshAll()`, `isStale()`
+- `src/core/model-registry-refresh.ts` *(new)* — Complete refresh module: `loadRefreshState`, `saveRefreshState`, `refreshProvider`, `refreshAllProviders`, `formatRefreshAge`, plus Anthropic/OpenAI/Gemini API fetch functions
+- `src/cli/commands/doctor-checks.ts` — Added `checkModelRegistryStale()` wired into `runDoctorChecks()`, plus `runModelRegistryRefresh()` export for `--refresh-models` CLI integration
+- `tests/core/model-registry-refresh.test.ts` *(new, 23 tests)* — Covers: state I/O round-trip, `isStale()` behavior, graceful skip without API keys, malformed response resilience, discovery, parallel `refreshAllProviders`, age formatting
+
+**Test results:** 101/101 pass (23 new + 78 existing). No new TypeScript errors.
+
+**Tech debt (GO_WITH_TECH_DEBT):** `tests/cli/commands/doctor.test.ts:642` expects `/17/` but `runDoctorChecks` now returns 18 checks — trivial 1-char fix (`/17/` → `/18/`) but that file is outside write scope (`tests/cli/commands/` not in `tests/core/`). The `--refresh-models` CLI flag wiring in `doctor.ts` is also outside scope but `runModelRegistryRefresh()` is exported and ready.

@@ -3,6 +3,24 @@
 
 # Project: deckent
 
+## Vision Discipline (HARD RULES — non-negotiable)
+
+**Deckent is a god-level (enterprise+) PRODUCT, NOT a service/hizmet.**
+Targeting **millions of users** worldwide as the open-source AI orchestrated agent autonomous platform — alternative/competitor/superior to OpenClaw (343K stars), Microsoft Claude Cowork, Devin. Self-hosted, multi-provider (Claude + Codex + Gemini + future), every-language project support, both subscription AND API auth, runs on user's own server/computer.
+
+**FORBIDDEN words/concepts when planning Deckent work:**
+- ❌ "MVP" / "minimum viable" / "minimum"
+- ❌ "geçici çözüm" / "temporary fix" / "quick fix"
+- ❌ "smaller scope" / "azaltma" / "küçültme"
+- ❌ "lite version" / "basic version"
+
+**REQUIRED disciplines:**
+- ✅ Every plan must be designed at god-level scope (test + observability + ADR + benchmark + i18n + accessibility + security)
+- ✅ Beta GA criteria must match Devin/Cowork/OpenClaw enterprise tier — not "okay enough"
+- ✅ Sprint scope can grow if correctness demands; never shrink for convenience
+- ✅ Ship & iterate is fine, but each iteration delivers complete-tier work
+- ✅ See ROADMAP-GOD-LEVEL.md (canonical document) — Phase 5 (Sprint 181-200) gate "50K+ stars" stays
+
 ## Rules
 @DIRECTIVES.md
 @.brain/exports/summary.md
@@ -97,20 +115,35 @@ Komutlar: `deckent status`, `deckent history`, `deckent retro`, `deckent recall 
 ## Sprint Metrics
 | Metric | Value |
 |--------|-------|
-| Sprint | sprint-155 |
-| Total Tasks | 5 |
-| Completed | 4 |
-| Tech Debt | 1 |
-| No-Go | 1 |
-| Duration | 23dk 12sn |
-| Coverage | 40.0% |
+| Sprint | sprint-162a (T4 god-level hot fix) + sprint-162-live (smoke verification) |
+| Status | PARTIAL SUCCESS — 8/8 known bug closed (A/B/C/R2-R5/Stall), Bug X discovered |
+| Brain reported (sprint-162-live finalize) | 16 done / 5 tech debt / 40 NO_GO / 54dk |
+| **Forensic reality** (live W1 monitor): | 40+ task self=DONE eval=DONE; 84 fix.json from Bug X cascade |
+| Brain reported metric vs forensic | Brain's NO_GO=40 IS the Bug X manifestation (dual-evaluator path race) |
+| Sprint 162A T4 deliverables | 8 fix-spec + 14 source files + 14 test files + 4 ADR + 12-lang i18n + ARIA + security review |
+| Total tests added | ~305 |
+| Source LoC | +2703/-801 (69 files) |
+| Beta GA blocker | Bug X cost cascade — Sprint 162B P0 |
 
 ## Active Debt
-_No tech debt record._
+| ID | Severity | Sprint discovered | Description |
+|----|----------|-------------------|-------------|
+| Bug X | P0 | 162-live | Dual-evaluator stale-state path race; fix_phase_timeout batch triggers NO_GO synthesis despite reconcile DONE |
+| Bug X-cost | P0 | 162-live | Bug X cascade ~2x token consumption (Sprint 162B fix critical for cost control) |
+| R5-deferred-sites | P1 | 162A | 5 cleanup sites: mcp/tools/cleanup, archivePromptFiles, providers/claude, kill.ts, prompt-linter |
+| Test fixture digit-prefix migration | P1 | 162A | 4 unit tests: sprint-docs-cleanup × 2, brain-provider × 2 |
+| Subagent loop limit | P2 | 162A meta | Claude Code subagents cannot persistent loop — ADR-043 amendment for controller-side dispatch |
+| Build-after-spawn race | P2 | 162-failed-build-race | Brain pre-flight dist mtime check needed |
+| `eval_heartbeat_grace_multiplier` config registration | P3 | 162A Wave 1 | Wave 1 used `?? 2` fallback; needs config-types.ts registration |
 
-## Agent Performance
-| Agent | Tasks | Done | Success |
-|-------|-------|------|--------|
+## Agent Performance (Sprint 162A subagent dispatches + Brain workers)
+| Agent / role | Tasks | Done | Notes |
+|--------------|-------|------|-------|
+| CC: 8 paralel investigation subagent | 8 | 8 | 100% — all fix-specs delivered |
+| CC: 5 sequential implementer subagent (Wave 1+2) | 5 | 5 | 100% — 14+93+22+41 tests pass + multi-lang adapter |
+| CC: 4 paralel cross-cutting subagent (Wave 3) | 4 | 4 | 100% — events + 12-lang i18n + ARIA + security |
+| CC: Sprint 161 consolidator | 1 | 1 | 100% — 5 deliverables, 356 finding aggregated |
+| CC: live monitor W1/W2/W3 | 3 | 3 | delegate-exit pattern (loop limit observed) |
+| Deckent worker (Sprint 162-live, opus) | ~50 | 16 (Brain count) / 40+ (forensic) | Bug X cascade triggered 84 fix.json |
 | architect | 2 | 1 | 50% |
-| security-auditor | 1 | 1 | 100% |
-| doc-writer | 2 | 2 | 100% |
+| doc-writer | 54 | 15 | 28% (Bug X cascade affected metric) |

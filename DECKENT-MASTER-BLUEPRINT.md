@@ -7,13 +7,15 @@
 ## Live Metrics
 | Metric | Value |
 |--------|-------|
-| Sprint | sprint-148 |
-| Total Tasks | 28 |
-| Completed | 27 |
-| Tech Debt | 1 |
-| No-Go | 1 |
-| Duration | 60dk 47sn |
-| Coverage | 0.0% |
+| Sprint | sprint-162a (T4 god-level hot fix — PARTIAL SUCCESS) |
+| Status | 8/8 known bugs closed (A/B/C/R2-R5/Stall) + Bug X discovered |
+| Tests added (Sprint 162A) | ~305 |
+| Source LoC delta | +2703/-801 (69 files) |
+| ADRs (Sprint 162A) | 3 V2 amendments (035/037/039) + 1 NEW (047 multi-lang adapter) |
+| Multi-language stacks | 6 baseline (TS/Py/Go/Rust/Java/C#) |
+| i18n languages | 12 (en/tr/de/fr/es/it/pt/ru/ja/ko/zh/ar) |
+| Beta GA blocker | Bug X cost cascade — Sprint 162B P0 target |
+| Sprint history (notable) | 161 FAILED (god-audit) → 162-failed-build-race → 162a T4 impl → 162-live PARTIAL |
 
 # TABLE OF CONTENTS
 

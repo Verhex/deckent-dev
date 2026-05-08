@@ -1,0 +1,93 @@
+{
+  "id": "162-052",
+  "title": ".deckent/ root files (config, manifests, archives)",
+  "description": ".deckent/ root files (config, manifests, archives)\n- Model: sonnet\n- Effort: normal\n- Skills: documentation-writer\n- Files: docs/audits/sprint-162-live/T-162-LIVE-052-deckent-root.md\n- Scope: .deckent/\n\n### Description\nREAD-ONLY audit of .deckent/config.json, project-stack.json, provider-cache.json,\nfeatures-manifest.json, ci-baseline.json, decisions/, archive/. Lead: schema\nvalidation, staleness, retention compliance.\n\n**Kanıt:** Single audit report.\n**Test:** N/A.\n\n---",
+  "model": "sonnet",
+  "effort": "normal",
+  "priority": "NORMAL",
+  "reason": "Directive (model: sonnet -- user override)",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      ".deckent/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-052-deckent-root.md",
+      "config.json",
+      "project-stack.json",
+      "provider-cache.json"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "forceModel": "sonnet",
+  "forceEffort": "normal",
+  "forceSkills": [
+    "documentation-writer"
+  ],
+  "assignedAgent": "doc-writer",
+  "assignedSkills": [
+    "documentation-writer"
+  ],
+  "createdAt": "2026-05-08T14:41:19.389Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "documentation",
+        "secondary": [
+          "config"
+        ],
+        "confidence": 0.9
+      },
+      "tags": [],
+      "domains": [
+        {
+          "name": "docs",
+          "weight": 0.33
+        }
+      ],
+      "operations": [
+        {
+          "type": "document",
+          "weight": 0.4
+        },
+        {
+          "type": "test",
+          "weight": 0.2
+        },
+        {
+          "type": "configure",
+          "weight": 0.2
+        },
+        {
+          "type": "create",
+          "weight": 0.2
+        }
+      ],
+      "complexity": {
+        "fileCount": 4,
+        "moduleCount": 2,
+        "crossCutting": true,
+        "estimatedSize": "medium"
+      },
+      "scope": {
+        "writeRatio": {
+          "docs/": 0.25,
+          "./": 0.75
+        },
+        "primaryWriteTarget": "./",
+        "testWriteRatio": 0
+      }
+    },
+    "confidence": "high",
+    "routingVersion": "v2"
+  },
+  "updatedAt": "2026-05-08T15:22:19.657Z"
+}

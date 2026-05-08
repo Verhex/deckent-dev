@@ -1,0 +1,27 @@
+# Task 162-010-fix Execution Plan
+
+## Context
+Original task 162-010 produced a 281-line / 25 KB audit report covering
+src/core/{validators, utils, sprint-file-retention, orphan-cleaner}.ts.
+Brain marked it NO_GO. Original worker notes claim: "tsc clean", "vitest skipped".
+This fix re-runs verification, re-validates findings, and updates the report
+where evidence has drifted (line numbers, ADR cross-refs, citations).
+
+## Approach
+1. Read existing report (T-162-LIVE-010-core-validators-utils.md)
+2. Re-verify each P1/P2 finding against current source (validators.ts, utils.ts,
+   sprint-file-retention.ts, orphan-cleaner.ts) — confirm file:line citations
+3. Run `tsc --noEmit` to confirm baseline build state
+4. Run `vitest run` (filtered if needed) to confirm tests pass
+5. Update report with: (a) verification evidence block, (b) corrected
+   citations, (c) explicit "verified by 162-010-fix" timestamps where findings
+   were re-confirmed
+6. Write .result with selfAssessment = DONE if all verifications pass
+
+## Files to modify
+- docs/audits/sprint-162-live/T-162-LIVE-010-core-validators-utils.md (ONLY)
+
+## Verification
+- tsc --noEmit (must pass cleanly)
+- npx vitest run (must pass — note: report-only changes do not affect tests)
+- git diff --stat (must show only audit report addition)

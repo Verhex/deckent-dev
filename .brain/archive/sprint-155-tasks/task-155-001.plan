@@ -1,0 +1,74 @@
+# Task 155-001 — Runtime Fallback Chain (429/Capacity Auto-Recovery) — Execution Plan
+
+## Goal
+Add runtime auto-recovery for 429/capacity/quota provider errors. When a worker
+output (notes/errorOutput) signals a capacity error, Brain should swap the task's
+provider to `config.fallback_provider` and respawn — once per task, no infinite
+loops. Worker's tokenUsage.provider on the retried .result must reflect the
+fallback so post-mortem can see what was actually used.
+
+## Files to Create / Modify
+1. **CREATE** `src/core/provider-fallback.ts`
+   - `detectCapacityError(workerOutput: string): CapacityErrorDetection`
+   - `CapacityErrorDetection` interface: `{ hit: boolean; reason: string; provider: ProviderName | null }`
+   - Per-provider regex tables: gemini ("No capacity available", "RESOURCE_EXHAUSTED"),
+     openai ("rate_limit_exceeded", "insufficient_quota", "429"), claude
+     ("overloaded_error", "529", "Anthropic API: 529 Overloaded").
+   - Pure function — easy to unit test.
+   - `selectFallbackProvider(currentProvider: ProviderName | undefined, fallbackProvider: ProviderName | undefined): ProviderName | null`
+     — refuses no-op (current === fallback) and returns null when fallback unset.
+   - `MAX_FALLBACK_RETRIES = 1` constant.
+
+2. **MODIFY** `src/orchestra/result-evaluator.ts`
+   - Add `RetryWithFallbackEvaluation` interface returned alongside existing
+     evaluation when capacity error is detected.
+   - Add `evaluateForFallback(result, task, fallbackProvider): { needsFallback: boolean; reason: string; targetProvider: ProviderName | null }`
+   - Pure function: NO_GO + capacity error + fallback configured + no prior
+     fallback retry → emit RetryWithFallback signal.
+   - Re-export from index for sprint-controller.
+
+3. **MODIFY** `src/orchestra/sprint-controller.ts`
+   - Add `runFallbackRetry(projectRoot, task, originalResult, fallbackProvider, spawnBackend): Promise<TaskResult | null>`
+     — swaps task.provider, marks task.fallbackRetried=true, respawns via
+     spawnBackend, waits for new result, returns it (or null on timeout).
+   - Wire into FIX phase: before normal fix logic, scan NO_GO results for
+     capacity errors and run fallback retries first. Successful fallback
+     promotes the evaluation (NO_GO → DONE/GO_WITH_TECH_DEBT).
+   - Keep additive: FIX phase still runs as before for non-capacity NO_GOs.
+
+4. **CREATE** `tests/orchestra/fallback-chain.test.ts`
+   - 8+ tests covering:
+     1. `detectCapacityError` — Gemini "No capacity available for model X"
+     2. `detectCapacityError` — OpenAI "rate_limit_exceeded" (and 429)
+     3. `detectCapacityError` — Claude "overloaded_error" / 529
+     4. `detectCapacityError` — generic non-capacity message → no hit
+     5. `selectFallbackProvider` — fallback unset → null
+     6. `selectFallbackProvider` — fallback === current → null (no self-loop)
+     7. `evaluateForFallback` — NO_GO + capacity + fallback configured → needs fallback
+     8. `evaluateForFallback` — selfAssessment DONE + capacity in notes → no retry
+     9. `evaluateForFallback` — task.fallbackRetried=true → no second retry (max-1)
+     10. (sprint-controller integration via mock spawn — skipped if too brittle)
+
+## Constraints
+- ADR-001/002: ESM with .js extensions in imports.
+- ADR-008: sprint-controller can import from result-evaluator/spawn-backend, but
+  result-evaluator and provider-fallback must NOT import from sprint-controller.
+- Pure functions (provider-fallback.ts, evaluateForFallback) — no side effects.
+- Add `fallbackRetried?: boolean` to Task interface — but Task is in core/types
+  which is OUT of scope (filesWrite). Use a sidecar Map keyed by taskId in
+  sprint-controller, OR put the flag on the Task at runtime (TS structural
+  typing allows, since Task is open-shaped). Decision: keep state in a
+  per-sprint Set<string> inside the FIX phase to avoid touching core/types.
+
+## Verify Steps
+1. `npx tsc --noEmit`
+2. `npx vitest run tests/orchestra/fallback-chain.test.ts`
+3. `npx vitest run` — full suite (avoid regressions)
+
+## Risk Notes
+- Modifying sprint-controller is the highest-risk part (738 LoC orchestration).
+  Mitigation: add the fallback retry loop as a small, opt-in helper invoked
+  BEFORE runFixPhase rather than inside it. Skip entirely when no NO_GOs have
+  capacity signals.
+- Self-modifying task warning is active — ADR-039. We're touching
+  src/orchestra/ + src/core/. Stay strictly within scope.filesWrite.

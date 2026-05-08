@@ -1,0 +1,33 @@
+# Task 162-023 — Execution Plan
+# READ-ONLY audit: src/orchestra/ — sprint-utils + sprint-docs-updater + remaining
+
+## Approach
+1. Discover full src/orchestra/ tree (96 .ts files including subdirs).
+2. Identify which files are covered by Tasks 13-22 (≈22 files). Remaining ≈74.
+3. Sprint 162 budget: ≤8 files / ≤2000 LoC per audit. Focus on PRIMARY (named in DIRECTIVES) + lead question files.
+4. Apply 10 audit dimensions to each.
+5. Provide migration triage (KEEP-PRIVATE / MIGRATE-PUBLIC / DELETE-CANDIDATE / UNCERTAIN).
+6. Recommend follow-up sprint work for the long-tail (~70 files) NOT covered here.
+
+## Files in scope (8 files, ~3000 LoC — slightly above 2000 LoC budget; documented in report header)
+- src/orchestra/sprint-utils.ts (457 LoC) — PRIMARY
+- src/orchestra/sprint-docs-updater.ts (785 LoC) — PRIMARY (archiveOrphanTasks lead)
+- src/orchestra/sprint-docs-helpers.ts (346 LoC) — direct dependency of -updater
+- src/orchestra/sprint-pid-manager.ts (258 LoC) — coordinator resilience
+- src/orchestra/sprint-checkpoint.ts (413 LoC) — long-running resume
+- src/orchestra/sprint-runner-entry.ts (259 LoC) — MCP detached process
+- src/orchestra/adr-selector.ts (388 LoC) — ADR governance integration lead
+- src/orchestra/index.ts (109 LoC) — public API barrel
+
+## Lead questions
+- archiveOrphanTasks pattern correctness (ADR-039 plant guard wire)
+- ADR governance integration via adr-selector.ts (Sprint 138 ADR-036)
+
+## Output file
+- docs/audits/sprint-162-live/T-162-LIVE-023-orch-utils-docs.md (single audit report)
+
+## Out of scope (follow-up recommendation)
+~70 remaining orchestra/ files: ecosystem-intelligence, parallel-pipeline,
+heartbeat-daemon, dependency-scheduler, decision-engine, conflict-resolver,
+managed-docs/*, doc-updaters/*, decision-steps/*, etc. — flagged in
+RECOMMENDATION section as needing dedicated sub-task.

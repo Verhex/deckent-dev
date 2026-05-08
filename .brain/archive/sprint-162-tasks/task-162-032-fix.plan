@@ -1,0 +1,21 @@
+# Plan: T-162-LIVE-032 Fix — MCP Advanced + Nervous Tools READ-ONLY Audit
+
+## Goal
+Produce single audit report at docs/audits/sprint-162-live/T-162-LIVE-032-mcp-advanced-nervous.md
+covering MCP tools: feature_query, recover, docs, memory_query, sync, config,
+nervous_subscribe/accept/reject/status/config (5 tools).
+
+## Approach
+1. Enumerate src/mcp/tools/ to identify which tool files exist
+2. Read each tool file and helpers/resources used by them
+3. Apply 10 audit dimensions to each
+4. Lead questions: ADR-040 nervous accept/reject wire, MCP feature query manifest
+5. Write single report with Scope, Findings (P0..P3), Evidence (file:line),
+   Migration triage (KEEP-PRIVATE | MIGRATE-PUBLIC | DELETE-CANDIDATE | UNCERTAIN),
+   Recommendation per file/area
+
+## Constraints
+- READ-ONLY — only docs/audits/sprint-162-live/T-162-LIVE-032-*.md may be written
+- Workers MUST NOT touch src/, .deckent/, .brain/, tests/
+- ADR-037 RBAC + ADR-039 self-modifying detector active
+

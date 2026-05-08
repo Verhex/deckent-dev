@@ -1,0 +1,31 @@
+{
+  "id": "162-023-fix",
+  "title": "Fix: src/orchestra/ — sprint-utils + sprint-docs-updater + remaining",
+  "description": "Priority fix for NO_GO task 162-023.\nOriginal worker notes: READ-ONLY audit complete per Sprint 162 Lane 1 Task 23 (DIRECTIVES). Single audit report written to docs/audits/sprint-162-live/T-162-LIVE-023-orch-utils-docs.md (33KB, 348 lines). 8 PRIMARY orchestra/ files deep-audited (~3015 LoC, slightly over 2000 LoC budget — documented honestly in §1A header): sprint-utils.ts (457), sprint-docs-updater.ts (785), sprint-docs-helpers.ts (346), sprint-pid-manager.ts (258), sprint-checkpoint.ts (413), sprint-runner-entry.ts (259), adr-selector.ts (388), index.\nRubric: correctness=90, test_coverage=100, scope_compliance=100\nExpected scope: docs/audits/sprint-162-live/, src/orchestra/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-023-orch-utils-docs.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-023 evaluated as NO_GO; correctness=90; test_coverage=100; scope_compliance=100",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/orchestra/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-023-orch-utils-docs.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-023",
+  "createdAt": "2026-05-08T15:19:11.494Z",
+  "updatedAt": "2026-05-08T15:36:17.389Z"
+}

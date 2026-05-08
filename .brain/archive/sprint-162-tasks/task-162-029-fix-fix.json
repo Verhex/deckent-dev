@@ -1,0 +1,30 @@
+{
+  "id": "162-029-fix-fix",
+  "title": "Fix: Fix: src/cli/ — entry + helpers + register*",
+  "description": "Priority fix for NO_GO task 162-029-fix.\nOriginal worker notes: READ-ONLY audit task per Sprint 162 Lane 1 mandate. Single audit report written at docs/audits/sprint-162-live/T-162-LIVE-029-cli-entry-register.md (316 LoC, 16 findings, 9 recommendations). Scope src/cli/ entry + helpers + register* covered (entry.ts, index.ts, auto-setup.ts, version-info.ts, helpers/* = 34 files, commands/* registration signatures = 47 register*(program) calls verified). Applied all 10 audit dimensions. Verified key claims via independent grep: (1) 47 register*(program) calls \nRubric: correctness=95, test_coverage=100, scope_compliance=100\nExpected scope: docs/audits/sprint-162-live/, src/cli/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-029-cli-entry-register.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-029-fix evaluated as NO_GO; correctness=95; test_coverage=100; scope_compliance=100",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/cli/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-029-cli-entry-register.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "PENDING",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-029-fix",
+  "createdAt": "2026-05-08T15:36:17.389Z"
+}

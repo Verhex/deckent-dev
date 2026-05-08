@@ -1,0 +1,21 @@
+# Task 155-003-fix Execution Plan
+
+## Issue Summary
+Task 155-003 was evaluated as NO_GO due to:
+1. `throw new Error()` in `src/core/model-registry-refresh.ts` — violates error-handling convention (all src/core/ must use DeckentError)
+2. `tests/cli/commands/doctor.test.ts:642` — stale check count expectation (`/17/` → needs `/18/`) because checkModelRegistryStale was added
+
+## Files to Modify
+
+### Fix 1: `src/core/model-registry-refresh.ts`
+- Lines 95, 145, 191: Replace `throw new Error(\`HTTP ${res.status}\`)` with `throw new DeckentError('E_PROVIDER_HTTP_ERROR', ...)`
+- Add DeckentError import
+
+### Fix 2: `tests/cli/commands/doctor.test.ts:642`
+- Change `/\/17/` to `/\/18/` — runDoctorChecks now returns 18 checks (Sprint 155 added checkModelRegistryStale)
+
+## Verify Steps
+1. `tsc --noEmit` — must be clean (only pre-existing sprint-controller.ts errors from Task 1 allowed)
+2. `npx vitest run tests/core/model-registry-refresh.test.ts` — all 23 tests must pass
+3. `npx vitest run tests/cli/commands/doctor.test.ts` — all 187 tests must pass (fixing the /17/ stale count)
+4. `npx vitest run` — full suite, check new failures only

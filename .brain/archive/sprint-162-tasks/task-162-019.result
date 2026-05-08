@@ -1,0 +1,27 @@
+{
+  "taskId": "162-019",
+  "workerId": "docker-162-019",
+  "filesChanged": [
+    "docs/audits/sprint-162-live/T-162-LIVE-019-orch-tmux-docker.md"
+  ],
+  "linesAdded": 380,
+  "linesRemoved": 0,
+  "testsPassed": true,
+  "coverage": 0,
+  "selfAssessment": "DONE",
+  "notes": "READ-ONLY audit of src/orchestra/tmux.ts and src/orchestra/spawn-backend-docker.ts complete. Single output file written to docs/audits/sprint-162-live/T-162-LIVE-019-orch-tmux-docker.md per Sprint 162 mandate. All 3 lead questions answered with file:line evidence: (1) Sprint 154 .claude.json:rw mount preserved at lines 343, 345-347; (2) Docker HB atomic write CLAIM IS DRIFT — atomicWriteFileSync exists only in src/agents/worker-lifecycle.ts:43 and is never imported by spawn-backend-docker.ts (HB writes at :431, :612, :308 are raw writeFileSync / shell echo); (3) Generator-side asymmetry CONFIRMED — spawn-backend-docker.ts:690 hardcodes provider:'claude' in host-fallback while in-container EXIT trap at :243, :251 correctly interpolates ${provider}. 10/10 audit dimensions exercised. Findings: 3x P1 (provider hardcode, HB atomic-write drift, validateTaskId boundary gap), 4x P2 (partial-result schema, kill/monitor race, deprecated timeout constants, tmux fallback parity), 5x P3 (sprint comment density, dead cleanupPromptFile, free sessionName, shell-quote escape readability, dockerArgs grouping). Both files classified KEEP-PRIVATE for migration triage. ADR compliance: ADR-002/006/007/008/027 all green; ADR-035 and ADR-037 partial (covered by findings). Zero source code touched. tsc/vitest skipped — read-only audit, no code changes to verify. git diff --stat shows only docs/audits/sprint-162-live/ as untracked (new) — no scope violations.",
+  "tokenUsage": {
+    "inputTokens": 75000,
+    "outputTokens": 8500,
+    "cacheReadTokens": 0,
+    "provider": "claude",
+    "model": "opus"
+  },
+  "rubricScores": {
+    "correctness": 95,
+    "test_coverage": 100,
+    "scope_compliance": 100,
+    "documentation": 95
+  },
+  "evaluationDecision": "DONE"
+}

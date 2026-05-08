@@ -1,0 +1,21 @@
+# Plan — task-162-008-fix (Sprint 162 Lane 1)
+
+## Files audited (READ-ONLY, ≤8 files, ~833 LoC)
+- src/core/credentials.ts (265 LoC)
+- src/core/credential-encryption.ts (139 LoC) — transitively required for AES-256-GCM
+- src/core/deck-file.ts (198 LoC)
+- src/core/global-config.ts (73 LoC)
+- src/core/signature.ts (158 LoC)
+
+## Approach
+1. Read each module top-to-bottom; collect findings against 10 audit dimensions.
+2. Cross-reference imports (`grep -r "from '.*credentials'"` etc.) to flag dead exports.
+3. Compare against ADR-014 (.deck), ADR-034 (multi-project isolation), ADR-006 (spawnSync security).
+4. Verify test coverage exists for each module via tests/core/.
+5. Triage every file: KEEP-PRIVATE | MIGRATE-PUBLIC | DELETE-CANDIDATE | UNCERTAIN.
+6. Write findings to docs/audits/sprint-162-live/T-162-LIVE-008-core-credentials-deck.md.
+
+## Output
+- Single audit report markdown with: Scope, Findings (P0/P1/P2/P3), Evidence (file:line), Migration triage, Recommendation.
+- NO source code changes.
+- selfAssessment = DONE if report covers all 5 files across 10 dimensions.

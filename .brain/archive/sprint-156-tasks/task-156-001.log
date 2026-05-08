@@ -1,0 +1,11 @@
+`★ Insight ─────────────────────────────────────`
+Three drift patterns worth noting for future sprint planning:
+1. **Single-point propagation failure**: The Node 18 EOL change in Sprint 153 was applied to one file (README.md) but never propagated to its TR twin — a common "last mile" documentation problem that accumulates over many sprints.
+2. **Header staleness as a leading indicator**: BETA-TRACKER-TR's header date (2026-04-20 vs EN's 2026-05-07) is a reliable proxy for "how far behind is TR" — a simple CI check comparing header dates between EN and TR could catch this automatically.
+3. **Gate reopening inconsistency**: Gate #8 was reopened in EN (Sprint 154 revealed a real architectural gap in `spawn-backend-docker.ts`) but TR still shows it as PASS. This creates a false positive in the TR gate status summary — the type of drift that could mislead a reader about actual beta readiness.
+`─────────────────────────────────────────────────`
+
+**Task 156-001 complete.** The audit report is at `docs/audits/sprint-156-tr-en-sync-report.md` (116 lines). Key findings:
+
+- **README drift (HIGH):** TR still requires Node `>= 18`; EN was updated to `>= 20` (Sprint 153 EOL drop). Two lines affected (requirements table + doctor snippet).
+- **BETA-TRACKER drift (CRITICAL):** TR header is 17 days stale (2026-04-20 vs 2026-05-07), references Sprint 145+ instead of 154, shows 12,485+ tests instead of 15,671, and version 0.4.0-beta.1 instead of v1.0.0-beta.1. Gate #8 incorrectly shows ✅ Sprint 148 while EN reopened it to 🟡 after Sprint 154 discovered the `spawn-backend-docker.ts` hardcoded-Claude bug. Sprint 146-155 phase plan entries are absent from TR entirely.

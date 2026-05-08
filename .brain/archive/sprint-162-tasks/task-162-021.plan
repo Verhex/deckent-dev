@@ -1,0 +1,44 @@
+# Task 162-021 Plan — READ-ONLY Audit
+
+## Goal
+Single audit report at `docs/audits/sprint-162-live/T-162-LIVE-021-orch-adapt-collect.md`.
+
+## Files to audit
+- src/orchestra/mid-sprint-adapter.ts
+- src/orchestra/result-collector.ts
+
+## Audit dimensions (10)
+1. Dead code (unused exports)
+2. ADR violations (44 active ADRs — focus 008/015/024/026/027/035/037)
+3. Conflicting areas (duplicated logic)
+4. Drift (comments vs behavior, claims vs reality)
+5. Type safety (any, ts-ignore, as unknown as)
+6. Dependency hygiene (.js extensions, circular deps)
+7. Documentation pollution
+8. Memory V2 coherence
+9. Config integrity
+10. Migration triage classification
+
+## Lead questions
+- Rerouting on failure — does mid-sprint-adapter actually plug into FIX phase?
+- IPC registry (Sprint 135 T-004) — is askBrain wire intact in result-collector?
+- Result aggregation — fs.watch + IPC dual-channel correctness, race conditions?
+
+## Output sections (mandatory format)
+1. Scope
+2. Findings (P0/P1/P2/P3, dimension, summary)
+3. Evidence (file:line citations)
+4. Migration triage (KEEP-PRIVATE | MIGRATE-PUBLIC | DELETE-CANDIDATE | UNCERTAIN)
+5. Recommendation (Sprint 162+ work — NOT a code change)
+
+## Plan steps
+1. Read full source of both files (chunked if needed)
+2. Cross-reference imports & callers via Grep
+3. Validate ADR claims (008/024/026/027) against code
+4. Tabulate findings with file:line evidence
+5. Write single audit report
+
+## Constraints
+- ABSOLUTE READ-ONLY — no source code edits
+- Single output file: `docs/audits/sprint-162-live/T-162-LIVE-021-orch-adapt-collect.md`
+- No tsc/vitest run (N/A per DIRECTIVES — pure markdown)

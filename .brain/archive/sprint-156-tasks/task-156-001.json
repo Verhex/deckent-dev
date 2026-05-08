@@ -1,0 +1,94 @@
+{
+  "id": "156-001",
+  "title": "README + BETA-TRACKER TR/EN Senk Audit",
+  "description": "README + BETA-TRACKER TR/EN Senk Audit\n- Model: gemini-2.5-flash\n- Effort: low\n- Skills: documentation-writer\n- Files: docs/audits/sprint-156-tr-en-sync-report.md (new)\n- Scope: docs/audits/\n\n### Description\n\n`README.md` (EN), `README-TR.md` (TR), `BETA-TRACKER.md` (EN), `BETA-TRACKER-TR.md` (TR) dosyalarını oku, **drift'leri tespit et** ve `docs/audits/sprint-156-tr-en-sync-report.md` (yeni dosya) altında raporla.\n\n**Çıktı formatı**:\n```markdown\n# Sprint 156 — TR/EN Documentation Sync Audit\n\n## README sync\n| Section | EN status | TR status | Drift? |\n|---------|-----------|-----------|--------|\n| ...     | ...       | ...       | ✓ / ⚠️  |\n\n## BETA-TRACKER sync\n| Gate | EN status | TR status | Drift? |\n|------|-----------|-----------|--------|\n\n## Recommended fixes\n- (5-10 actionable bullet points)\n```\n\n**Salt-okuma + tek dosya yazma** — herhangi bir source veya bilinen md'yi modify etme. Bu task tamamen audit/raporlama, drift fix ayrı bir task'ın işi.\n\n**Kanıt**: `ls docs/audits/sprint-156-tr-en-sync-report.md` → dosya var; içerik markdown table, en az 10 satır.\n\n**Test**: N/A (documentation-only task, no source changes).\n\n---",
+  "model": "sonnet",
+  "effort": "low",
+  "priority": "NORMAL",
+  "reason": "Directive (model: sonnet -- user override)",
+  "scope": {
+    "directories": [
+      "docs/audits/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-156-tr-en-sync-report.md (new)",
+      "docs/audits/sprint-156-tr-en-sync-report.md",
+      "README.md",
+      "README-TR.md",
+      "BETA-TRACKER.md",
+      "BETA-TRACKER-TR.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; `ls docs/audits/sprint-156-tr-en-sync-report.md` → dosya var; içerik markdown table, en az 10 satır.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "DONE",
+  "sprintId": "sprint-156",
+  "provider": "claude",
+  "forceModel": "gemini-2.5-flash",
+  "forceEffort": "low",
+  "forceSkills": [
+    "documentation-writer"
+  ],
+  "assignedAgent": "architect",
+  "assignedSkills": [
+    "documentation-writer"
+  ],
+  "createdAt": "2026-05-07T11:10:04.501Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "documentation",
+        "secondary": [],
+        "confidence": 0.95
+      },
+      "tags": [],
+      "domains": [
+        {
+          "name": "docs",
+          "weight": 0.43
+        }
+      ],
+      "operations": [
+        {
+          "type": "modify",
+          "weight": 0.33
+        },
+        {
+          "type": "document",
+          "weight": 0.33
+        },
+        {
+          "type": "create",
+          "weight": 0.22
+        },
+        {
+          "type": "test",
+          "weight": 0.11
+        }
+      ],
+      "complexity": {
+        "fileCount": 6,
+        "moduleCount": 1,
+        "crossCutting": false,
+        "estimatedSize": "large"
+      },
+      "scope": {
+        "writeRatio": {
+          "docs/": 0.33,
+          "./": 0.67
+        },
+        "primaryWriteTarget": "./",
+        "testWriteRatio": 0
+      }
+    },
+    "confidence": "uncertain",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 2119,
+  "updatedAt": "2026-05-07T11:14:48.659Z"
+}

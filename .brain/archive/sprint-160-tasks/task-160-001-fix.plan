@@ -1,0 +1,33 @@
+{
+  "taskId": "160-001-fix",
+  "writtenBy": "w-160-001-fix",
+  "writtenAt": "2026-05-08T06:26:00Z",
+  "approach": "Apply directive verbatim — narrow 3 sweep filters from generic prefix to task-prefix-aware. Do NOT expand scope to other occurrences (mcp/tools/cleanup.ts, providers/claude.ts, kill.ts, spawn-backend-docker.ts) — those are filesWrite-out-of-scope.",
+  "edits": [
+    {
+      "file": "src/orchestra/sprint-lifecycle.ts",
+      "line": 269,
+      "from": "file.startsWith('.prompt-') || (file.startsWith('.worker-') && file.endsWith('.sh'))",
+      "to":   "file.startsWith('.prompt-task-') || (file.startsWith('.worker-task-') && file.endsWith('.sh'))"
+    },
+    {
+      "file": "src/orchestra/sprint-docs-updater.ts",
+      "line": 706,
+      "from": "allFiles.filter(f => f.startsWith('.prompt-'))",
+      "to":   "allFiles.filter(f => f.startsWith('.prompt-task-'))"
+    },
+    {
+      "file": "src/cli/commands/cleanup.ts",
+      "line": 78,
+      "from": "allTaskFiles.filter(f => f.startsWith('.prompt-'))",
+      "to":   "allTaskFiles.filter(f => f.startsWith('.prompt-task-'))"
+    }
+  ],
+  "verify": [
+    "tsc --noEmit (must be clean)",
+    "vitest run (4 tests expected to fail with stale fixtures planting `.prompt-NNN.txt` — fixture rename is out of filesWrite scope per directive note 'Mevcut unit test'ler kırılırsa düzeltilir')",
+    "grep -n \"startsWith('\\\\.prompt-task-')\" src/ → must yield exactly 3 hits (the 3 changed files)",
+    "grep -n \"startsWith('\\\\.prompt-')\" in the 3 changed files → must yield 0 hits"
+  ],
+  "selfAssessmentLogic": "If tsc clean AND only known-stale fixture tests fail → GO_WITH_TECH_DEBT (matches original 160-001 self-assessment). If unknown test regressions appear → NO_GO. If everything passes → DONE."
+}

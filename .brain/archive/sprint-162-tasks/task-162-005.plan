@@ -1,0 +1,19 @@
+{
+  "taskId": "162-005",
+  "phase": "AUDIT-EXECUTION",
+  "approach": "Read each of 3 source files in full, cross-check against routing-types.ts, condition-evaluator.ts, sprint-planner.ts callsites, and ADR-028. Apply 10 audit dimensions. Cite file:line evidence. Output single audit report. NO source code changes.",
+  "filesAudited": [
+    "src/core/routing-engine.ts (625 LoC)",
+    "src/core/activation-engine.ts (320 LoC)",
+    "src/core/intent-classifier.ts (466 LoC)"
+  ],
+  "filesWritten": [
+    "docs/audits/sprint-162-live/T-162-LIVE-005-core-routing-engine.md"
+  ],
+  "leadQuestions": [
+    "3-layer routing (intent → activation → routing) correctness",
+    "ADR-028 V1→V2 migration finished?"
+  ],
+  "writtenAt": "2026-05-08T14:43:30Z",
+  "writtenBy": "worker-162-005"
+}

@@ -1,0 +1,31 @@
+{
+  "id": "162-031-fix",
+  "title": "Fix: src/mcp/ — introspection tools",
+  "description": "Priority fix for NO_GO task 162-031.\nOriginal worker notes: Timeout - no heartbeat, no result\nExpected scope: docs/audits/sprint-162-live/, src/mcp/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-031-mcp-introspection.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-031 evaluated as NO_GO; tests failed; no files changed",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/mcp/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-031-mcp-introspection.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-031",
+  "createdAt": "2026-05-08T15:22:19.640Z",
+  "updatedAt": "2026-05-08T15:36:17.390Z"
+}

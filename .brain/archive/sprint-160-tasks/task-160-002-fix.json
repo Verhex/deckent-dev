@@ -1,0 +1,31 @@
+{
+  "id": "160-002-fix",
+  "title": "Fix: E2E plant-survival regression test suite",
+  "description": "Priority fix for NO_GO task 160-002.\nOriginal worker notes: Added tests/e2e/cleanup-plant-survival.test.ts (266 LoC) with 4 regression tests covering all three sweep paths affected by Sprint 160 T-001 task-prefix discipline. Each test plants user/forensic files (.prompt-TEST-PLANT.txt, .worker-TEST-PLANT.sh, .worker-MANUAL-PLANT.sh) plus synthetic real task artifacts (.prompt-task-160-001.txt, .worker-task-160-001.sh, task-160-001.json) into an isolated mkdtempSync sandbox and asserts plant survival.\n\nTests:\n  1. archiveOrphanTasks (sprint-docs-updater:7\nExpected scope: tests/e2e/\nFiles that should change: tests/e2e/cleanup-plant-survival.test.ts",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 160-002 evaluated as NO_GO",
+  "scope": {
+    "directories": [
+      "tests/e2e/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "tests/e2e/cleanup-plant-survival.test.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** `npx vitest run tests/e2e/cleanup-plant-survival.test.ts` →",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-160",
+  "isPriorityFix": true,
+  "fixForTaskId": "160-002",
+  "createdAt": "2026-05-08T06:24:58.556Z",
+  "estimatedTokens": 88,
+  "updatedAt": "2026-05-08T06:30:21.307Z"
+}

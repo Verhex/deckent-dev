@@ -1,0 +1,32 @@
+{
+  "id": "162-002-fix",
+  "title": "Fix: src/core/ — Memory V2",
+  "description": "Priority fix for NO_GO task 162-002.\nOriginal worker notes: READ-ONLY audit complete. Audited 6 files (memory-store.ts, memory-query.ts, memory-normalize.ts, memory-types.ts, memory-export.ts, memory-import.ts; 1780 LoC). Applied 10 dimensions. Findings: 19 total (1 P1 schema migration framework absence, 5 P2 dead code/duplicate/typing/upsert relations gap, 13 P3 docs/cosmetic). 0 P0. Migration triage: all 6 files KEEP-PRIVATE; 2 field-level DELETE-CANDIDATE (MemoryQueryParams.min_score, Relation interface). Verified: tsc --noEmit clean (no source change\nRubric: correctness=95, test_coverage=100, scope_compliance=100\nExpected scope: docs/audits/sprint-162-live/, src/core/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-002-core-memory-v2.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-002 evaluated as NO_GO; correctness=95; test_coverage=100; scope_compliance=100",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/core/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-002-core-memory-v2.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-002",
+  "createdAt": "2026-05-08T15:17:24.171Z",
+  "estimatedTokens": 104,
+  "updatedAt": "2026-05-08T15:36:17.386Z"
+}

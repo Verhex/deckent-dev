@@ -1,0 +1,33 @@
+{
+  "id": "156-003-fix",
+  "title": "Fix: src/core/provider-fallback.ts JSDoc Genişletme",
+  "description": "Priority fix for NO_GO task 156-003.\nOriginal worker notes: Added comprehensive JSDoc to all 6 public exports in src/core/provider-fallback.ts. No logic was modified — only documentation blocks were expanded. Changes: (1) MAX_FALLBACK_RETRIES: added @example + @see. (2) CapacityErrorDetection interface: added @example with real Gemini/generic 429 strings + @see. (3) detectCapacityError: added @returns, 5-scenario @example block (Gemini/Anthropic/OpenAI/clean/null), + @see chain. (4) selectFallbackProvider: added @returns, 3-scenario @example (success/sel\nRubric: correctness=100, test_coverage=100, scope_compliance=100\nExpected scope: src/core/, tests/orchestra/\nFiles that should change: src/core/provider-fallback.ts, tests/orchestra/fallback-chain.test.ts",
+  "model": "sonnet",
+  "effort": "low",
+  "priority": "CRITICAL",
+  "reason": "Task 156-003 evaluated as NO_GO; correctness=100; test_coverage=100; scope_compliance=100",
+  "scope": {
+    "directories": [
+      "src/core/",
+      "tests/orchestra/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "src/core/provider-fallback.ts",
+      "tests/orchestra/fallback-chain.test.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; `grep -c \"@example\" src/core/provider-fallback.ts` → ≥4 (her major fonksiyon için 1 örnek); `npx tsc --noEmit` clean kalır.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "DONE",
+  "sprintId": "sprint-156",
+  "isPriorityFix": true,
+  "fixForTaskId": "156-003",
+  "createdAt": "2026-05-07T11:15:08.780Z",
+  "estimatedTokens": 107,
+  "updatedAt": "2026-05-07T11:16:04.853Z"
+}

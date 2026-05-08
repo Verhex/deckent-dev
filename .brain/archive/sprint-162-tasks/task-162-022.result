@@ -1,0 +1,19 @@
+{
+  "taskId": "162-022",
+  "filesChanged": [
+    "docs/audits/sprint-162-live/T-162-LIVE-022-orch-promote-temp.md"
+  ],
+  "linesAdded": 358,
+  "linesRemoved": 0,
+  "testsPassed": true,
+  "coverage": null,
+  "selfAssessment": "DONE",
+  "notes": "READ-ONLY audit of src/orchestra/promotion-pipeline.ts (291 LoC) and src/orchestra/temp-skill-generator.ts (391 LoC) per Sprint 162 Lane 1 directives. Single audit report written to docs/audits/sprint-162-live/T-162-LIVE-022-orch-promote-temp.md (~358 lines). 10-dimension pass produced 11 findings: 4 P1 (asymmetric Sprint 153 D3 fix on Path B + skills, dead unusedSprints config, substring match in findTempEntityDir, dynamic require('fs') in ESM module — ADR-001/002 surface), 4 P2 (skill persistent-pool gap, minSprints drift, wait-result noise, _generatedContent type-cast hack), 3 P3 (over-broad triggerScopes, manifestVersion hardcode, orphan temp- dirs on disk). No P0 — production hot path verified live: react-ts-specialist promoted to .deckent/agents/ today, Sprint 153 D3 fix correctly removes temp- prefix on Path A. Cross-referenced agent-pool.ts producers, sprint-finalizer.ts only consumer, 6 demotion-path test assertions in promotion-pipeline.test + evolution-pipeline.test, git commit 479560e (Sprint 153 D1-D4 bundle). Migration triage: both files KEEP-PRIVATE. tsc/vitest skipped — scope is read-only docs only, no source changes (git status confirms only audit md added). ADR-039 self-modifying-task acknowledged; cross-validation with T-162-LIVE-018 (sprint-finalizer audit) recommended for asymmetry findings.",
+  "tokenUsage": {
+    "inputTokens": 38000,
+    "outputTokens": 6500,
+    "cacheReadTokens": 25000,
+    "provider": "claude",
+    "model": "opus"
+  }
+}

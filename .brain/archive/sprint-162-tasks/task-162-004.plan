@@ -1,0 +1,19 @@
+# Task 162-004 Plan: src/core/ — provider + routing core READ-ONLY audit
+
+## Approach
+1. Read 4 target files in src/core/:
+   - provider.ts (ProviderAdapter interface contract)
+   - routing-types.ts (TaskDNA, ActivationConfig, RoutingDecision, SkillBudget)
+   - manifest-migrator.ts (V1->V2 manifest migration for agents/skills)
+   - condition-evaluator.ts (path-based condition engine)
+2. Apply 10 audit dimensions per directive
+3. Cross-reference ADRs (ADR-001 ESM, ADR-008 dependency, ADR-027, ADR-028 V1->V2 migration)
+4. Verify export usage via grep across src/, tests/
+5. Single audit report at docs/audits/sprint-162-live/T-162-LIVE-004-core-provider-routing.md
+
+## Constraints
+- READ-ONLY mandate; ONLY write to the audit report path
+- No source code changes; tests N/A per directive
+
+## Output
+docs/audits/sprint-162-live/T-162-LIVE-004-core-provider-routing.md

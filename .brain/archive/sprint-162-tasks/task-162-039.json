@@ -1,0 +1,93 @@
+{
+  "id": "162-039",
+  "title": "src/dashboard/ — pages + routing",
+  "description": "src/dashboard/ — pages + routing\n- Model: opus\n- Effort: normal\n- Skills: react-specialist,typescript-expert\n- Files: docs/audits/sprint-162-live/T-162-LIVE-039-dashboard-pages.md\n- Scope: src/dashboard/\n\n### Description\nREAD-ONLY audit of dashboard pages (7 claimed). Lead: 7-page count verification,\nReact 19+/Vite 7+, route definitions, page-level hooks.\n\n**Kanıt:** Single audit report.\n**Test:** N/A.\n\n---",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "NORMAL",
+  "reason": "Directive (model: opus -- user override)",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/dashboard/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-039-dashboard-pages.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "forceModel": "opus",
+  "forceEffort": "normal",
+  "forceSkills": [
+    "react-specialist",
+    "typescript-expert"
+  ],
+  "assignedAgent": "doc-writer",
+  "assignedSkills": [
+    "react-specialist",
+    "typescript-expert"
+  ],
+  "createdAt": "2026-05-08T14:41:19.389Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "documentation",
+        "secondary": [],
+        "confidence": 0.86
+      },
+      "tags": [],
+      "domains": [
+        {
+          "name": "docs",
+          "weight": 0.67
+        },
+        {
+          "name": "dashboard",
+          "weight": 0.33
+        }
+      ],
+      "operations": [
+        {
+          "type": "test",
+          "weight": 0.4
+        },
+        {
+          "type": "document",
+          "weight": 0.2
+        },
+        {
+          "type": "configure",
+          "weight": 0.2
+        },
+        {
+          "type": "create",
+          "weight": 0.2
+        }
+      ],
+      "complexity": {
+        "fileCount": 1,
+        "moduleCount": 2,
+        "crossCutting": true,
+        "estimatedSize": "medium"
+      },
+      "scope": {
+        "writeRatio": {
+          "docs/": 1
+        },
+        "primaryWriteTarget": "docs/",
+        "testWriteRatio": 0
+      }
+    },
+    "confidence": "high",
+    "routingVersion": "v2"
+  },
+  "updatedAt": "2026-05-08T15:22:19.646Z"
+}

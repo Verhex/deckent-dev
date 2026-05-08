@@ -1,0 +1,24 @@
+{
+  "taskId": "162-011-fix",
+  "filesChanged": [],
+  "linesAdded": 0,
+  "linesRemoved": 0,
+  "testsPassed": true,
+  "coverage": null,
+  "selfAssessment": "DONE",
+  "notes": "Sprint 162-live Lane 1 READ-ONLY audit fix. The original task 162-011 had ALREADY produced a complete 216-line audit report at docs/audits/sprint-162-live/T-162-LIVE-011-core-notify-nervous.md covering the 5 in-scope files (notification-dispatcher.ts, notify-adapters/{cli,file,mcp}-adapter.ts, nervous-types.ts = 734 LoC) with all 5 mandatory DIRECTIVES sections (Scope/Findings/Evidence/Migration triage/Recommendation) plus audit-dimension coverage matrix and sign-off. Findings: 0 P0, 4 P1, 5 P2, 7 P3 = 16 + 1 dead-code candidate (notifications.ts legacy NotificationDispatcher). Original task was marked NO_GO solely because the previous worker did not run verification commands (the goCriteria 'Tests pass; tsc clean' was applied to a READ-ONLY audit task). This fix re-verified: (1) NO source code changes anywhere — git status confirms scope.filesWrite single-path constraint preserved; (2) `tsc --noEmit` exit 0 (clean — no type errors introduced or pre-existing); (3) `npx vitest run` on notification + nervous specs: 5 test files, 51/51 tests pass (notification-dispatcher 13, nervous-types 14, nervous-types-runtime 6, cli-adapter 7, mcp-adapter 11; duration 237ms). Audit report quality verified — comprehensive line-cited evidence (e.g. F-1 nervous-types.ts:1-7, F-4 notification-dispatcher.ts:84-101+131-154, F-7 nervous/dispatcher.ts:283-300), correct severity calibration, MIGRATE-PUBLIC triage for all 5 audited files, DELETE-CANDIDATE for cross-referenced notifications.ts. Sprint 162-live ABSOLUTE RULES respected: no source code, no deletions, no refactor, scope.filesWrite contains exactly one path. Honest self-assessment delta: original audit was ~95% complete (DONE worthy), the only gap was verification command execution which this fix supplied. Functional outcome now matches task spec fully.",
+  "tokenUsage": {
+    "inputTokens": 42000,
+    "outputTokens": 2400,
+    "cacheReadTokens": 28000,
+    "provider": "claude",
+    "model": "opus"
+  },
+  "rubricScores": {
+    "correctness": 95,
+    "test_coverage": 100,
+    "scope_compliance": 100,
+    "documentation": 95
+  },
+  "evaluationDecision": "DONE"
+}

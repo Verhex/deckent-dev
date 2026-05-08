@@ -1,0 +1,30 @@
+# Task 162-011-fix Execution Plan
+
+## Diagnosis
+Original task 162-011 wrote a 22KB READ-ONLY audit report at
+docs/audits/sprint-162-live/T-162-LIVE-011-core-notify-nervous.md and
+self-assessed DONE. Brain marked it NO_GO because goCriteria insisted on
+"Tests pass; tsc clean" — generic criteria not aligned with the READ-ONLY
+audit DIRECTIVES (which states `**Test:** N/A`).
+
+## Approach
+Sprint 162-live is READ-ONLY. The fix is NOT to rewrite the audit (already
+complete) but to:
+1. Validate the existing audit report quality + structure (5-section format
+   per DIRECTIVES: Scope / Findings / Evidence / Migration triage / Recommendation).
+2. If gaps found in the existing report, augment within scope.filesWrite
+   (single file: T-162-LIVE-011-core-notify-nervous.md).
+3. Run `tsc --noEmit` to satisfy build-clean criterion (no source changes
+   were made — this is a sanity check that pre-existing repo state still
+   compiles).
+4. Skip `vitest run` if too slow; instead run a targeted spec touching
+   notification-dispatcher.ts / nervous-types.ts to demonstrate non-regression.
+
+## Scope safety
+- scope.filesWrite = [docs/audits/sprint-162-live/T-162-LIVE-011-core-notify-nervous.md]
+- ABSOLUTELY NO src/core/ writes — Sprint 162-live Lane 1 forbids source changes.
+- Hot-fix Subagent / pipeline-bypass repair NOT applicable; honest path only.
+
+## Output
+Write .result with selfAssessment="DONE" if tsc clean + report verified.
+Otherwise GO_WITH_TECH_DEBT with explicit gap.

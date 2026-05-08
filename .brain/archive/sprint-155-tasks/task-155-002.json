@@ -1,0 +1,110 @@
+{
+  "id": "155-002",
+  "title": "Adapter-Side provider_auth.mode Runtime Enforcement",
+  "description": "Adapter-Side provider_auth.mode Runtime Enforcement\n- Model: sonnet\n- Effort: normal\n- Skills: typescript-expert, security-specialist\n- Files: src/providers/claude.ts, src/providers/gemini.ts, src/providers/codex.ts, src/core/provider-auth-resolver.ts (new), tests/providers/auth-enforcement.test.ts (new)\n- Scope: src/providers/, src/core/, tests/providers/\n\n### Description\n\nFaz B'de `provider_auth.{name}.mode` doctor advisory olarak çalışıyor; configured ile detected mode farklıysa uyarı veriyor ama spawn yine de auto-detect ediyor. Sprint 155 task'ı: adapter `spawn()` içinde configured mode'u **enforce** et — `mode: 'subscription'` set edilmişse env var olsa bile API key path'ine düşmesin, `mode: 'api_key'` set edilmişse cached OAuth varsa onu görmezden gelsin.\n\n**Dizayn**:\n1. **`src/core/provider-auth-resolver.ts`** — `resolveAuthMode(adapter, config): AuthMode | null` saf fonksiyon: config'deki preference + adapter `detectAuthMode()` outputu birleştir, çelişki varsa configured kazansın.\n2. Her adapter constructor'a opsiyonel `authConfig?: ConfigProviderAuth` param ekle (factory üzerinden enjekte edilir).\n3. `spawn()` resolver'ı çağırıp `mode === 'api_key'` zorlaması varsa OAuth creds dosyasına bakılmasın; `mode === 'subscription'` zorlaması varsa env var inject edilmesin.\n4. Çelişki = ProviderError ile fail-fast (hint: doctor zaten warning verdi).\n\n**Kanıt**: `grep -n \"resolveAuthMode\" src/providers/*.ts` → 3 adapter çağırıyor; `tests/providers/auth-enforcement.test.ts` config-vs-detect matrisi geçer.\n\n**Test**: 6+ test (config api_key + env present → use env; config api_key + no env → throw; config subscription + oauth present → use oauth; config subscription + no oauth + env present → throw; config auto → fallback to detectAuthMode behavior; explicit mode mismatch → ProviderError with helpful message).\n\n---",
+  "model": "sonnet",
+  "effort": "normal",
+  "priority": "NORMAL",
+  "reason": "Directive (model: sonnet -- user override)",
+  "scope": {
+    "directories": [
+      "src/providers/",
+      "src/core/",
+      "tests/providers/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "src/providers/claude.ts",
+      "src/providers/gemini.ts",
+      "src/providers/codex.ts",
+      "src/core/provider-auth-resolver.ts (new)",
+      "tests/providers/auth-enforcement.test.ts (new)",
+      "src/core/provider-auth-resolver.ts",
+      "tests/providers/auth-enforcement.test.ts",
+      ".ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; `grep -n \"resolveAuthMode\" src/providers/*.ts` → 3 adapter çağırıyor; `tests/providers/auth-enforcement.test.ts` config-vs-detect matrisi geçer.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-155",
+  "provider": "claude",
+  "forceModel": "sonnet",
+  "forceEffort": "normal",
+  "forceSkills": [
+    "typescript-expert",
+    "security-specialist"
+  ],
+  "assignedAgent": "security-auditor",
+  "assignedSkills": [
+    "typescript-expert",
+    "security-specialist"
+  ],
+  "createdAt": "2026-05-07T10:40:43.901Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "security",
+        "secondary": [
+          "documentation",
+          "config"
+        ],
+        "confidence": 0.66
+      },
+      "tags": [
+        "test-coverage"
+      ],
+      "domains": [
+        {
+          "name": "providers",
+          "weight": 0.64
+        },
+        {
+          "name": "core",
+          "weight": 0.27
+        }
+      ],
+      "operations": [
+        {
+          "type": "configure",
+          "weight": 0.38
+        },
+        {
+          "type": "create",
+          "weight": 0.25
+        },
+        {
+          "type": "test",
+          "weight": 0.25
+        },
+        {
+          "type": "document",
+          "weight": 0.13
+        }
+      ],
+      "complexity": {
+        "fileCount": 8,
+        "moduleCount": 2,
+        "crossCutting": true,
+        "estimatedSize": "large"
+      },
+      "scope": {
+        "writeRatio": {
+          "src/": 0.63,
+          "tests/": 0.25,
+          "./": 0.13
+        },
+        "primaryWriteTarget": "src/",
+        "testWriteRatio": 0.25
+      }
+    },
+    "confidence": "uncertain",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 2098,
+  "updatedAt": "2026-05-07T10:55:12.464Z"
+}

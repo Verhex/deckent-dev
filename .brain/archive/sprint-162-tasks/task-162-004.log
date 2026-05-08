@@ -1,0 +1,9 @@
+Task 162-004 tamamlandı. Audit raporu, plan ve result dosyaları yazıldı.
+
+`★ Insight ─────────────────────────────────────`
+- **Dead-wire pattern persistence**: `manifest-migrator.ts` Sprint 161 P3 → Sprint 162a-smoke P1 → Sprint 162-live P1 zincirinde aynı bulgu tekrarlanıyor. Bu, audit'lerin doğru sinyal verdiğini ama Brain'in (veya sonraki sprint planlamasının) DELETE/WIRE kararını henüz almadığını gösterir — audit raporu üreten ama disposisyon kararı vermeyen bir döngü.
+- **Tek-isim çift-domain çakışması**: `needsMigration` hem `manifest-migrator.ts:12` hem `config-migration.ts:144` tarafından export ediliyor; `core/index.ts:36` bunlardan birini barrel olarak yeniden duyuruyor. ESM barrel + aynı isimli iki domain fonksiyonu = future maintainer için sessiz bir ayak tuzağı.
+- **Async-no-op**: `detectAvailableProviders` async dönüş tipiyle senkron 3 spawnSync çağrısını sarıyor — bu, "interface bir gün asenkronlaşır" şeklinde ileriye dönük ama hiçbir paralelleştirme sağlamıyor. ADR-035 verification protokolü tam da bu tür imza-vs-davranış tutarsızlığını yakalamak için tasarlandı.
+`─────────────────────────────────────────────────`
+
+**Özet:** 1092 LoC + 17 cross-reference dosya okundu; 9 bulgu (1 P1 + 3 P2 + 5 P3) tek audit raporunda toplandı. `manifest-migrator.ts` DELETE-CANDIDATE; diğer 3 dosya KEEP-PRIVATE. Kaynak kod dokunulmadı, scope ihlali yok.

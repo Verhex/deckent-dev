@@ -1,0 +1,31 @@
+{
+  "id": "162-022-fix",
+  "title": "Fix: src/orchestra/ — promotion-pipeline + temp-skill-generator",
+  "description": "Priority fix for NO_GO task 162-022.\nOriginal worker notes: READ-ONLY audit of src/orchestra/promotion-pipeline.ts (291 LoC) and src/orchestra/temp-skill-generator.ts (391 LoC) per Sprint 162 Lane 1 directives. Single audit report written to docs/audits/sprint-162-live/T-162-LIVE-022-orch-promote-temp.md (~358 lines). 10-dimension pass produced 11 findings: 4 P1 (asymmetric Sprint 153 D3 fix on Path B + skills, dead unusedSprints config, substring match in findTempEntityDir, dynamic require('fs') in ESM module — ADR-001/002 surface), 4 P2 (skill persiste\nExpected scope: docs/audits/sprint-162-live/, src/orchestra/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-022-orch-promote-temp.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-022 evaluated as NO_GO",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/orchestra/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-022-orch-promote-temp.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-022",
+  "createdAt": "2026-05-08T15:18:52.722Z",
+  "updatedAt": "2026-05-08T15:36:17.389Z"
+}

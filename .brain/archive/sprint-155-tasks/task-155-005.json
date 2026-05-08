@@ -1,0 +1,99 @@
+{
+  "id": "155-005",
+  "title": "Sprint 154 Retro + Memory Sync",
+  "description": "Sprint 154 Retro + Memory Sync\n- Model: haiku\n- Effort: low\n- Skills: documentation-writer\n- Files: .brain/RETRO.md, .brain/exports/memory.md, docs/SPRINT-LOG.md\n- Scope: .brain/, docs/\n\n### Description\n\nSprint 154 multi-provider work'ünü `.brain/RETRO.md` + `.brain/exports/memory.md`'ye yansıt. Üç ana öğrenim:\n\n1. **\"PASS\" claim ≠ live evidence** — gate #8 Sprint 148'de PASS işaretliydi ama unit test bazlıydı; Sprint 154'te canlı E2E denenince Docker hardcoded-claude bug'ı bulundu. Retro lesson: gate'lerin \"live evidence\" zorunluluğu ROADMAP'a eklenmeli.\n2. **Mount UID pollution playbook** — root-mode docker debug edilince mount edilmiş host dizinleri kirlenir; cleanup için `docker run --rm -v ... alpine rm -rf` (sudo password engeli yok).\n3. **Bisect playbook** — 3 ardışık fix-katmanı (`--skip-trust` → RW mount → provider-aware cmd builder → UID pollution cleanup). Pattern: tek katmanı çözmek diğerini açığa çıkarır, kademeli debug yöntemini benimse.\n\n**Kanıt**: `git log .brain/RETRO.md` + `cat .brain/RETRO.md | grep -i sprint-154` → entry görünür.\n\n**Test**: N/A (manuel review).\n\n---\n\n## Sprint 155 Notları (planlama meta)\n\n- **Task 1, 2, 3 paralel çalıştırılabilir** — independent scopes (orchestra/, providers/, core/registry).\n- **Task 4 BLOCKED** — Brain spawn etmemeli, manual unblock gerek.\n- **Task 5 DECAY phase'inde** çalıştırılır (sprint sonu memory update).\n- **Beta GA gate'leri** — Sprint 155 sonrası gate #8 yeniden değerlendirme: Task 1+2+3 PASS → 19/20 (codex hâlâ external).\n- **429 capacity hatası canlı laboratuvar** — Sprint 154'te `gemini-2.5-flash` 429 gerçek olay olarak hit edildi; Task 1'in fallback chain'i bu pattern'i kapsamalı (regex test fixture olarak kullanılabilir).",
+  "model": "sonnet",
+  "effort": "low",
+  "priority": "NORMAL",
+  "reason": "Directive (model: sonnet -- user override)",
+  "scope": {
+    "directories": [
+      "docs/",
+      ".brain/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      ".brain/RETRO.md",
+      ".brain/exports/memory.md",
+      "docs/SPRINT-LOG.md",
+      "RETRO.md",
+      "memory.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; `git log .brain/RETRO.md` + `cat .brain/RETRO.md | grep -i sprint-154` → entry görünür.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "DONE",
+  "sprintId": "sprint-155",
+  "provider": "claude",
+  "forceModel": "haiku",
+  "forceEffort": "low",
+  "forceSkills": [
+    "documentation-writer"
+  ],
+  "assignedAgent": "doc-writer",
+  "assignedSkills": [
+    "documentation-writer"
+  ],
+  "createdAt": "2026-05-07T10:40:43.901Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "documentation",
+        "secondary": [],
+        "confidence": 0.95
+      },
+      "tags": [],
+      "domains": [
+        {
+          "name": "docs",
+          "weight": 0.29
+        }
+      ],
+      "operations": [
+        {
+          "type": "create",
+          "weight": 0.25
+        },
+        {
+          "type": "modify",
+          "weight": 0.25
+        },
+        {
+          "type": "document",
+          "weight": 0.25
+        },
+        {
+          "type": "delete",
+          "weight": 0.13
+        },
+        {
+          "type": "test",
+          "weight": 0.13
+        }
+      ],
+      "complexity": {
+        "fileCount": 5,
+        "moduleCount": 2,
+        "crossCutting": true,
+        "estimatedSize": "medium"
+      },
+      "scope": {
+        "writeRatio": {
+          ".brain/": 0.4,
+          "docs/": 0.2,
+          "./": 0.4
+        },
+        "primaryWriteTarget": ".brain/",
+        "testWriteRatio": 0
+      }
+    },
+    "confidence": "high",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 1877,
+  "updatedAt": "2026-05-07T10:55:51.675Z"
+}

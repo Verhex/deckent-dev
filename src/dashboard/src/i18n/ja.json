@@ -1,0 +1,10 @@
+{
+  "events.sprint.eval.heartbeat-skip": "ハートビート有効 — 評価を延期",
+  "events.sprint.eval.audit-rubric-applied": "監査ルーブリックが適用されました",
+  "events.sprint.eval.synthetic-timeout": "ワーカーがタイムアウト、部分的な作業を保持",
+  "events.sprint.spawn.deadlock-detected": "スポーンループのデッドロックを検出",
+  "events.sprint.recover.state-reset": "スプリントの状態をリセットしました",
+  "events.sprint.recover.zombie-killed": "ゾンビプロセスを終了しました",
+  "events.sprint.recover.status-sync": "ステータス表示を同期しました",
+  "events.sprint.recover.tmpfile-swept": "一時ファイルを削除しました"
+}

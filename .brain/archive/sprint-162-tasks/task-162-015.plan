@@ -1,0 +1,32 @@
+# Task 162-015 Execution Plan
+
+## Approach
+READ-ONLY audit of `src/orchestra/result-evaluator.ts` (1781 LoC, ~30 exports)
+and `src/orchestra/quality-assessor.ts` (145 LoC, 3 exports). Single audit
+report at `docs/audits/sprint-162-live/T-162-LIVE-015-orch-evaluator.md`.
+
+## 10-Dimension Lens
+1. Dead code — cross-grep every export against src/ usage
+2. ADR violations — auditor re-export, dual scoring system
+3. Conflicting areas — assessQuality vs evaluateWithRubric, dual aux prefixes
+4. Drift — header comment claims, deprecated wires, retro counter
+5. Type safety — `string` instead of TaskEvaluation, `as unknown as`
+6. Dependency hygiene — orchestra → monitor → orchestra cycle
+7. Documentation pollution — TODOs, JSDoc step lists, weight rationale
+8. Memory V2 — N/A (no memory store touch in these files)
+9. Config integrity — N/A
+10. Migration triage — KEEP-PRIVATE for evaluator core, UNCERTAIN for quality-assessor
+
+## Key Lead Questions (from DIRECTIVES)
+- Sprint 152.5 verification-blind fix: isVerificationTask + validateResultSchema +
+  isAuditTask/AUDIT_RUBRIC paths are present and wired via evaluateWithRubric.
+- Sprint 160 retro counter bug: traced to dual scoring divergence
+  (rubric NO_GO vs assessQuality Overall=75) — same task evaluated differently.
+
+## Output Files
+- docs/audits/sprint-162-live/T-162-LIVE-015-orch-evaluator.md (single report)
+
+## NOT Permitted
+- No source code changes (READ-ONLY)
+- No tests/ touched (out of scope this sprint)
+- No deletes

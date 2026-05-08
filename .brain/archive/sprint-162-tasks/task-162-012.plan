@@ -1,0 +1,32 @@
+# Task 162-012 Execution Plan
+
+## Goal
+READ-ONLY audit of remaining src/core/ files NOT covered by Tasks 1-11.
+Output: docs/audits/sprint-162-live/T-162-LIVE-012-core-remaining.md
+
+## Tasks 1-11 Coverage (subtract these)
+- T1: config.ts, config-types.ts, types.ts, constants.ts, +2-3 *-types.ts
+- T2: memory-store/query/normalize/types/export/import.ts
+- T3: agent-pool, skill-pool, skill-registry
+- T4: provider, routing-types, manifest-migrator, condition-evaluator
+- T5: routing-engine, activation-engine, intent-classifier
+- T6: model-registry, mode-presets
+- T7: file-lock, event-stream*, heartbeat-related, scope-sanitizer*
+- T8: credentials, deck-file, global-config, signature
+- T9: marketplace/* (skill-sandbox, registry-client)
+- T10: validators*, utils, sprint-file-retention, orphan-cleaner
+- T11: notification-dispatcher, notify-adapters/*, nervous-types
+
+## Remaining ~63 files + 4 subdirs to audit
+Groups: cost/pricing, agent/skill helpers, plugin, decision/CI, provider aux,
+errors/logging, config helpers, identity/IDE, notification, misc plumbing.
+
+## Execution
+1. Read sample files per group
+2. Apply 10 audit dimensions (dead code focus)
+3. Cross-ref via grep (unused exports)
+4. Write single audit report
+5. Migration triage per file
+
+## Time budget
+Discovery 5min / Read 30min / Cross-ref 10min / Write 20min

@@ -1,0 +1,28 @@
+# Task 162-027 Execution Plan
+
+## Scope
+READ-ONLY audit of src/cli/commands/{config.ts, sync.ts, agent-list.ts, skill-list.ts, mode.ts}.
+Apply 10 audit dimensions. Single output: docs/audits/sprint-162-live/T-162-LIVE-027-cli-config-lists.md
+
+## Steps
+1. Read all 5 source files in scope.
+2. Probe lead questions:
+   - config schema validation (config.ts)
+   - sync manifest correctness (sync.ts)
+   - mode CLI Sprint 149 finding (mode.ts)
+   - agent-list / skill-list output completeness, listing canonical agents/skills
+3. Apply 10 dimensions: dead code, ADR violations (44 active ADRs), conflicting areas,
+   drift, type safety, dependency hygiene, doc pollution, memory v2 coherence, config
+   integrity, migration triage.
+4. Cross-reference with ADR-022-V2 (CLI/MCP parity), ADR-010 (commander-only).
+5. Write audit report with: Scope, Findings (P0-P3), Evidence (file:line), Migration
+   Triage per file, Recommendation.
+
+## Constraints
+- READ-ONLY: zero source code modifications.
+- Single write target: docs/audits/sprint-162-live/T-162-LIVE-027-cli-config-lists.md
+- ADR-037 RBAC + ADR-039 self-modifying detector boundary enforcement.
+
+## Verify
+- tsc/vitest N/A (no source changes).
+- Confirm git diff --stat shows ONLY the audit report file.

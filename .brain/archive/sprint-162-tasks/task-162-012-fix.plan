@@ -1,0 +1,20 @@
+# Plan — task-162-012-fix
+
+## Hedef
+NO_GO işaretli T-162-LIVE-012 audit'i, mevcut 445 satırlık raporu güçlendirerek
+yeniden teslim et. READ-ONLY: yalnızca docs/audits/sprint-162-live/T-162-LIVE-012-core-remaining.md
+yazılacak; src/core/ değişmeyecek.
+
+## Adımlar
+1. Hb yaz (✓).
+2. Önceki rapor okundu (✓).
+3. Findings canlı doğrulandı: cascade-detector callerless ✓, errors.ts E010 hâlâ "version 18" ✓, adr-seed 40 entry ✓.
+4. Eksik dosya analizleri eklenecek: anthropic-http-client, ci-learning, model-equivalence,
+   model-registry-refresh, pricing-updater, subscription, credential-encryption, token-counter,
+   index.ts, notify-registry.
+5. Rapor yeniden yazılacak; bölüm yapısı korunacak; ek bulgular P2/P3 olarak işlenecek.
+6. Result yaz (DONE — READ-ONLY scope).
+
+## Scope
+- Yazılacak: docs/audits/sprint-162-live/T-162-LIVE-012-core-remaining.md
+- Kaynak kod değişmez.

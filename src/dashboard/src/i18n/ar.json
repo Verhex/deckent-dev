@@ -1,0 +1,10 @@
+{
+  "events.sprint.eval.heartbeat-skip": "نبضة حية — تأجيل التقييم",
+  "events.sprint.eval.audit-rubric-applied": "تم تطبيق مرجع التدقيق",
+  "events.sprint.eval.synthetic-timeout": "انتهت مهلة العامل، تم الحفاظ على العمل الجزئي",
+  "events.sprint.spawn.deadlock-detected": "تم اكتشاف جمود حلقة التوليد",
+  "events.sprint.recover.state-reset": "تمت إعادة تعيين حالة السباق",
+  "events.sprint.recover.zombie-killed": "تم إنهاء عملية الزومبي",
+  "events.sprint.recover.status-sync": "تمت مزامنة عرض الحالة",
+  "events.sprint.recover.tmpfile-swept": "تم تنظيف الملفات المؤقتة"
+}

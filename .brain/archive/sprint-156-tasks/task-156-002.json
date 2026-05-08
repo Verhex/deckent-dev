@@ -1,0 +1,101 @@
+{
+  "id": "156-002",
+  "title": "docs/development/ Staleness Audit",
+  "description": "docs/development/ Staleness Audit\n- Model: gemini-2.5-flash\n- Effort: low\n- Skills: documentation-writer, code-reviewer\n- Files: docs/audits/sprint-156-development-staleness.md (new)\n- Scope: docs/audits/\n\n### Description\n\n`docs/development/` altındaki tüm `.md` dosyalarını oku, **stale içerik veya kod referans'ı dead linkler** olup olmadığını tespit et. Kontrol edilecekler:\n- Linked source files (örn. `src/orchestra/sprint-controller.ts`) gerçekten var mı? (Sprint 154+155'te bazı dosyalar yeniden organize edildi)\n- Referenced sprint numbers (`Sprint 144`, `Sprint 138` vs.) hâlâ relevant mi?\n- Code snippets (markdown ```` ```ts ```` blocks) syntax-valid görünüyor mu?\n- \"TODO\", \"FIXME\", \"deprecated\" anahtar kelimelerini ara\n\n**Çıktı**: `docs/audits/sprint-156-development-staleness.md` — bulunan stale referanslar tablosu + recommended fixes.\n\n**Salt-okuma + tek yeni dosya yazma** — mevcut `docs/development/*.md`'yi DEĞİŞTİRME, sadece audit yap.\n\n**Kanıt**: `ls docs/audits/sprint-156-development-staleness.md` → dosya var; en az 1 stale reference (Sprint 154+155 reorgs çok sayıda yeni dosya yarattı, drift olması beklenen).\n\n**Test**: N/A.\n\n---",
+  "model": "sonnet",
+  "effort": "low",
+  "priority": "NORMAL",
+  "reason": "Directive (model: sonnet -- user override)",
+  "scope": {
+    "directories": [
+      "docs/audits/",
+      "docs/development/",
+      "src/orchestra/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-156-development-staleness.md (new)",
+      "docs/audits/sprint-156-development-staleness.md",
+      ".md",
+      "src/orchestra/sprint-controller.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; `ls docs/audits/sprint-156-development-staleness.md` → dosya var; en az 1 stale reference (Sprint 154+155 reorgs çok sayıda yeni dosya yarattı, drift olması beklenen).",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "DONE",
+  "sprintId": "sprint-156",
+  "provider": "claude",
+  "forceModel": "gemini-2.5-flash",
+  "forceEffort": "low",
+  "forceSkills": [
+    "documentation-writer",
+    "code-reviewer"
+  ],
+  "assignedAgent": "doc-writer",
+  "assignedSkills": [
+    "documentation-writer",
+    "code-reviewer"
+  ],
+  "createdAt": "2026-05-07T11:10:04.501Z",
+  "routingMeta": {
+    "taskDNA": {
+      "intent": {
+        "primary": "documentation",
+        "secondary": [],
+        "confidence": 0.95
+      },
+      "tags": [],
+      "domains": [
+        {
+          "name": "docs",
+          "weight": 0.57
+        },
+        {
+          "name": "orchestra",
+          "weight": 0.29
+        }
+      ],
+      "operations": [
+        {
+          "type": "create",
+          "weight": 0.33
+        },
+        {
+          "type": "document",
+          "weight": 0.33
+        },
+        {
+          "type": "modify",
+          "weight": 0.17
+        },
+        {
+          "type": "test",
+          "weight": 0.17
+        }
+      ],
+      "complexity": {
+        "fileCount": 4,
+        "moduleCount": 2,
+        "crossCutting": true,
+        "estimatedSize": "medium"
+      },
+      "scope": {
+        "writeRatio": {
+          "docs/": 0.5,
+          "./": 0.25,
+          "src/": 0.25
+        },
+        "primaryWriteTarget": "docs/",
+        "testWriteRatio": 0
+      }
+    },
+    "confidence": "high",
+    "routingVersion": "v2"
+  },
+  "estimatedTokens": 1741,
+  "updatedAt": "2026-05-07T11:14:51.570Z"
+}

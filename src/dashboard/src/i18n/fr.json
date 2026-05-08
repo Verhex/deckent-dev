@@ -1,0 +1,10 @@
+{
+  "events.sprint.eval.heartbeat-skip": "Heartbeat actif — évaluation reportée",
+  "events.sprint.eval.audit-rubric-applied": "Grille d'audit appliquée",
+  "events.sprint.eval.synthetic-timeout": "Le worker a expiré, travail partiel préservé",
+  "events.sprint.spawn.deadlock-detected": "Interblocage de la boucle de démarrage détecté",
+  "events.sprint.recover.state-reset": "État du sprint réinitialisé",
+  "events.sprint.recover.zombie-killed": "Processus zombie terminé",
+  "events.sprint.recover.status-sync": "Affichage du statut synchronisé",
+  "events.sprint.recover.tmpfile-swept": "Fichiers temporaires nettoyés"
+}

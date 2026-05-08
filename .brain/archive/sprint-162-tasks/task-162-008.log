@@ -1,0 +1,14 @@
+Task tamamlandı. Özet:
+
+**T-162-LIVE-008 — Audit raporu yazıldı (DONE)**
+
+- **Çıktı:** `docs/audits/sprint-162-live/T-162-LIVE-008-core-credentials-deck.md` (446 satır, 26.9 KB)
+- **Kapsam:** `credentials.ts`, `deck-file.ts`, `global-config.ts`, `signature.ts` + `credential-encryption.ts` (transitive — AES-256-GCM oraya delege ediliyor) — 833 LoC
+- **Bulgular:** 4 P1, 8 P2, 5 P3 + 14 pozitif kontrol
+- **ADR uyumu:** 0 NO_GO ihlali; 4 drift (ADR-004 double-merge, ADR-006 execSync, ADR-014 ×2 closed-list + prefix, ADR-035 channel code gap)
+- **Migration triage:** 4× KEEP-PRIVATE; 1× MIGRATE-PUBLIC adayı (signature.ts'in jenerik Ed25519 yarısı `@verhexio/ed25519-helpers` olarak ayrılabilir)
+- **Pozitif kanıt:** AES-256-GCM 96-bit IV doğru, fresh per-encrypt, auth tag yuvarlak gidiş; @noble/ed25519 audited; `.deck` ADR-033/034 izolasyonu doğru
+
+**Kritik öneri (Sprint 162+):** 4 P1 küçük cerrahi değişiklikle çözülür — plaintext fallback gating, debugLog wire, signature.ts chmodSync belt-and-suspenders, single-pass merge.
+
+Kaynak kod değişmedi; mandate gereği `tsc`/`vitest` çalıştırılmadı.

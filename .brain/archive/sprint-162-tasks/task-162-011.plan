@@ -1,0 +1,38 @@
+# Task 162-011 Execution Plan
+
+## Scope
+READ-ONLY audit of src/core/ notification + nervous types module.
+
+## Files To Audit (≤8 files, ≤2000 LoC target)
+1. src/core/notification-dispatcher.ts
+2. src/core/notify-adapters/*.ts (all adapters)
+3. src/core/nervous-types.ts
+
+## Approach
+1. Discover full file list under src/core/notify-adapters/ and verify nervous-types.ts location
+2. Read every target file fully
+3. Apply 10 audit dimensions per file:
+   - Dead code (unused exports)
+   - ADR violations (44 active ADRs, focus ADR-040, ADR-001/002 ESM, ADR-006 spawnSync, ADR-014 secrets)
+   - Conflicting areas (duplicated logic)
+   - Drift (claims vs reality)
+   - Type safety (any, ts-ignore, as unknown as)
+   - Dependency hygiene (.js extensions, circular)
+   - Documentation pollution
+   - Memory V2 coherence (where applicable)
+   - Config integrity (where applicable)
+   - Migration triage (KEEP-PRIVATE | MIGRATE-PUBLIC | DELETE-CANDIDATE | UNCERTAIN)
+4. Cross-check: ADR-040 nervous architecture types, dispatcher channel adapter contract
+5. Write single audit report to docs/audits/sprint-162-live/T-162-LIVE-011-core-notify-nervous.md
+6. NO source code changes anywhere
+
+## Output File
+docs/audits/sprint-162-live/T-162-LIVE-011-core-notify-nervous.md
+
+## Verify
+- Build: tsc --noEmit (sanity — no code change expected)
+- Tests: N/A for read-only audit
+
+## Boundary Discipline
+- ABSOLUTELY NO writes outside docs/audits/sprint-162-live/
+- ADR-037 RBAC + ADR-039 self-modifying detector compliance

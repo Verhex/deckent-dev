@@ -9,12 +9,15 @@
  * Single writer is auditor (scan cycle per 30s). This module is read-side only.
  */
 
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { DASHBOARD_FILE } from '../core/constants.js';
 import { debugLog } from '../core/utils.js';
 import type { DashboardState } from '../core/monitoring-types.js';
 import { SprintPhase, SprintStatus } from '../core/sprint-types.js';
+
+/** Relative path to the canonical sprint-state.json (the truth source). */
+const SPRINT_STATE_REL = join('.deckent', 'sprint-state.json');
 
 /** Canonical empty dashboard state — used when creating or repairing. */
 export const DASHBOARD_INITIAL_STATE: DashboardState = {
@@ -33,8 +36,51 @@ export interface DashboardReadResult {
   valid: boolean;
   /** Whether the file was auto-repaired (rewritten with initial state). */
   repaired: boolean;
+  /**
+   * True if `.dashboard` mtime is older than `sprint-state.json` mtime
+   * (or sprint-state was removed after `.dashboard` was written).
+   * Caller MUST treat counts in `state.progress` as suspect and rebuild
+   * from `.tasks/` when `stale === true`. (Bug R4 fix — Sprint 162A.)
+   */
+  stale?: boolean;
+  staleReason?: 'mtime-lag' | 'sprint-state-removed' | 'dashboard-newer-orphan';
   /** Error detail if parsing failed — never swallowed. */
   error?: string;
+}
+
+/**
+ * Compare `.dashboard` mtime vs `sprint-state.json` mtime.
+ * Returns the staleness verdict so callers can decide to fall back to
+ * a fresh task-file scan rather than trusting `.dashboard.progress`.
+ *
+ * Single-process invariant: `deckent recover` runs to completion before
+ * `deckent status`, so there is no concurrent writer racing the stat()
+ * calls (see Bug R4 spec §10 TOCTOU review).
+ *
+ * Bug R4 fix — Sprint 162A.
+ */
+export function isDashboardStaleVsSprintState(
+  projectRoot: string,
+): { stale: boolean; reason?: 'mtime-lag' | 'sprint-state-removed' | 'dashboard-newer-orphan' } {
+  const dashPath = join(projectRoot, DASHBOARD_FILE);
+  const statePath = join(projectRoot, SPRINT_STATE_REL);
+  if (!existsSync(dashPath)) return { stale: false };
+  let dashStat: ReturnType<typeof statSync> | null;
+  try { dashStat = statSync(dashPath); } catch { dashStat = null; }
+  if (!dashStat) return { stale: false };
+  if (!existsSync(statePath)) {
+    // sprint-state was cleared (e.g. by clearSprintState() after recover
+    // finalize) but `.dashboard` still references a sprint → orphan dashboard.
+    return { stale: true, reason: 'sprint-state-removed' };
+  }
+  let stateStat: ReturnType<typeof statSync> | null;
+  try { stateStat = statSync(statePath); } catch { stateStat = null; }
+  if (!stateStat) return { stale: false };
+  if (stateStat.mtimeMs > dashStat.mtimeMs + 1) {
+    // +1ms tolerance for FAT/HFS coarse mtime resolution
+    return { stale: true, reason: 'mtime-lag' };
+  }
+  return { stale: false };
 }
 
 /**
@@ -254,5 +300,15 @@ export function readDashboardSafe(projectRoot: string): DashboardReadResult {
   // This handles partial/stale dashboard data gracefully without repairing on disk,
   // since auditor will overwrite with full state on next scan cycle.
   const state = mergeDashboardDefaults(data as Record<string, unknown>);
-  return { state, valid: true, repaired: false };
+  // Bug R4 fix — Sprint 162A: surface staleness vs sprint-state.json so
+  // callers (e.g. `deckent status`) can rebuild progress counts from
+  // task files instead of trusting a post-recover stale snapshot.
+  const freshness = isDashboardStaleVsSprintState(projectRoot);
+  return {
+    state,
+    valid: true,
+    repaired: false,
+    stale: freshness.stale,
+    staleReason: freshness.reason,
+  };
 }

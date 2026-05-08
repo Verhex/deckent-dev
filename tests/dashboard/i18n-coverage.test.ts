@@ -172,3 +172,159 @@ describe("i18n — hardcoded English string scan", () => {
     });
   }
 });
+
+// ─── Test 5: 12-language event-label catalogue coverage ─────────────
+//
+// Sprint 162A Wave 3 Task 14 — adds 8 new event types that flow through
+// the dashboard event-stream component. Each event needs a translated
+// label in 12 languages so non-English operators can read the live feed.
+//
+// Storage: src/dashboard/src/i18n/{lang}.json (flat key→string map).
+// These JSONs are independent of the existing en.ts/tr.ts catalogues
+// (which cover dashboard *page* strings, not event-stream labels).
+
+const SUPPORTED_LANGUAGES = [
+  "en",
+  "tr",
+  "de",
+  "fr",
+  "es",
+  "it",
+  "pt",
+  "ru",
+  "ja",
+  "ko",
+  "zh",
+  "ar",
+] as const;
+
+const REQUIRED_EVENT_KEYS = [
+  "events.sprint.eval.heartbeat-skip",
+  "events.sprint.eval.audit-rubric-applied",
+  "events.sprint.eval.synthetic-timeout",
+  "events.sprint.spawn.deadlock-detected",
+  "events.sprint.recover.state-reset",
+  "events.sprint.recover.zombie-killed",
+  "events.sprint.recover.status-sync",
+  "events.sprint.recover.tmpfile-swept",
+] as const;
+
+// Translation fingerprints — substring assertions per language.
+// We do NOT assert literal English to allow for proper translation; instead
+// we assert each catalogue contains a substring that is uniquely native to
+// the target language for at least one of the 8 keys. This guards against
+// "translator forgot to translate and copy-pasted English" failures.
+//
+// The fingerprint per language is anchored on a high-signal, unambiguous
+// term that should appear in any reasonable translation of the
+// `events.sprint.eval.heartbeat-skip` label. RTL languages and CJK get
+// non-Latin script fingerprints. Latin-script languages get terms that
+// would never appear in clean English (accented chars or distinct words).
+const LANGUAGE_FINGERPRINTS: Record<(typeof SUPPORTED_LANGUAGES)[number], RegExp> = {
+  en: /Heartbeat alive/i,
+  tr: /değerlendirme/i, // Turkish: "evaluation" with cedilla+breve
+  de: /Bewertung/, // German: "evaluation"
+  fr: /évaluation/i, // French: "evaluation" with é
+  es: /evaluación/i, // Spanish: "evaluation" with ó
+  it: /valutazione/i, // Italian: "evaluation"
+  pt: /avaliação/i, // Portuguese: "evaluation" with ã+ç
+  ru: /оценка/i, // Russian Cyrillic: "evaluation"
+  ja: /評価|ハートビート/, // Japanese: "evaluation" or "heartbeat" katakana
+  ko: /평가|하트비트/, // Korean: "evaluation" or "heartbeat" hangul
+  zh: /评估|心跳/, // Chinese: "evaluation" or "heartbeat" simplified
+  ar: /تقييم|نبضة/, // Arabic: "evaluation" or "pulse"
+};
+
+describe("i18n — 12-language event catalogue coverage", () => {
+  const I18N_DIR = join(DASHBOARD_SRC, "i18n");
+
+  // Test 5.1: every supported language has a JSON file
+  for (const lang of SUPPORTED_LANGUAGES) {
+    it(`${lang}.json exists and parses as JSON`, () => {
+      const filePath = join(I18N_DIR, `${lang}.json`);
+      const raw = readFileSync(filePath, "utf-8");
+      const parsed = JSON.parse(raw);
+      expect(parsed).toBeTypeOf("object");
+      expect(parsed).not.toBeNull();
+    });
+  }
+
+  // Test 5.2: every JSON contains all 8 required event keys
+  for (const lang of SUPPORTED_LANGUAGES) {
+    it(`${lang}.json contains all 8 new event keys`, () => {
+      const filePath = join(I18N_DIR, `${lang}.json`);
+      const parsed = JSON.parse(readFileSync(filePath, "utf-8")) as Record<string, string>;
+      const missing = REQUIRED_EVENT_KEYS.filter((k) => !(k in parsed));
+      expect(missing).toEqual([]);
+    });
+  }
+
+  // Test 5.3: every label is a non-empty string (no placeholders left)
+  for (const lang of SUPPORTED_LANGUAGES) {
+    it(`${lang}.json has non-empty labels for every event key`, () => {
+      const filePath = join(I18N_DIR, `${lang}.json`);
+      const parsed = JSON.parse(readFileSync(filePath, "utf-8")) as Record<string, string>;
+      const empties = REQUIRED_EVENT_KEYS.filter((k) => {
+        const v = parsed[k];
+        return typeof v !== "string" || v.trim() === "";
+      });
+      expect(empties).toEqual([]);
+    });
+  }
+
+  // Test 5.4: every catalogue is actually translated (substring fingerprint)
+  // For non-English languages we require the fingerprint to appear in at
+  // least one of the 8 labels — this catches "translator copy-pasted EN"
+  // bugs without forcing a literal-string match per individual key.
+  for (const lang of SUPPORTED_LANGUAGES) {
+    it(`${lang}.json contains genuine ${lang}-language content`, () => {
+      const filePath = join(I18N_DIR, `${lang}.json`);
+      const parsed = JSON.parse(readFileSync(filePath, "utf-8")) as Record<string, string>;
+      const fingerprint = LANGUAGE_FINGERPRINTS[lang];
+      const haystack = REQUIRED_EVENT_KEYS.map((k) => parsed[k] ?? "").join("\n");
+      expect(haystack).toMatch(fingerprint);
+    });
+  }
+
+  // Test 5.5: identical key-tree across all 12 catalogues
+  it("all 12 language files have identical key sets", () => {
+    const keySets = SUPPORTED_LANGUAGES.map((lang) => {
+      const filePath = join(I18N_DIR, `${lang}.json`);
+      const parsed = JSON.parse(readFileSync(filePath, "utf-8")) as Record<string, string>;
+      return { lang, keys: new Set(Object.keys(parsed)) };
+    });
+
+    const referenceKeys = keySets[0]!.keys;
+    const mismatches: string[] = [];
+    for (const { lang, keys } of keySets) {
+      const missing = [...referenceKeys].filter((k) => !keys.has(k));
+      const extra = [...keys].filter((k) => !referenceKeys.has(k));
+      if (missing.length > 0 || extra.length > 0) {
+        mismatches.push(
+          `${lang}: missing=[${missing.join(",")}] extra=[${extra.join(",")}]`,
+        );
+      }
+    }
+    expect(mismatches).toEqual([]);
+  });
+
+  // Test 5.6: non-English catalogues differ from English baseline
+  // (ensures translations actually changed at least one label per language).
+  it("each non-English catalogue differs from en.json on every event key", () => {
+    const enPath = join(I18N_DIR, "en.json");
+    const enParsed = JSON.parse(readFileSync(enPath, "utf-8")) as Record<string, string>;
+
+    const failures: string[] = [];
+    for (const lang of SUPPORTED_LANGUAGES) {
+      if (lang === "en") continue;
+      const filePath = join(I18N_DIR, `${lang}.json`);
+      const parsed = JSON.parse(readFileSync(filePath, "utf-8")) as Record<string, string>;
+      for (const key of REQUIRED_EVENT_KEYS) {
+        if (parsed[key] === enParsed[key]) {
+          failures.push(`${lang}:${key} is identical to en (translation missing)`);
+        }
+      }
+    }
+    expect(failures).toEqual([]);
+  });
+});

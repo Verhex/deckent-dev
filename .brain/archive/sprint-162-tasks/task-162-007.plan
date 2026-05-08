@@ -1,0 +1,40 @@
+# Task 162-007 Execution Plan
+
+## Scope
+READ-ONLY audit of src/core/ locks/events/heartbeat. Single output: docs/audits/sprint-162-live/T-162-LIVE-007-core-locks-events.md.
+
+## Files to read (audit targets)
+- src/core/file-lock.ts (PRIMARY — locking primitive)
+- src/core/heartbeat-types.ts (types only)
+- src/orchestra/event-stream.ts (RELOCATED — DIRECTIVES claims src/core/ but lives in orchestra/)
+- src/orchestra/scope-sanitizer.ts (RELOCATED — same drift)
+- src/orchestra/heartbeat-daemon.ts (heartbeat liveness producer)
+- src/cli/commands/heartbeat.ts (CLI surface)
+- src/nervous/runtime-scope-check.ts (cross-reference for scope enforcement)
+- src/orchestra/decision-steps/scope-step.ts (cross-reference)
+
+## Audit dimensions (10)
+1. Dead code (unused exports)
+2. ADR violations (ADR-006 spawnSync; ADR-001/-002 ESM .js extensions; ADR-008 import direction)
+3. Conflicting areas (lock/hb file-format collisions)
+4. Drift (DIRECTIVES drift — file relocations; comments vs behavior)
+5. Type safety (any, ts-ignore, unsafe casts)
+6. Dependency hygiene (.js extensions, circular deps)
+7. Documentation pollution
+8. Memory V2 coherence (N/A — these are runtime modules)
+9. Config integrity (N/A)
+10. Migration triage classification
+
+## Output structure
+1. Scope (file list with relocations)
+2. Findings (P0/P1/P2/P3)
+3. Evidence (file:line)
+4. Migration triage per file
+5. Recommendation for Sprint 162+
+
+## Verify
+- N/A (read-only — only one .md report written)
+- tsc --noEmit + vitest run still recommended for cleanliness; expected no drift
+
+## Heartbeat
+- Update sequence on each major step

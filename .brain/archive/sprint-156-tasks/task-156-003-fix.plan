@@ -1,0 +1,18 @@
+# Task 156-003-fix Execution Plan
+
+## Baseline Assessment
+- src/core/provider-fallback.ts already has full JSDoc with 6 @example blocks
+- All 6 public exports documented: MAX_FALLBACK_RETRIES, CapacityErrorDetection (interface),
+  FallbackRetryDecision (interface), detectCapacityError, selectFallbackProvider, decideFallbackRetry
+- tests/orchestra/fallback-chain.test.ts has 29 test cases covering all exports
+
+## Approach
+1. Verify JSDoc criteria: `grep -c "@example" src/core/provider-fallback.ts` ≥ 4 (expected: 6)
+2. Run `tsc --noEmit` to confirm no type errors introduced by JSDoc changes
+3. Run `npx vitest run tests/orchestra/fallback-chain.test.ts` to confirm 29/29 pass
+4. If all pass → selfAssessment = "DONE"
+5. If JSDoc is deficient → patch missing blocks and re-verify
+
+## Expected Changes
+- No new code changes needed — JSDoc already added by original task
+- Result file will confirm GO criteria met

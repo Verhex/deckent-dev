@@ -1,0 +1,31 @@
+# Task 156-001 Execution Plan
+
+## Approach
+1. Read README.md (EN) — capture all sections
+2. Read README-TR.md (TR) — cross-compare sections
+3. Read BETA-TRACKER.md (EN) header + gate table (first 200 lines)
+4. Read BETA-TRACKER-TR.md (TR) — compare header + check gate table presence
+5. Write docs/audits/sprint-156-tr-en-sync-report.md
+
+## Files to Read (Read-Only)
+- README.md
+- README-TR.md
+- BETA-TRACKER.md
+- BETA-TRACKER-TR.md
+
+## Files to Write
+- docs/audits/sprint-156-tr-en-sync-report.md (new)
+
+## Scope Rules
+- DO NOT modify any source docs
+- Only write to docs/audits/
+
+## Expected Findings
+Based on Sprint 154/155 activity, likely drift zones:
+- Node version requirement (>=20 vs >=18)
+- BETA-TRACKER header date/sprint/test counts
+- Gate table presence in TR
+- Module counts in Overview
+
+## Output Format
+Markdown table per spec. Min 10 lines content.

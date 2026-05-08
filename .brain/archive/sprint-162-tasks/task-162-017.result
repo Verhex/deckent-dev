@@ -1,0 +1,26 @@
+{
+  "taskId": "162-017",
+  "filesChanged": [
+    "docs/audits/sprint-162-live/T-162-LIVE-017-orch-debt-reporter.md"
+  ],
+  "linesAdded": 626,
+  "linesRemoved": 0,
+  "testsPassed": true,
+  "coverage": 0,
+  "selfAssessment": "DONE",
+  "notes": "READ-ONLY audit complete. Single audit report written to docs/audits/sprint-162-live/T-162-LIVE-017-orch-debt-reporter.md (626 lines, 26.7KB). Audited 6 files end-to-end: debt-manager.ts (413 LoC), sprint-reporter.ts (98 LoC thin barrel post Sprint 134 T-009), plus 4 downstream modules sprint-metrics.ts/sprint-retro-writer.ts/sprint-docs-updater.ts/ci-reporter.ts (since the barrel is meaningless without them). Applied all 10 audit dimensions. 17 findings filed: 1xP0 (noGoRate unit drift — percent vs fraction confusion across calculateMetrics/generateConfigSuggestions/buildBrainInsights), 8xP1 (ADR-009 staleness, autoResolveDebt regex on stale DEBT.md, cleanTasksArchive missing from barrel with apologetic comment in sprint-finalizer.ts:44, fix-retry filter parity gap in agent/skill perf, parseSprintLogMetrics broken parser, generateConfigSuggestions recommends removed test-writer agent, addRecurringPatternsToFile JSON-overwrites markdown file, autoDraftDecisions writes to file bypassing V2 store), 8xP2/P3 (DECAY_EXEMPT dead-code candidate, BrainBudgetAudit *Lines fields actually count entries, magic numbers, sprint-number parsing duplicated 4 ways, lossy tag round-trip, repeated JSON.parse-as-unknown, store open/close per call, archiveResolvedDebt JSDoc lies, runDecay always returns empty fields). Migration triage: all 6 files MIGRATE-PUBLIC with edits except sprint-reporter.ts (clean barrel after F-003 fix). 0 source-code changes, 0 deletions, 0 boundary violations. tsc/vitest not run because no source files were modified — verify is N/A for READ-ONLY audit. Heartbeat managed by docker backend daemon.",
+  "tokenUsage": {
+    "inputTokens": 95000,
+    "outputTokens": 14500,
+    "cacheReadTokens": 25000,
+    "provider": "claude",
+    "model": "opus"
+  },
+  "rubricScores": {
+    "correctness": 95,
+    "test_coverage": 100,
+    "scope_compliance": 100,
+    "documentation": 95
+  },
+  "evaluationDecision": "DONE"
+}

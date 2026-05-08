@@ -1,0 +1,18 @@
+# Task 162-006 Plan — model-registry + mode-presets READ-ONLY audit
+
+## Approach
+1. Read src/core/model-registry.ts (335 LoC) and src/core/mode-presets.ts (112 LoC)
+2. Cross-check claims (13 models, 3 providers, 4 tiers) against BUILTIN_MODELS
+3. Detect MODE_PRESETS duplication (Sprint 150 H3 / T-151-NEW-H residual) by tracing config.ts re-derivation
+4. Detect TIER_ORDER + compareTiers/isAtLeastTier duplication between the two files
+5. Verify ModelTier source-of-truth drift (model-registry vs model-equivalence)
+6. Apply 10 audit dimensions: dead code, ADR, conflict, drift, type safety, deps, doc pollution, memory, config, migration triage
+7. Write single audit report to docs/audits/sprint-162-live/T-162-LIVE-006-core-model-mode.md
+
+## Files audited
+- src/core/model-registry.ts (335 LoC)
+- src/core/mode-presets.ts (112 LoC)
+Cross-referenced (read-only): src/core/model-equivalence.ts (148 LoC), src/core/config.ts (relevant sections)
+
+## Output
+Single read-only audit report. No source code changes. No tests.

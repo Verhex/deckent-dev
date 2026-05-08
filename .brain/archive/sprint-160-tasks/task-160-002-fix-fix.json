@@ -1,0 +1,29 @@
+{
+  "id": "160-002-fix-fix",
+  "title": "Fix: Fix: E2E plant-survival regression test suite",
+  "description": "Priority fix for NO_GO task 160-002-fix.\nOriginal worker notes: Verify-only fix: tests/e2e/cleanup-plant-survival.test.ts (266 LoC) was already in the working tree from the original 160-002 worker. Re-verified end-to-end against the live source:\n\nVERIFICATION RESULTS\n  - tsc --noEmit: clean (exit 0, no errors).\n  - npx vitest run tests/e2e/cleanup-plant-survival.test.ts: 4/4 PASS (11ms).\n     1. archiveOrphanTasks preserves user-planted .prompt-TEST-* / .worker-MANUAL-* — PASS\n     2. cleanup() lifecycle sweep preserves user plants but unlinks .prompt-task-*\nRubric: correctness=100, test_coverage=100, scope_compliance=100\nExpected scope: tests/e2e/\nFiles that should change: tests/e2e/cleanup-plant-survival.test.ts",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 160-002-fix evaluated as NO_GO; correctness=100; test_coverage=100; scope_compliance=100; no files changed",
+  "scope": {
+    "directories": [
+      "tests/e2e/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "tests/e2e/cleanup-plant-survival.test.ts"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** `npx vitest run tests/e2e/cleanup-plant-survival.test.ts` →",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "PENDING",
+  "sprintId": "sprint-160",
+  "isPriorityFix": true,
+  "fixForTaskId": "160-002-fix",
+  "createdAt": "2026-05-08T06:30:21.307Z"
+}

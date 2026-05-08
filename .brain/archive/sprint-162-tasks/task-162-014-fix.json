@@ -1,0 +1,31 @@
+{
+  "id": "162-014-fix",
+  "title": "Fix: src/orchestra/ — planner + task-builder",
+  "description": "Priority fix for NO_GO task 162-014.\nOriginal worker notes: READ-ONLY audit task per Sprint 162 Lane 1 mandate. Audited src/orchestra/planner.ts (522 LoC) and src/orchestra/task-builder.ts (888 LoC). Produced single audit report at docs/audits/sprint-162-live/T-162-LIVE-014-orch-planner.md covering all 10 audit dimensions. 16 findings logged with severity P0-P3 and file:line citations. Lead questions answered: (1) structured vs ai mode parity — F-01 documents that PlannerTaskSchema silently drops forceAgent/forceSkills/excludeAgent/excludeSkills (P0); (2\nRubric: correctness=95, test_coverage=100, scope_compliance=100\nExpected scope: docs/audits/sprint-162-live/, src/orchestra/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-014-orch-planner.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-014 evaluated as NO_GO; correctness=95; test_coverage=100; scope_compliance=100",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/orchestra/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-014-orch-planner.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "NO_GO",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-014",
+  "createdAt": "2026-05-08T15:17:53.488Z",
+  "updatedAt": "2026-05-08T15:36:17.389Z"
+}

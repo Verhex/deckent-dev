@@ -1,0 +1,30 @@
+{
+  "id": "162-011-fix-fix",
+  "title": "Fix: Fix: src/core/ — notification + nervous types",
+  "description": "Priority fix for NO_GO task 162-011-fix.\nOriginal worker notes: Sprint 162-live Lane 1 READ-ONLY audit fix. The original task 162-011 had ALREADY produced a complete 216-line audit report at docs/audits/sprint-162-live/T-162-LIVE-011-core-notify-nervous.md covering the 5 in-scope files (notification-dispatcher.ts, notify-adapters/{cli,file,mcp}-adapter.ts, nervous-types.ts = 734 LoC) with all 5 mandatory DIRECTIVES sections (Scope/Findings/Evidence/Migration triage/Recommendation) plus audit-dimension coverage matrix and sign-off. Findings: 0 P0, 4 P1, 5 P2,\nRubric: correctness=95, test_coverage=100, scope_compliance=100\nExpected scope: docs/audits/sprint-162-live/, src/core/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-011-core-notify-nervous.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-011-fix evaluated as NO_GO; correctness=95; test_coverage=100; scope_compliance=100; no files changed",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/core/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-011-core-notify-nervous.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "PENDING",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-011-fix",
+  "createdAt": "2026-05-08T15:36:17.388Z"
+}

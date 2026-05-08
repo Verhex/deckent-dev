@@ -1,0 +1,30 @@
+{
+  "id": "162-022-fix-fix",
+  "title": "Fix: Fix: src/orchestra/ — promotion-pipeline + temp-skill-generator",
+  "description": "Priority fix for NO_GO task 162-022-fix.\nOriginal worker notes: READ-ONLY audit complete. Replaces prior NO_GO 162-022 with a clean re-audit of src/orchestra/promotion-pipeline.ts (291 LoC) and src/orchestra/temp-skill-generator.ts (391 LoC). Single audit report written to docs/audits/sprint-162-live/T-162-LIVE-022-orch-promote-temp.md (~119 lines compact-format, 8 sections, 11 findings). Findings: 4 P1 (asymmetric Sprint 153 D3 fix on Path B + skills, require('fs') CommonJS in ESM violating ADR-001/002, dead unusedSprints DemotionCriteria, substring match i\nExpected scope: docs/audits/sprint-162-live/, src/orchestra/\nFiles that should change: docs/audits/sprint-162-live/T-162-LIVE-022-orch-promote-temp.md",
+  "model": "opus",
+  "effort": "normal",
+  "priority": "CRITICAL",
+  "reason": "Task 162-022-fix evaluated as NO_GO",
+  "scope": {
+    "directories": [
+      "docs/audits/sprint-162-live/",
+      "src/orchestra/"
+    ],
+    "filesRead": [],
+    "filesWrite": [
+      "docs/audits/sprint-162-live/T-162-LIVE-022-orch-promote-temp.md"
+    ]
+  },
+  "dependencies": [],
+  "goNogo": {
+    "goCriteria": "Tests pass; tsc clean; *Kanıt:** Single audit report.",
+    "noGoCriteria": "Build fails or verification commands fail",
+    "techDebtAcceptable": "Minor issues if all verification commands pass"
+  },
+  "status": "PENDING",
+  "sprintId": "sprint-162",
+  "isPriorityFix": true,
+  "fixForTaskId": "162-022-fix",
+  "createdAt": "2026-05-08T15:36:17.389Z"
+}

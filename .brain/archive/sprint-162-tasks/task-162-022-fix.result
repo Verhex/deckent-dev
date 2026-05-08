@@ -1,0 +1,17 @@
+{
+  "taskId": "162-022-fix",
+  "filesChanged": ["docs/audits/sprint-162-live/T-162-LIVE-022-orch-promote-temp.md"],
+  "linesAdded": 119,
+  "linesRemoved": 0,
+  "testsPassed": true,
+  "coverage": null,
+  "selfAssessment": "DONE",
+  "notes": "READ-ONLY audit complete. Replaces prior NO_GO 162-022 with a clean re-audit of src/orchestra/promotion-pipeline.ts (291 LoC) and src/orchestra/temp-skill-generator.ts (391 LoC). Single audit report written to docs/audits/sprint-162-live/T-162-LIVE-022-orch-promote-temp.md (~119 lines compact-format, 8 sections, 11 findings). Findings: 4 P1 (asymmetric Sprint 153 D3 fix on Path B + skills, require('fs') CommonJS in ESM violating ADR-001/002, dead unusedSprints DemotionCriteria, substring match in findTempEntityDir), 5 P2 (orphan generateDataDrivenSkills export with tests but no production caller — Sprint 142 carry-over, missing skill-side persistent temp pool symmetry, _generatedContent side-channel only half-consumed, unused AgentTemplate.depHint, fragile framework='none' guard for fw='unknown'), 2 P3 (cpSync version note, misleading 'zero-cost' header). No P0. ADR audit: ADR-001/002/038 violations enumerated; ADR-006/008/037/041 OK. Triage: both files KEEP-PRIVATE (Brain-internal, not public API). 10 numbered recommendations (R-01..R-10) sized for Sprint 162+ work, ~100 LoC total. Verification: tsc --noEmit exit 0; only my added file is docs/audits/sprint-162-live/T-162-LIVE-022-orch-promote-temp.md (untracked); src/orchestra/promotion-pipeline.ts and temp-skill-generator.ts untouched (git diff --stat empty). Pre-existing dirty src/orchestra/* files (event-stream, result-evaluator, sprint-docs-updater, sprint-lifecycle, sprint-phases, sprint-pid-manager, sprint-utils, zombie-killer) are NOT mine — they predate this session per opening gitStatus snapshot. ADR-039 self-modifying flag does not trigger (no source code authored). Honest delta: task spec asked for one audit report applying 10 dimensions with severity/file:line citations + migration triage + recommendations — delivered fully. selfAssessment=DONE.",
+  "tokenUsage": {
+    "inputTokens": 28000,
+    "outputTokens": 5400,
+    "cacheReadTokens": 0,
+    "provider": "claude",
+    "model": "opus"
+  }
+}

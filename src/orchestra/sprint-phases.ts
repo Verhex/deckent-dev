@@ -24,7 +24,7 @@ import {
 import type {
   Task, TaskResult, Sprint, SprintMetrics,
   ResolvedConfig, SprintSizeRecommendation,
-  EvaluationResult,
+  EvaluationResult, SelfAssessment,
 } from '../core/types.js';
 
 import {
@@ -59,7 +59,11 @@ import type {
 // ─── Auditor ──────────────────────────────────────────────────────
 import {
   updateDashboard, startScanLoop, writeScanToDashboard, runScanCycle,
+  readHeartbeatCached,
 } from '../monitor/auditor.js';
+
+// ─── Event Stream (Sprint 162A Bug A + Bug Stall — observability events) ──
+import { writeEvent, getCurrentSprintId } from './event-stream.js';
 
 // ─── Debt Manager ─────────────────────────────────────────────────
 import {
@@ -153,6 +157,51 @@ function safeDashboardUpdate(
       updatedAt: now(),
     });
   } catch (e) { debugLog('safeDashboardUpdate:updateDashboard', e); }
+}
+
+/**
+ * Sprint 162A Bug Stall — emit SPAWN_DEADLOCK_DETECTED when the FIX phase
+ * exits with un-collected tasks. Mirrors the auditor's stall-detection
+ * pattern.
+ *
+ * Liveness invariant (ADR-035 V2): for every PENDING task, Brain MUST either
+ * spawn a worker, mark synthetic NO_GO, or emit SPAWN_DEADLOCK_DETECTED.
+ *
+ * Fail-safe: any error is debug-logged; never throws.
+ */
+function emitSpawnDeadlockIfStalled(
+  projectRoot: string,
+  fixSprint: Sprint,
+  initialQueue: Task[],
+  collectedResults: TaskResult[],
+): void {
+  try {
+    const collectedIds = new Set(collectedResults.map(r => r.taskId));
+    const pendingNotCollected = fixSprint.tasks.filter(
+      t => !collectedIds.has(t.id),
+    );
+    if (pendingNotCollected.length === 0) return;
+    try {
+      const sprintId = getCurrentSprintId(projectRoot) ?? fixSprint.id;
+      writeEvent(
+        projectRoot,
+        sprintId,
+        'brain',
+        'auditor',
+        'BRAIN→AUDITOR:SPAWN_DEADLOCK_DETECTED',
+        {
+          phase: 'FIX',
+          queuedTaskCount: initialQueue.length,
+          spawnedCount: fixSprint.tasks.length - initialQueue.length,
+          unspawnedTaskIds: pendingNotCollected.map(t => t.id),
+          unspawnedCount: pendingNotCollected.length,
+          // Brain does not track its own wallclock here; auditor enriches on receipt.
+          durationStallMs: 0,
+          detectedAt: new Date().toISOString(),
+        },
+      );
+    } catch (e) { debugLog('emitSpawnDeadlockIfStalled:writeEvent', e); }
+  } catch (e) { debugLog('emitSpawnDeadlockIfStalled', e); }
 }
 
 
@@ -490,6 +539,70 @@ export async function runEvaluatePhase(
           resolveDebt(projectRoot, `debt-${task.id}`, sprint.id);
         }
       } else {
+        // ─── Sprint 162A Bug A — heartbeat-blind synthetic NO_GO gate ───
+        // Before declaring this task NO_GO due to missing .result, consult
+        // the worker's heartbeat. If the HB is fresh (within heartbeat_timeout
+        // × eval_heartbeat_grace_multiplier), the worker is still working —
+        // defer evaluation by emitting an observability event and skipping.
+        // Otherwise (no HB, malformed HB, or HB stale-beyond-grace) fall
+        // through to the existing synthetic NO_GO path unchanged.
+        const hbPath = join(projectRoot, TASKS_DIR, `task-${task.id}.hb`);
+        const hbExists = existsSync(hbPath);
+        const hbTimeoutSec = (config as unknown as Record<string, unknown> | undefined)?.['heartbeat_timeout'] as number | undefined ?? 120;
+        const graceMultiplier = (config as unknown as Record<string, unknown> | undefined)?.['eval_heartbeat_grace_multiplier'] as number | undefined ?? 2;
+        const hbGraceMs = hbTimeoutSec * 1000 * graceMultiplier;
+        let deferredByHeartbeat = false;
+        let hbAgeMs: number | null = null;
+        let hbMalformed = false;
+        if (hbExists) {
+          const hb = readHeartbeatCached(hbPath);
+          if (hb) {
+            const ts = new Date(hb.timestamp).getTime();
+            if (!Number.isNaN(ts)) {
+              hbAgeMs = Date.now() - ts;
+              if (hbAgeMs >= 0 && hbAgeMs <= hbGraceMs) {
+                deferredByHeartbeat = true;
+              }
+            } else {
+              hbMalformed = true;
+            }
+          } else {
+            hbMalformed = true;
+          }
+        }
+        if (deferredByHeartbeat) {
+          debugLog(
+            'runEvaluatePhase:heartbeat-skip',
+            `task=${task.id} hbAgeMs=${hbAgeMs} grace=${hbGraceMs} — deferring evaluation, worker still alive`,
+          );
+          try {
+            writeEvent(
+              projectRoot,
+              sprint.id,
+              'brain',
+              'auditor',
+              'BRAIN→*:METRIC_EMITTED', // sprint.eval.heartbeat-skip carried in payload.kind
+              {
+                kind: 'sprint.eval.heartbeat-skip',
+                taskId: task.id,
+                hbAgeMs,
+                skipReason: 'heartbeat-fresh-within-grace',
+                graceMs: hbGraceMs,
+              },
+            );
+          } catch (e) { debugLog('runEvaluatePhase:writeHeartbeatSkipEvent', e); }
+          continue;
+        }
+
+        // Bug C — synthetic timeout result MUST use TIMEOUT_WITH_WORK so that
+        // result-evaluator's reconcileSpuriousNoGo path can examine git diff
+        // evidence before committing NO_GO. The literal 'NO_GO' here was the
+        // root cause of Sprint 161's 49/56 false-NO_GO storm.
+        const noteSuffix = !hbExists
+          ? 'no heartbeat, no result'
+          : hbMalformed
+          ? 'heartbeat malformed, no result'
+          : 'heartbeat stale beyond grace';
         const syntheticResult: TaskResult = {
           taskId: task.id,
           workerId: task.assignedWorker ?? 'unknown',
@@ -498,10 +611,26 @@ export async function runEvaluatePhase(
           linesRemoved: 0,
           testsPassed: false,
           coverage: 0,
-          selfAssessment: 'NO_GO',
-          notes: 'Timeout - no result received',
+          selfAssessment: 'TIMEOUT_WITH_WORK' as SelfAssessment,
+          notes: `Timeout - ${noteSuffix}`,
         };
         debugLog('runEvaluatePhase:timeout', `task=${task.id} — no result collected, marking NO_GO (timeout/missing)`);
+        // Bug C — emit sprint.eval.synthetic-timeout observability event
+        // before handleEvaluation so post-mortem reconstruction can correlate.
+        try {
+          writeEvent(
+            projectRoot,
+            sprint.id,
+            'brain',
+            '*',
+            'sprint.eval.synthetic-timeout',
+            {
+              taskId: task.id,
+              hbAgeMs,
+              lastResult: syntheticResult,
+            },
+          );
+        } catch (e) { debugLog('runEvaluatePhase:writeSyntheticTimeoutEvent', e); }
         handleEvaluation(projectRoot, task, TaskEvaluation.NO_GO, syntheticResult);
         evaluations.set(task.id, TaskEvaluation.NO_GO);
         // DECKENT→USER:NOTIFY (Hot Fix H6) — timeout/missing NO_GO
@@ -632,12 +761,39 @@ export async function runFixPhase(
       }
 
       const fixSprint: Sprint = { ...sprint, tasks: fixTasks, workers: fixTasks.map(t => `w-${t.id}`) };
-      await spawnWorkers(projectRoot, fixSprint, config, { autoApprove: opts?.autoApprove, spawnBackend });
+      // Sprint 162A Bug Stall — capture queued tasks (those beyond max_workers
+      // in the first wave). Without threading `fixQueue` into `waitForResults`,
+      // wave 2+ never spawns and the FIX phase deadlocks until
+      // `fix_phase_timeout` (Sprint 161 stall — 43/49 fix tasks dropped).
+      // See ADR-035 V2 Spawn-Liveness Mandate.
+      // Defensive: spawnWorkers contract returns Task[]; default to [] if a
+      // legacy/mock implementation returns undefined.
+      const fixQueueRaw = await spawnWorkers(
+        projectRoot,
+        fixSprint,
+        config,
+        { autoApprove: opts?.autoApprove, spawnBackend },
+      );
+      const fixQueue: Task[] = Array.isArray(fixQueueRaw) ? fixQueueRaw : [];
+      debugLog(
+        'runFixPhase:queue',
+        `fixTasks=${fixTasks.length} spawned=${fixTasks.length - fixQueue.length} queued=${fixQueue.length}`,
+      );
       // Sprint 154 audit A4.F2: 600s yetersiz (Sprint 152 opus FIX worker timeout cascade kanıt) → 1800s.
       const fixPhaseTimeout = (config as unknown as Record<string, unknown>).fix_phase_timeout as number | undefined
         ?? opts?.fixPhaseTimeoutMs
         ?? 1_800_000;
-      const fixResults = await waitForResults(projectRoot, fixSprint, fixPhaseTimeout, undefined, { spawnBackend });
+      const fixResults = await waitForResults(
+        projectRoot,
+        fixSprint,
+        fixPhaseTimeout,
+        fixQueue, // Sprint 162A Bug Stall fix — was `undefined`
+        { autoApprove: opts?.autoApprove, spawnBackend },
+      );
+      // Spawn-deadlock detector: if any fix task is still missing a result
+      // after `waitForResults` returns, emit SPAWN_DEADLOCK_DETECTED so the
+      // Auditor and downstream tooling can flag the regression.
+      emitSpawnDeadlockIfStalled(projectRoot, fixSprint, fixQueue, fixResults);
       for (const fixTask of fixTasks) {
         const fixResult = fixResults.find(r => r.taskId === fixTask.id);
         if (fixResult) {

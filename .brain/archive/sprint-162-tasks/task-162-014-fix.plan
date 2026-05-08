@@ -1,0 +1,22 @@
+# Fix plan: 162-014-fix
+
+## Context
+Original 162-014 audit produced 320-line audit report — content quality high
+(rubric 95/100/100). Fix task spawned because .result missed (partial-result
+shows OOM/early-kill). My job: verify evidence, polish if needed, write clean
+DONE .result.
+
+## Steps
+1. Heartbeat (done).
+2. Verify F-01 (PlannerTaskSchema strips overrides) — read planner.ts:19-37 + task-builder.ts:663-686.
+3. Verify F-02 (excludeAgent never populated) — grep parsers for excludeAgent.
+4. Verify F-03 (resolveWorkerEffort type mismatch) — read task-builder.ts:695-703 and core types.
+5. Verify F-11 (two ADR-loading paths) — grep queryRelevantADRs callers.
+6. If audit evidence holds, leave report unchanged; if gaps found, append a
+   "Verification Update" section.
+7. Write .result with selfAssessment: DONE, full tokenUsage.
+
+## Scope
+- WRITE: docs/audits/sprint-162-live/T-162-LIVE-014-orch-planner.md only.
+- READ: src/orchestra/, src/core/types.ts, src/core/task-types.ts.
+- NO source code changes (READ-ONLY mandate).

@@ -1,0 +1,27 @@
+# Task 162-010 Execution Plan — src/core/ validators + utilities READ-ONLY audit
+
+## Scope (read)
+- src/core/validators.ts (122 LoC)
+- src/core/utils.ts (340 LoC)
+- src/core/sprint-file-retention.ts (354 LoC)
+- src/core/orphan-cleaner.ts (451 LoC)
+Total: ~1267 LoC.
+
+## Approach
+1. Read all 4 source files in full.
+2. Cross-reference: config-types.ts (SprintFileRetentionConfig), sprint-finalizer.ts
+   (runRetention wire), sprint-phases.ts/archive-debt.ts (parseDebtTable callers),
+   checkpoint.ts/tmux.ts/decision-logger.ts (validators callers).
+3. Apply the 10 audit dimensions per file.
+4. Write single audit report.
+
+## Output sections
+1. Scope
+2. Findings (severity P0/P1/P2/P3, dimension)
+3. Evidence (file:line citations)
+4. Migration triage (per file: KEEP-PRIVATE | MIGRATE-PUBLIC | DELETE-CANDIDATE | UNCERTAIN)
+5. Recommendation
+
+## Boundaries
+- READ-ONLY — no source code changes
+- ONLY write: docs/audits/sprint-162-live/T-162-LIVE-010-core-validators-utils.md

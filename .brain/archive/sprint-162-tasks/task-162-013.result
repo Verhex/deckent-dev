@@ -1,0 +1,27 @@
+{
+  "taskId": "162-013",
+  "workerId": "docker-162-013",
+  "filesChanged": [
+    "docs/audits/sprint-162-live/T-162-LIVE-013-orch-brain-controller.md"
+  ],
+  "linesAdded": 412,
+  "linesRemoved": 0,
+  "testsPassed": true,
+  "coverage": 100,
+  "selfAssessment": "DONE",
+  "notes": "READ-ONLY audit of src/orchestra/brain.ts (53 LoC) + src/orchestra/sprint-controller.ts (1007 LoC) complete. Audit report written to docs/audits/sprint-162-live/T-162-LIVE-013-orch-brain-controller.md (412 lines). 13 findings: 2× P1 (lock leak + orphan active sprint reference on uncaught phase exception — runSprint lacks master try/finally), 4× P2 (header doc drift 1894→1007 LoC, ADR-026 erosion via Sprint 155 fallback chain in-place, CLEANUP→COMPLETE phase event skip, getChannelRegistry stale dual-import), 7× P3 (BrainError triple hop, brain.ts comment block stale post-Sprint 136, double-cast `as unknown as DetectorConfig`, repeated nervousObserver?.stop boilerplate, prepareFallbackRetries test-export verification deferred, plus 2 positive observations). ADR-008 invariant verified clean for these two files (no reverse imports). Both files classified as KEEP-PRIVATE in migration triage. tsc/vitest skipped per task spec (Test: N/A — READ-ONLY audit, no source modification). Scope discipline: scope.filesWrite single-path constraint observed — only the audit report was written. Pre-existing modifications under src/orchestra/* (event-stream.ts, sprint-phases.ts etc.) were already present in the worktree before this task started and are unrelated. Recommendations enumerated in §5 of the report (priority-ordered, Sprint 163-165 backlog).",
+  "tokenUsage": {
+    "inputTokens": 62000,
+    "outputTokens": 8200,
+    "cacheReadTokens": 0,
+    "provider": "claude",
+    "model": "opus"
+  },
+  "rubricScores": {
+    "correctness": 95,
+    "test_coverage": 100,
+    "scope_compliance": 100,
+    "documentation": 95
+  },
+  "evaluationDecision": "DONE"
+}

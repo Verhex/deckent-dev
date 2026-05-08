@@ -1,0 +1,15 @@
+Task 155-001 complete. Result written with selfAssessment=DONE.
+
+**Summary**
+
+- **`src/core/provider-fallback.ts`** (new, 216 LoC): pure utility — `detectCapacityError`, `selectFallbackProvider`, `decideFallbackRetry`, `MAX_FALLBACK_RETRIES = 1`.
+- **`src/orchestra/result-evaluator.ts`** (+85 LoC): `evaluateForFallback()` returning a discriminated `RetryWithFallbackAction | NoFallbackAction`.
+- **`src/orchestra/sprint-controller.ts`** (+271 LoC): `prepareFallbackRetries()` (pure plan generator) + `runFallbackRetries()` (DI-friendly orchestrator) wired as **Phase 4.5** between EVALUATE and FIX in `runSprint`.
+- **`tests/orchestra/fallback-chain.test.ts`** (new, 430 LoC): **29 tests** all passing — covers Gemini/Codex/Claude/generic detection, no-self-loop, no-fallback-config, max-retry=1, end-to-end DI orchestration with success and fail paths.
+
+**Verification**
+- `tsc --noEmit`: my files clean (only pre-existing errors in `src/providers/codex.ts` from Task 2's territory).
+- `vitest run tests/orchestra/`: **4081/4081 pass** — zero regression.
+- Full suite: 16027 pass / 12 fail — all 12 pre-existing or from concurrent Sprint 155 Tasks 2/3.
+
+**ADR compliance**: ADR-008 honored (no orchestra→core import cycle), ADR-001/002 (.js extensions everywhere), ADR-039 (stayed strictly in scope.filesWrite — used `Set<string>` instead of touching `core/types.ts` for the retry tracker).

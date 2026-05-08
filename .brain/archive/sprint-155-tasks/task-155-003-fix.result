@@ -1,0 +1,27 @@
+{
+  "taskId": "155-003-fix",
+  "filesChanged": [
+    "src/core/model-registry-refresh.ts",
+    "tests/cli/commands/doctor.test.ts"
+  ],
+  "linesAdded": 5,
+  "linesRemoved": 4,
+  "testsPassed": true,
+  "coverage": null,
+  "selfAssessment": "DONE",
+  "notes": "Fixed both issues that caused task 155-003 to be evaluated as NO_GO:\n\n1. DeckentError convention violation: src/core/model-registry-refresh.ts had 3 `throw new Error(\\`HTTP ${res.status}\\`)` calls (lines 95, 145, 191 — one per provider fetch function). Replaced with `throw new DeckentError('E_PROVIDER_HTTP_ERROR', ...)`. Added DeckentError import. This fixed tests/core/error-handling-unification.test.ts which scans src/core/ for generic Error throws.\n\n2. Stale test count: tests/cli/commands/doctor.test.ts:642 expected `/17/` but runDoctorChecks now returns 18 checks (Sprint 155 Task 3 added checkModelRegistryStale). Changed comment and expectation to `/18/`. This fixed the i18n integration test.\n\nFinal test state:\n- tests/core/model-registry-refresh.test.ts: 23/23 pass\n- tests/cli/commands/doctor.test.ts: 187/187 pass\n- tests/core/error-handling-unification.test.ts: 160/160 pass\n- Full suite: 7 remaining failures are all pre-existing (4x tests/cli/doctor-checks.test.ts homedir mock, 2x e2e docker-oom, 1x mcp help tools count)\n- tsc --noEmit: clean (no new errors; pre-existing sprint-controller.ts errors from Task 1 remain)\n\nBaseline (before fix): 9 failures. End state: 7 failures (2 fixed, 7 pre-existing).",
+  "tokenUsage": {
+    "inputTokens": 38000,
+    "outputTokens": 3500,
+    "cacheReadTokens": 95000,
+    "provider": "claude",
+    "model": "sonnet"
+  },
+  "rubricScores": {
+    "correctness": 100,
+    "test_coverage": 98,
+    "scope_compliance": 95,
+    "documentation": 85
+  },
+  "evaluationDecision": "DONE"
+}

@@ -1,0 +1,23 @@
+Task tamamlandı. Özet:
+
+**Task 162-002 — Memory V2 READ-ONLY Audit — DONE**
+
+| Çıktı | Detay |
+|-------|-------|
+| Audit raporu | `docs/audits/sprint-162-live/T-162-LIVE-002-core-memory-v2.md` (~290 satır) |
+| Denetlenen dosyalar | 6 (memory-store, memory-query, memory-normalize, memory-types, memory-export, memory-import — toplam 1,780 LoC) |
+| Bulgular | 19 toplam (1 P1, 5 P2, 13 P3, 0 P0) |
+| Pozitif teyitler | 11 no-drift |
+| Migration triage | 6/6 KEEP-PRIVATE, 2 field-level DELETE-CANDIDATE |
+| `tsc --noEmit` | Temiz (kod değişikliği yok) |
+| Memory unit testleri | 155/155 geçti |
+| Scope ihlali | 0 |
+
+**Öne çıkan P1 bulgu (F-1):** `SCHEMA_VERSION = 1` sabit tanımlı ama `migrate(from→to)` fonksiyonu yok — `getSchemaVersion()` var ama `initSchema()` versiyon eşleştirmesi yapmıyor. `api-surface.md`'de "schema_version: migration safety" iddiası kodca karşılanmıyor.
+
+**P2 fold-up:** `upsert()` relations dikkate almıyor (insert-only); `MemoryQueryParams.min_score` ve `Relation` interface dead; `extractKeywords` 3 dosyada duplicate; `db: any` tip kaybı; `decay()` ADR koruma filtresi yok.
+
+`★ Insight ─────────────────────────────────────`
+- Kayda değer: Repo'da extractKeywords üç ayrı dosyada üç farklı stop-word listesiyle export ediliyor. Bu, ADR-008'in (Brain merkezi import) öngördüğü tek-yönlü utility paylaşımı disiplinine sapma. Refactor tek bir `keyword-extractor.ts`'de toplayabilir.
+- Sprint 162 Lane 1 disiplini: `scope.filesWrite` tek-path enforcement READ-ONLY moduna güvenli koşum sağladı — audit raporu dışında hiçbir dosyaya dokunulmadı, ADR-039 self-modifying detector flag çıkarmadı.
+`─────────────────────────────────────────────────`

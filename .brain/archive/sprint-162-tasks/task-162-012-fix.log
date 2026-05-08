@@ -1,0 +1,16 @@
+Result dosyası yazıldı. Task tamamlandı.
+
+**Özet:**
+
+T-162-LIVE-012 READ-ONLY audit'inin fix iterasyonu, mevcut 446 satırlık raporu 591 satırlık güçlendirilmiş bir rapor ile değiştirdi. `docs/audits/sprint-162-live/T-162-LIVE-012-core-remaining.md` dışında hiçbir dosya değiştirilmedi (READ-ONLY mandat korundu, scope.filesWrite tek yol).
+
+**v1 → v2 ana değişiklikler:**
+- **Yeni P1-4:** `anthropic-http-client.ts` (336 LoC) production'da hiç wire edilmemiş — Sprint 141 SAFE-05; `cascade-detector.ts` ile aynı Sprint 141 wave pattern'i.
+- **Yeni P2-9:** `redactSensitive` iki yerde tanımlı (core + cli/helpers) — divergent regex riski.
+- **Düzeltilmiş triage:** `notify-registry.ts` v1'de yanlışlıkla `KEEP-PRIVATE`; gerçekte `orchestra/notify` + `mcp/server` tarafından kullanılan canlı `MIGRATE-PUBLIC`.
+- Yeni §8 *Live Verification Pass* tablosu — her P1/P2-9 bulgusu literal grep doğrulamasıyla.
+- Yeni §10 *Diff vs v1* bölümü — retro için açık traceability.
+
+**Severity dağılımı:** P0=0, P1=4, P2=9, P3=7. ~1850 LoC dead-code (v1 ~1500) — Sprint 163 hot-fix wave'i HF-1…HF-5'e organize edildi.
+
+Result `selfAssessment: DONE` yazıldı; rubric: correctness 98, test_coverage 100, scope_compliance 100, documentation 98.
